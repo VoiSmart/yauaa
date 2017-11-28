@@ -1,4 +1,3 @@
-#!/usr/bin/env bash
 #
 # Yet Another UserAgent Analyzer
 # Copyright (C) 2013-2017 Niels Basjes
@@ -15,8 +14,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+config:
+# ========================================================================
 
-( cd .. && mvn clean package -DskipTests=true && mvn test ) || exit
-version=$(fgrep '<version>' pom.xml | head -1 | sed 's@.*>\(.*\)<.*$@\1@g')
-echo "Testing version ${version}" && \
-java -jar target/benchmarks.jar > version-${version}-$(date +%Y%m%d-%H%M%S).txt
+# Fixed string with missing lookup
+  - matcher:
+      extract:
+        - 'Test:1:LookUp[Missing;"Ok"]'
+
+
