@@ -69,6 +69,14 @@ public class TestErrorHandling {
         Assert.assertTrue(uaa.runTests(false, false));
     }
 
+    @Test
+    public void checkLookupSetMissing() {
+        expectedEx.expect(InvalidParserConfigurationException.class);
+        expectedEx.expectMessage(new StringStartsWith("Missing lookupSet"));
+
+        UserAgentAnalyzerTester uaa = new UserAgentAnalyzerTester("classpath*:BadDefinitions/LookupSetMissing.yaml");
+        Assert.assertTrue(uaa.runTests(false, false));
+    }
 
     @Test
     public void checkFixedStringLookupMissing() {
@@ -78,7 +86,6 @@ public class TestErrorHandling {
         UserAgentAnalyzerTester uaa = new UserAgentAnalyzerTester("classpath*:BadDefinitions/FixedStringLookupMissing.yaml");
         Assert.assertTrue(uaa.runTests(false, false));
     }
-
 
     @Test
     public void checkFixedStringLookupMissingvalue() {
@@ -143,6 +150,25 @@ public class TestErrorHandling {
         UserAgentAnalyzerTester uaa = new UserAgentAnalyzerTester("classpath*:BadDefinitions/Variable-BackReference.yaml");
         Assert.assertTrue(uaa.runTests(false, false));
     }
+
+    @Test
+    public void checkSyntaxErrorVariableBadDefinition() {
+        expectedEx.expect(InvalidParserConfigurationException.class);
+        expectedEx.expectMessage(new StringStartsWith("Invalid variable config line:"));
+
+        UserAgentAnalyzerTester uaa = new UserAgentAnalyzerTester("classpath*:BadDefinitions/Variable-BadDefinition.yaml");
+        Assert.assertTrue(uaa.runTests(false, false));
+    }
+
+    @Test
+    public void checkSyntaxErrorVariableFixedString() {
+        expectedEx.expect(InvalidParserConfigurationException.class);
+        expectedEx.expectMessage(new StringStartsWith("Syntax error"));
+
+        UserAgentAnalyzerTester uaa = new UserAgentAnalyzerTester("classpath*:BadDefinitions/Variable-FixedString.yaml");
+        Assert.assertTrue(uaa.runTests(false, false));
+    }
+
 
     @Test
     public void methodInputValidation(){

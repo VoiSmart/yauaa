@@ -34,6 +34,31 @@ config:
   - matcher:
       <<: *MATCH_OPTIONS
       extract:
+        - 'TooFarUp                     : 1 :agent.product.name="One"^^^^^^^'
+
+  - matcher:
+      <<: *MATCH_OPTIONS
+      extract:
+        - 'TooFarLeftSingleStep         : 1 :agent.product.name="One"^<'
+
+  - matcher:
+      <<: *MATCH_OPTIONS
+      extract:
+        - 'TooFarLeftTwoStep            : 1 :agent.product.name="One"^><<'
+
+  - matcher:
+      <<: *MATCH_OPTIONS
+      extract:
+        - 'TooFarRightSingleStep        : 1 :agent.product.name="Five"^>'
+
+  - matcher:
+      <<: *MATCH_OPTIONS
+      extract:
+        - 'TooFarRightTwoStep           : 1 :agent.product.name="Five"^<>>'
+
+  - matcher:
+      <<: *MATCH_OPTIONS
+      extract:
         - 'WalkLeft1:1:agent.product.name="Three"^<'
 
   - matcher:
@@ -235,6 +260,11 @@ config:
         CompareAfterStep           :  '4'
         GetSpecificProduct         :  'Two/2'
         GetSpecificProductVersion  :  '3.3'
+        TooFarUp                   :  'Unknown'
+        TooFarLeftSingleStep       :  'Unknown'
+        TooFarLeftTwoStep          :  'Unknown'
+        TooFarRightSingleStep      :  'Unknown'
+        TooFarRightTwoStep         :  'Unknown'
 
   - test:
       <<: *TEST_OPTIONS
