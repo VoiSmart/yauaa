@@ -9936,36 +9936,36 @@ config:
 
 - matcher:
     require:
-    - 'agent.(1-2)product.(1)comments.entry.product.version{"Lenovo"'
-    - 'agent.(1-2)product.(1)comments.entry.product.name[1]="Build"^.version{"Lenovo"'
+    - 'agent.(1-2)product.(1)comments.entry.product.version{"LG"'
+    - 'agent.(1-2)product.(1)comments.entry.product.name[1]="Build"^.version{"LG"'
     extract:
     - 'DeviceBrand                 :   94:"LG"'
 
 - matcher:
     require:
-    - 'agent.(1-2)product.(1)comments.entry.product.version{"Lenovo"'
-    - 'agent.(1-2)product.(1)comments.entry.product.name[2]="Build"^.version{"Lenovo"'
+    - 'agent.(1-2)product.(1)comments.entry.product.version{"LG"'
+    - 'agent.(1-2)product.(1)comments.entry.product.name[2]="Build"^.version{"LG"'
     extract:
     - 'DeviceBrand                 :   93:"LG"'
 
 - matcher:
     require:
-    - 'agent.(1-2)product.(1)comments.entry.product.version{"Lenovo"'
-    - 'agent.(1-2)product.(1)comments.entry.product.name[3]="Build"^.version{"Lenovo"'
+    - 'agent.(1-2)product.(1)comments.entry.product.version{"LG"'
+    - 'agent.(1-2)product.(1)comments.entry.product.name[3]="Build"^.version{"LG"'
     extract:
     - 'DeviceBrand                 :   92:"LG"'
 
 - matcher:
     require:
-    - 'agent.(1-2)product.(1)comments.entry.product.version{"Lenovo"'
-    - 'agent.(1-2)product.(1)comments.entry.product.name[4]="Build"^.version{"Lenovo"'
+    - 'agent.(1-2)product.(1)comments.entry.product.version{"LG"'
+    - 'agent.(1-2)product.(1)comments.entry.product.name[4]="Build"^.version{"LG"'
     extract:
     - 'DeviceBrand                 :   91:"LG"'
 
 - matcher:
     require:
-    - 'agent.(1-2)product.(1)comments.entry.product.version{"Lenovo"'
-    - 'agent.(1-2)product.(1)comments.entry.product.name[5]="Build"^.version{"Lenovo"'
+    - 'agent.(1-2)product.(1)comments.entry.product.version{"LG"'
+    - 'agent.(1-2)product.(1)comments.entry.product.name[5]="Build"^.version{"LG"'
     extract:
     - 'DeviceBrand                 :   90:"LG"'
 
@@ -9976,36 +9976,36 @@ config:
 
 - matcher:
     require:
-    - 'agent.(1-2)product.(1)comments.entry.product.version{"LG"'
-    - 'agent.(1-2)product.(1)comments.entry.product.name[1]="Build"^.version{"LG"'
+    - 'agent.(1-2)product.(1)comments.entry.product.version{"Lenovo"'
+    - 'agent.(1-2)product.(1)comments.entry.product.name[1]="Build"^.version{"Lenovo"'
     extract:
     - 'DeviceBrand                 :   94:"Lenovo"'
 
 - matcher:
     require:
-    - 'agent.(1-2)product.(1)comments.entry.product.version{"LG"'
-    - 'agent.(1-2)product.(1)comments.entry.product.name[2]="Build"^.version{"LG"'
+    - 'agent.(1-2)product.(1)comments.entry.product.version{"Lenovo"'
+    - 'agent.(1-2)product.(1)comments.entry.product.name[2]="Build"^.version{"Lenovo"'
     extract:
     - 'DeviceBrand                 :   93:"Lenovo"'
 
 - matcher:
     require:
-    - 'agent.(1-2)product.(1)comments.entry.product.version{"LG"'
-    - 'agent.(1-2)product.(1)comments.entry.product.name[3]="Build"^.version{"LG"'
+    - 'agent.(1-2)product.(1)comments.entry.product.version{"Lenovo"'
+    - 'agent.(1-2)product.(1)comments.entry.product.name[3]="Build"^.version{"Lenovo"'
     extract:
     - 'DeviceBrand                 :   92:"Lenovo"'
 
 - matcher:
     require:
-    - 'agent.(1-2)product.(1)comments.entry.product.version{"LG"'
-    - 'agent.(1-2)product.(1)comments.entry.product.name[4]="Build"^.version{"LG"'
+    - 'agent.(1-2)product.(1)comments.entry.product.version{"Lenovo"'
+    - 'agent.(1-2)product.(1)comments.entry.product.name[4]="Build"^.version{"Lenovo"'
     extract:
     - 'DeviceBrand                 :   91:"Lenovo"'
 
 - matcher:
     require:
-    - 'agent.(1-2)product.(1)comments.entry.product.version{"LG"'
-    - 'agent.(1-2)product.(1)comments.entry.product.name[5]="Build"^.version{"LG"'
+    - 'agent.(1-2)product.(1)comments.entry.product.version{"Lenovo"'
+    - 'agent.(1-2)product.(1)comments.entry.product.name[5]="Build"^.version{"Lenovo"'
     extract:
     - 'DeviceBrand                 :   90:"Lenovo"'
 
