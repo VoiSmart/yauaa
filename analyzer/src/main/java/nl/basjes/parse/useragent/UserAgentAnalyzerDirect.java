@@ -82,7 +82,10 @@ import static nl.basjes.parse.useragent.utils.YamlUtils.getValueAsString;
 
 public class UserAgentAnalyzerDirect extends Analyzer implements Serializable {
 
-    private static final int INFORM_ACTIONS_HASHMAP_SIZE = 500000;
+    // We set this to 100000 always.
+    // In case someone needs 'all' fields then the map will increase in size automatically during startup.
+    // In other cases the reduced memory footprint is preferred.
+    private static final int INFORM_ACTIONS_HASHMAP_SIZE = 100000;
 
     private static final Logger LOG = LoggerFactory.getLogger(UserAgentAnalyzerDirect.class);
     protected List<Matcher> allMatchers = new ArrayList<>(5000);
@@ -103,6 +106,7 @@ public class UserAgentAnalyzerDirect extends Analyzer implements Serializable {
 
     public static final int DEFAULT_USER_AGENT_MAX_LENGTH = 2048;
     private int userAgentMaxLength = DEFAULT_USER_AGENT_MAX_LENGTH;
+    private boolean loadTests = false;
 
     /**
      * Initialize the transient default values
@@ -153,6 +157,17 @@ public class UserAgentAnalyzerDirect extends Analyzer implements Serializable {
 
     public UserAgentAnalyzerDirect setShowMatcherStats(boolean newShowMatcherStats) {
         this.showMatcherStats = newShowMatcherStats;
+        return this;
+    }
+
+    public UserAgentAnalyzerDirect dropTests() {
+        loadTests = false;
+        testCases.clear();
+        return this;
+    }
+
+    public UserAgentAnalyzerDirect keepTests() {
+        loadTests = true;
         return this;
     }
 
@@ -337,24 +352,17 @@ public class UserAgentAnalyzerDirect extends Analyzer implements Serializable {
 
         }
         LOG.info("Analyzer stats");
-        LOG.info("Lookups         : {}", (lookups == null) ? 0 : lookups.size());
-        LOG.info("LookupSets      : {}", (lookupSets == null) ? 0 : lookupSets.size());
-        LOG.info("Matchers        : {} (total:{} ; dropped: {})", allMatchers.size(), totalNumberOfMatchers, skippedMatchers);
-        LOG.info("Hashmap size    : {}", informMatcherActions.size());
-        LOG.info("Ranges map size : {}", informMatcherActionRanges.size());
-        LOG.info("Testcases       : {}", testCases.size());
+        LOG.info("- Lookups         : {}", (lookups == null) ? 0 : lookups.size());
+        LOG.info("- LookupSets      : {}", (lookupSets == null) ? 0 : lookupSets.size());
+        LOG.info("- Matchers        : {} (total:{} ; dropped: {})", allMatchers.size(), totalNumberOfMatchers, skippedMatchers);
+        LOG.info("- Hashmap size    : {}", informMatcherActions.size());
+        LOG.info("- Ranges map size : {}", informMatcherActionRanges.size());
+        LOG.info("- Testcases       : {}", testCases.size());
 //        LOG.info("All possible field names:");
 //        int count = 1;
 //        for (String fieldName : getAllPossibleFieldNames()) {
 //            LOG.info("- {}: {}", count++, fieldName);
 //        }
-    }
-
-    /**
-     * Used by some unit tests to get rid of all the standard tests and focus on the experiment at hand.
-     */
-    public void eraseTestCases() {
-        testCases.clear();
     }
 
     public Set<String> getAllPossibleFieldNames() {
@@ -379,7 +387,6 @@ public class UserAgentAnalyzerDirect extends Analyzer implements Serializable {
 
         return result;
     }
-
 
 /*
 Example of the structure of the yaml file:
@@ -460,12 +467,14 @@ config:
                     loadYamlMatcher(actualEntry, filename);
                     break;
                 case "test":
-                    loadYamlTestcase(actualEntry, filename);
+                    if (loadTests) {
+                        loadYamlTestcase(actualEntry, filename);
+                    }
                     break;
                 default:
                     throw new InvalidParserConfigurationException(
                         "Yaml config.(" + filename + ":" + actualEntry.getStartMark().getLine() + "): " +
-                            "Found unexpected config entry: " + entryType + ", allowed are 'lookup, 'matcher' and 'test'");
+                            "Found unexpected config entry: " + entryType + ", allowed are 'lookup', 'set', 'matcher' and 'test'");
             }
         }
     }
@@ -630,7 +639,7 @@ config:
     }
 
     // We do not want to put ALL lengths in the hashmap for performance reasons
-    private static final int MAX_PREFIX_HASH_MATCH = 3;
+    public static final int MAX_PREFIX_HASH_MATCH = 3;
 
     // Calculate the max length we will put in the hashmap.
     public static int firstCharactersForPrefixHashLength(String input, int maxChars) {
@@ -949,37 +958,37 @@ config:
         preHeat(preheatIterations, true);
     }
     public void preHeat(int preheatIterations, boolean log) {
-        if (!testCases.isEmpty()) {
-            if (preheatIterations > 0) {
-                if (log) {
-                    LOG.info("Preheating JVM by running {} testcases.", preheatIterations);
-                }
-                int remainingIterations = preheatIterations;
-                int goodResults = 0;
-                while (remainingIterations > 0) {
-                    for (Map<String, Map<String, String>> test : testCases) {
-                        Map<String, String> input = test.get("input");
-                        if (input == null) {
-                            continue;
-                        }
+        if (testCases.isEmpty() || preheatIterations == 0) {
+            LOG.warn("NO PREHEAT WAS DONE. Simply because there are no test cases available.");
+        } else {
+            if (log) {
+                LOG.info("Preheating JVM by running {} testcases.", preheatIterations);
+            }
+            int remainingIterations = preheatIterations;
+            int goodResults = 0;
+            while (remainingIterations > 0) {
+                for (Map<String, Map<String, String>> test : testCases) {
+                    Map<String, String> input = test.get("input");
+                    if (input == null) {
+                        continue;
+                    }
 
-                        String userAgentString = input.get("user_agent_string");
-                        if (userAgentString == null) {
-                            continue;
-                        }
-                        remainingIterations--;
-                        // Calculate and use result to guarantee not optimized away.
-                        if(!UserAgentAnalyzerDirect.this.parse(userAgentString).hasSyntaxError()) {
-                            goodResults++;
-                        }
-                        if (remainingIterations <= 0) {
-                            break;
-                        }
+                    String userAgentString = input.get("user_agent_string");
+                    if (userAgentString == null) {
+                        continue;
+                    }
+                    remainingIterations--;
+                    // Calculate and use result to guarantee not optimized away.
+                    if(!UserAgentAnalyzerDirect.this.parse(userAgentString).hasSyntaxError()) {
+                        goodResults++;
+                    }
+                    if (remainingIterations <= 0) {
+                        break;
                     }
                 }
-                if (log) {
-                    LOG.info("Preheating JVM completed. ({} of {} were proper results)", goodResults, preheatIterations);
-                }
+            }
+            if (log) {
+                LOG.info("Preheating JVM completed. ({} of {} were proper results)", goodResults, preheatIterations);
             }
         }
     }
@@ -1046,6 +1055,11 @@ config:
             return (B)this;
         }
 
+        public B preheat() {
+            this.preheatIterations = -1;
+            return (B)this;
+        }
+
         public B withField(String fieldName) {
             if (uaa.wantedFieldNames == null) {
                 uaa.wantedFieldNames = new ArrayList<>(32);
@@ -1055,9 +1069,6 @@ config:
         }
 
         public B withFields(Collection<String> fieldNames) {
-            if (fieldNames == null) {
-                return (B)this;
-            }
             for (String fieldName : fieldNames) {
                 withField(fieldName);
             }
@@ -1084,6 +1095,16 @@ config:
             return (B)this;
         }
 
+        public B keepTests() {
+            uaa.keepTests();
+            return (B)this;
+        }
+
+        public B dropTests() {
+            uaa.dropTests();
+            return (B)this;
+        }
+
         private void addGeneratedFields(String result, String... dependencies) {
             if (uaa.wantedFieldNames.contains(result)) {
                 Collections.addAll(uaa.wantedFieldNames, dependencies);
@@ -1106,9 +1127,16 @@ config:
                 // Special field that affects ALL fields.
                 uaa.wantedFieldNames.add(SET_ALL_FIELDS);
             }
+            if (preheatIterations != 0) {
+                uaa.keepTests();
+            }
             uaa.initialize();
-            if (preheatIterations > 0) {
-                uaa.preHeat(preheatIterations);
+            if (preheatIterations < 0) {
+                uaa.preHeat();
+            } else {
+                if (preheatIterations > 0) {
+                    uaa.preHeat(preheatIterations);
+                }
             }
             return uaa;
         }

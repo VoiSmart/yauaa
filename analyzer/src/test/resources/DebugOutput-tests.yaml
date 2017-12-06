@@ -35,8 +35,22 @@ config:
 - matcher:
     options:
     - 'verbose'
+    require:
+    - 'agent.(1)product.(1)name="Word"'
     extract:
-    - 'WordMatchFlipFlop: 2:CleanVersion[LookUp[Dummy;agent.(1)product.(1)name^.name="Bla"]]'
+    - 'WordMatchFlipFlop: 2:CleanVersion[LookUp[Dummy;agent.(1)product.(1)name^.name="Bla";"Default"]]'
+
+- matcher:
+    options:
+    - 'verbose'
+    extract:
+    - 'WordMatchFlipFlop: 3:CleanVersion[LookUp[Dummy;agent.(1)product.(1)name^.name="Bla"]]'
+
+- matcher:
+    options:
+    - 'verbose'
+    extract:
+    - 'Impossible: 2:CleanVersion[LookUp[Dummy;agent.(1)product.(1)name="Bla"]]'
 
 - matcher:
     options:
@@ -72,8 +86,8 @@ config:
       name: 'Validate Debug Output looks good'
       user_agent_string: 'Word/1 ( One Two Three )'
     expected:
+      Name:              'Word'
       WordMatchFlipFlop: 'Two'
-
 
 - matcher:
     options:
@@ -84,8 +98,58 @@ config:
 - test:
     options:
     - 'verbose'
-    - 'only'
     input:
       user_agent_string: 'MoZilLa/1_2.3'
     expected:
       Name: 'Mozilla'
+
+- test:
+    options:
+    - 'verbose'
+    input:
+      name: 'Syntax error'
+      user_agent_string: '${123+456}'
+    expected:
+      DeviceClass                          : 'Hacker'
+      DeviceName                           : 'Hacker'
+      DeviceBrand                          : 'Hacker'
+      DeviceVersion                        : 'Hacker'
+      OperatingSystemClass                 : 'Hacker'
+      OperatingSystemName                  : 'Hacker'
+      OperatingSystemVersion               : 'Hacker'
+      OperatingSystemNameVersion           : 'Hacker'
+      LayoutEngineClass                    : 'Hacker'
+      LayoutEngineName                     : 'Hacker'
+      LayoutEngineVersion                  : 'Hacker'
+      LayoutEngineVersionMajor             : 'Hacker'
+      LayoutEngineNameVersion              : 'Hacker'
+      LayoutEngineNameVersionMajor         : 'Hacker'
+      AgentClass                           : 'Hacker'
+      AgentName                            : 'Hacker'
+      AgentVersion                         : 'Hacker'
+      AgentVersionMajor                    : 'Hacker'
+      AgentNameVersion                     : 'Hacker'
+      AgentNameVersionMajor                : 'Hacker'
+      HackerAttackVector                   : 'Unknown'
+      HackerToolkit                        : 'Unknown'
+      __SyntaxError__                      : 'true'
+
+
+- matcher:
+    options:
+    - 'verbose'
+    require:
+      - 'agent.(1)product.(1)name="Name"'
+    extract:
+      - 'IgnoreSecond:1:NormalizeBrand [agent.product.(1)name]'
+
+
+- test:
+    options:
+      - 'only'
+    input:
+      name: 'Double match ignore second'
+      user_agent_string: 'Name/1 Name/2'
+    expected:
+      IgnoreSecond                         : 'Name'
+      Name                                 : 'Name'
