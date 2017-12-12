@@ -23,16 +23,25 @@ import org.antlr.v4.runtime.tree.ParseTree;
 import java.util.Collections;
 import java.util.Set;
 
-public abstract class Analyzer {
-    public abstract void inform(String path, String value, ParseTree ctx);
+public interface Analyzer {
+    void inform(String path, String value, ParseTree ctx);
 
-    public abstract void informMeAbout(MatcherAction matcherAction, String keyPattern);
+    void informMeAbout(MatcherAction matcherAction, String keyPattern);
 
-    public void lookingForRange(String treeName, Range range){
+    default void lookingForRange(String treeName, Range range) {
         // Do nothing
     }
 
-    public Set<Range> getRequiredInformRanges(String treeName){
+    default Set<Range> getRequiredInformRanges(String treeName){
         return Collections.emptySet();
     }
+
+    default void informMeAboutPrefix(MatcherAction matcherAction, String treeName, String prefix) {
+        // Do nothing
+    }
+
+    default Set<Integer> getRequiredPrefixLengths(String treeName){
+        return Collections.emptySet();
+    }
+
 }

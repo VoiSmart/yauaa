@@ -37,6 +37,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 public class UserAgent extends UserAgentBaseListener implements Serializable, ANTLRErrorListener {
 
@@ -165,6 +166,25 @@ public class UserAgent extends UserAgentBaseListener implements Serializable, AN
         this.debug = newDebug;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof UserAgent)) {
+            return false;
+        }
+        UserAgent agent = (UserAgent) o;
+        return Objects.equals(userAgentString, agent.userAgentString) &&
+               Objects.equals(allFields, agent.allFields);
+    }
+
+    @Override
+    public int hashCode() {
+
+        return Objects.hash(userAgentString, allFields);
+    }
+
     public class AgentField implements Serializable {
         private final String defaultValue;
         private String value;
@@ -225,6 +245,25 @@ public class UserAgent extends UserAgentBaseListener implements Serializable, AN
         }
 
         @Override
+        public boolean equals(Object o) {
+            if (this == o) {
+                return true;
+            }
+            if (!(o instanceof AgentField)) {
+                return false;
+            }
+            AgentField that = (AgentField) o;
+            return confidence == that.confidence &&
+                Objects.equals(defaultValue, that.defaultValue) &&
+                Objects.equals(value, that.value);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(defaultValue, value, confidence);
+        }
+
+        @Override
         public String toString() {
             return ">" + this.value + "#" + this.confidence + "<";
         }
@@ -248,7 +287,7 @@ public class UserAgent extends UserAgentBaseListener implements Serializable, AN
 
     public void clone(UserAgent userAgent) {
         init();
-        setUserAgentString(userAgentString);
+        setUserAgentString(userAgent.userAgentString);
         for (Map.Entry<String, AgentField> entry : userAgent.allFields.entrySet()) {
             set(entry.getKey(), entry.getValue().getValue(), entry.getValue().confidence);
         }
@@ -393,10 +432,12 @@ public class UserAgent extends UserAgentBaseListener implements Serializable, AN
     }
 
     public String toYamlTestCase() {
-        return toYamlTestCase(false);
+        return toYamlTestCase(false, null);
     }
-
     public String toYamlTestCase(boolean showConfidence) {
+        return toYamlTestCase(showConfidence, null);
+    }
+    public String toYamlTestCase(boolean showConfidence, Map<String, String> comments) {
         StringBuilder sb = new StringBuilder(10240);
         sb.append("\n");
         sb.append("- test:\n");
@@ -431,12 +472,17 @@ public class UserAgent extends UserAgentBaseListener implements Serializable, AN
                 for (int l = value.length(); l < maxValueLength + 5; l++) {
                     sb.append(' ');
                 }
-                sb.append("# ").append(get(fieldName).confidence);
+                sb.append("# ").append(String.format("%5d", get(fieldName).confidence));
+            }
+            if (comments != null) {
+                String comment = comments.get(fieldName);
+                if (comment != null) {
+                    sb.append(" | ").append(comment);
+                }
             }
             sb.append('\n');
         }
-        sb.append("\n");
-        sb.append("\n");
+        sb.append("\n\n");
 
         return sb.toString();
     }

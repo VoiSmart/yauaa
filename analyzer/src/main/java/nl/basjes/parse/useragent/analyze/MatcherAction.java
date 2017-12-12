@@ -334,9 +334,9 @@ public abstract class MatcherAction implements Serializable {
      */
     void processInformedMatches() {
         for (MatchesList.Match match : matches) {
-            WalkResult matchedValue = evaluator.evaluate(match.result, match.key, match.value);
+            WalkResult matchedValue = evaluator.evaluate(match.getResult(), match.getKey(), match.getValue());
             if (matchedValue != null) {
-                inform(match.key, matchedValue);
+                inform(match.getKey(), matchedValue);
                 break; // We always stick to the first match
             }
         }
@@ -416,6 +416,9 @@ public abstract class MatcherAction implements Serializable {
             if (tree instanceof StepEqualsValueContext){
                 return calculateInformPath(treeName, (StepEqualsValueContext) tree);
             }
+            if (tree instanceof StepStartsWithValueContext){
+                return calculateInformPath(treeName, (StepStartsWithValueContext) tree);
+            }
             if (tree instanceof StepWordRangeContext) {
                 return calculateInformPath(treeName, (StepWordRangeContext) tree);
             }
@@ -439,6 +442,11 @@ public abstract class MatcherAction implements Serializable {
 
     private int calculateInformPath(String treeName, StepEqualsValueContext tree) {
         matcher.informMeAbout(this, treeName + "=\"" + tree.value.getText() + "\"");
+        return 1;
+    }
+
+    private int calculateInformPath(String treeName, StepStartsWithValueContext tree) {
+        matcher.informMeAboutPrefix(this, treeName, tree.value.getText());
         return 1;
     }
 

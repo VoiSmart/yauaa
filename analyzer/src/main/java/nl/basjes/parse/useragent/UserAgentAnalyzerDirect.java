@@ -80,9 +80,12 @@ import static nl.basjes.parse.useragent.utils.YamlUtils.getValueAsMappingNode;
 import static nl.basjes.parse.useragent.utils.YamlUtils.getValueAsSequenceNode;
 import static nl.basjes.parse.useragent.utils.YamlUtils.getValueAsString;
 
-public class UserAgentAnalyzerDirect extends Analyzer implements Serializable {
+public class UserAgentAnalyzerDirect implements Analyzer, Serializable {
 
-    private static final int INFORM_ACTIONS_HASHMAP_SIZE = 300000;
+    // We set this to 100000 always.
+    // In case someone needs 'all' fields then the map will increase in size automatically during startup.
+    // In other cases the reduced memory footprint is preferred.
+    private static final int INFORM_ACTIONS_HASHMAP_SIZE = 100000;
 
     private static final Logger LOG = LoggerFactory.getLogger(UserAgentAnalyzerDirect.class);
     protected List<Matcher> allMatchers = new ArrayList<>(5000);
@@ -103,6 +106,7 @@ public class UserAgentAnalyzerDirect extends Analyzer implements Serializable {
 
     public static final int DEFAULT_USER_AGENT_MAX_LENGTH = 2048;
     private int userAgentMaxLength = DEFAULT_USER_AGENT_MAX_LENGTH;
+    private boolean loadTests = false;
 
     /**
      * Initialize the transient default values
@@ -153,6 +157,17 @@ public class UserAgentAnalyzerDirect extends Analyzer implements Serializable {
 
     public UserAgentAnalyzerDirect setShowMatcherStats(boolean newShowMatcherStats) {
         this.showMatcherStats = newShowMatcherStats;
+        return this;
+    }
+
+    public UserAgentAnalyzerDirect dropTests() {
+        loadTests = false;
+        testCases.clear();
+        return this;
+    }
+
+    public UserAgentAnalyzerDirect keepTests() {
+        loadTests = true;
         return this;
     }
 
@@ -337,24 +352,17 @@ public class UserAgentAnalyzerDirect extends Analyzer implements Serializable {
 
         }
         LOG.info("Analyzer stats");
-        LOG.info("Lookups         : {}", (lookups == null) ? 0 : lookups.size());
-        LOG.info("LookupSets      : {}", (lookupSets == null) ? 0 : lookupSets.size());
-        LOG.info("Matchers        : {} (total:{} ; dropped: {})", allMatchers.size(), totalNumberOfMatchers, skippedMatchers);
-        LOG.info("Hashmap size    : {}", informMatcherActions.size());
-        LOG.info("Ranges map size : {}", informMatcherActionRanges.size());
-        LOG.info("Testcases       : {}", testCases.size());
+        LOG.info("- Lookups         : {}", (lookups == null) ? 0 : lookups.size());
+        LOG.info("- LookupSets      : {}", (lookupSets == null) ? 0 : lookupSets.size());
+        LOG.info("- Matchers        : {} (total:{} ; dropped: {})", allMatchers.size(), totalNumberOfMatchers, skippedMatchers);
+        LOG.info("- Hashmap size    : {}", informMatcherActions.size());
+        LOG.info("- Ranges map size : {}", informMatcherActionRanges.size());
+        LOG.info("- Testcases       : {}", testCases.size());
 //        LOG.info("All possible field names:");
 //        int count = 1;
 //        for (String fieldName : getAllPossibleFieldNames()) {
 //            LOG.info("- {}: {}", count++, fieldName);
 //        }
-    }
-
-    /**
-     * Used by some unit tests to get rid of all the standard tests and focus on the experiment at hand.
-     */
-    public void eraseTestCases() {
-        testCases.clear();
     }
 
     public Set<String> getAllPossibleFieldNames() {
@@ -379,7 +387,6 @@ public class UserAgentAnalyzerDirect extends Analyzer implements Serializable {
 
         return result;
     }
-
 
 /*
 Example of the structure of the yaml file:
@@ -460,12 +467,14 @@ config:
                     loadYamlMatcher(actualEntry, filename);
                     break;
                 case "test":
-                    loadYamlTestcase(actualEntry, filename);
+                    if (loadTests) {
+                        loadYamlTestcase(actualEntry, filename);
+                    }
                     break;
                 default:
                     throw new InvalidParserConfigurationException(
                         "Yaml config.(" + filename + ":" + actualEntry.getStartMark().getLine() + "): " +
-                            "Found unexpected config entry: " + entryType + ", allowed are 'lookup, 'matcher' and 'test'");
+                            "Found unexpected config entry: " + entryType + ", allowed are 'lookup', 'set', 'matcher' and 'test'");
             }
         }
     }
@@ -629,6 +638,33 @@ config:
         ranges.add(range);
     }
 
+    // We do not want to put ALL lengths in the hashmap for performance reasons
+    public static final int MAX_PREFIX_HASH_MATCH = 3;
+
+    // Calculate the max length we will put in the hashmap.
+    public static int firstCharactersForPrefixHashLength(String input, int maxChars) {
+        return Math.min(maxChars, Math.min(MAX_PREFIX_HASH_MATCH, input.length()));
+    }
+
+    public static String firstCharactersForPrefixHash(String input, int maxChars) {
+        return input.substring(0, firstCharactersForPrefixHashLength(input, maxChars));
+    }
+
+    // These are the paths for which we have prefix requests.
+    private final Map<String, Set<Integer>> informMatcherActionPrefixesLengths = new HashMap<>(1000);
+
+    @Override
+    public void informMeAboutPrefix(MatcherAction matcherAction, String treeName, String prefix) {
+        this.informMeAbout(matcherAction, treeName + "{\"" + firstCharactersForPrefixHash(prefix, MAX_PREFIX_HASH_MATCH) + "\"");
+        Set<Integer> lengths = informMatcherActionPrefixesLengths.computeIfAbsent(treeName, k -> new HashSet<>(4));
+        lengths.add(firstCharactersForPrefixHashLength(prefix, MAX_PREFIX_HASH_MATCH));
+    }
+
+    @Override
+    public Set<Integer> getRequiredPrefixLengths(String treeName) {
+        return informMatcherActionPrefixesLengths.get(treeName);
+    }
+
     public void informMeAbout(MatcherAction matcherAction, String keyPattern) {
         String hashKey = keyPattern.toLowerCase();
         Set<MatcherAction> analyzerSet = informMatcherActions
@@ -660,26 +696,32 @@ config:
         return parse(userAgent);
     }
 
+    private UserAgent setAsHacker(UserAgent userAgent, int confidence) {
+        userAgent.set(DEVICE_CLASS,                 "Hacker",           confidence);
+        userAgent.set(DEVICE_BRAND,                 "Hacker",           confidence);
+        userAgent.set(DEVICE_NAME,                  "Hacker",           confidence);
+        userAgent.set(DEVICE_VERSION,               "Hacker",           confidence);
+        userAgent.set(OPERATING_SYSTEM_CLASS,       "Hacker",           confidence);
+        userAgent.set(OPERATING_SYSTEM_NAME,        "Hacker",           confidence);
+        userAgent.set(OPERATING_SYSTEM_VERSION,     "Hacker",           confidence);
+        userAgent.set(LAYOUT_ENGINE_CLASS,          "Hacker",           confidence);
+        userAgent.set(LAYOUT_ENGINE_NAME,           "Hacker",           confidence);
+        userAgent.set(LAYOUT_ENGINE_VERSION,        "Hacker",           confidence);
+        userAgent.set(LAYOUT_ENGINE_VERSION_MAJOR,  "Hacker",           confidence);
+        userAgent.set(AGENT_CLASS,                  "Hacker",           confidence);
+        userAgent.set(AGENT_NAME,                   "Hacker",           confidence);
+        userAgent.set(AGENT_VERSION,                "Hacker",           confidence);
+        userAgent.set(AGENT_VERSION_MAJOR,          "Hacker",           confidence);
+        userAgent.set("HackerToolkit",              "Unknown",          confidence);
+        userAgent.set("HackerAttackVector",         "Buffer overflow",  confidence);
+        return userAgent;
+    }
+
     public synchronized UserAgent parse(UserAgent userAgent) {
         String useragentString = userAgent.getUserAgentString();
         if (useragentString != null && useragentString.length() > userAgentMaxLength) {
-            userAgent.set(DEVICE_CLASS, "Hacker", 100);
-            userAgent.set(DEVICE_BRAND, "Hacker", 100);
-            userAgent.set(DEVICE_NAME, "Hacker", 100);
-            userAgent.set(DEVICE_VERSION, "Hacker", 100);
-            userAgent.set(OPERATING_SYSTEM_CLASS, "Hacker", 100);
-            userAgent.set(OPERATING_SYSTEM_NAME, "Hacker", 100);
-            userAgent.set(OPERATING_SYSTEM_VERSION, "Hacker", 100);
-            userAgent.set(LAYOUT_ENGINE_CLASS, "Hacker", 100);
-            userAgent.set(LAYOUT_ENGINE_NAME, "Hacker", 100);
-            userAgent.set(LAYOUT_ENGINE_VERSION, "Hacker", 100);
-            userAgent.set(LAYOUT_ENGINE_VERSION_MAJOR, "Hacker", 100);
-            userAgent.set(AGENT_CLASS, "Hacker", 100);
-            userAgent.set(AGENT_NAME, "Hacker", 100);
-            userAgent.set(AGENT_VERSION, "Hacker", 100);
-            userAgent.set(AGENT_VERSION_MAJOR, "Hacker", 100);
-            userAgent.set("HackerToolkit", "Unknown", 100);
-            userAgent.set("HackerAttackVector", "Buffer overflow", 100);
+            userAgent = setAsHacker(userAgent, 100);
+            userAgent.setForced("HackerAttackVector", "Buffer overflow", 100);
             return hardCodedPostProcessing(userAgent);
         }
 
@@ -690,19 +732,26 @@ config:
 
         if (userAgent.isDebug()) {
             for (Matcher matcher : allMatchers) {
-                matcher.setVerboseTemporarily(false);
+                matcher.setVerboseTemporarily(true);
             }
         }
 
-        userAgent = flattener.parse(userAgent);
+        try {
+            userAgent = flattener.parse(userAgent);
 
-        // Fire all Analyzers
-        for (Matcher matcher : allMatchers) {
-            matcher.analyze(userAgent);
+            // Fire all Analyzers
+            for (Matcher matcher : allMatchers) {
+                matcher.analyze(userAgent);
+            }
+
+            userAgent.processSetAll();
+            return hardCodedPostProcessing(userAgent);
+        } catch (NullPointerException npe) {
+            userAgent.reset();
+            userAgent = setAsHacker(userAgent, 10000);
+            userAgent.setForced("HackerAttackVector", "Yauaa NPE Exploit", 10000);
+            return hardCodedPostProcessing(userAgent);
         }
-
-        userAgent.processSetAll();
-        return hardCodedPostProcessing(userAgent);
     }
 
     private static final List<String> HARD_CODED_GENERATED_FIELDS = new ArrayList<>();
@@ -861,9 +910,13 @@ config:
         if (agentVersionMajor == null || agentVersionMajor.getConfidence() == -1) {
             UserAgent.AgentField agentVersion = userAgent.get(versionName);
             if (agentVersion != null) {
+                String version = agentVersion.getValue();
+                if (version != null) {
+                    version = VersionSplitter.getInstance().getSingleSplit(agentVersion.getValue(), 1);
+                }
                 userAgent.set(
                     majorVersionName,
-                    VersionSplitter.getInstance().getSingleSplit(agentVersion.getValue(), 1),
+                    version,
                     agentVersion.getConfidence());
             }
         }
@@ -876,6 +929,16 @@ config:
     public void inform(String key, String value, ParseTree ctx) {
         inform(key, key, value, ctx);
         inform(key + "=\"" + value + '"', key, value, ctx);
+
+        Set<Integer> lengths = getRequiredPrefixLengths(key);
+        if (lengths != null) {
+            int valueLength = value.length();
+            for (Integer prefixLength : lengths) {
+                if (valueLength >= prefixLength) {
+                    inform(key + "{\"" + firstCharactersForPrefixHash(value, prefixLength) + '"', key, value, ctx);
+                }
+            }
+        }
     }
 
     private void inform(String match, String key, String value, ParseTree ctx) {
@@ -908,44 +971,44 @@ config:
         preHeat(preheatIterations, true);
     }
     public void preHeat(int preheatIterations, boolean log) {
-        if (!testCases.isEmpty()) {
-            if (preheatIterations > 0) {
-                if (log) {
-                    LOG.info("Preheating JVM by running {} testcases.", preheatIterations);
-                }
-                int remainingIterations = preheatIterations;
-                int goodResults = 0;
-                while (remainingIterations > 0) {
-                    for (Map<String, Map<String, String>> test : testCases) {
-                        Map<String, String> input = test.get("input");
-                        if (input == null) {
-                            continue;
-                        }
+        if (testCases.isEmpty() || preheatIterations == 0) {
+            LOG.warn("NO PREHEAT WAS DONE. Simply because there are no test cases available.");
+        } else {
+            if (log) {
+                LOG.info("Preheating JVM by running {} testcases.", preheatIterations);
+            }
+            int remainingIterations = preheatIterations;
+            int goodResults = 0;
+            while (remainingIterations > 0) {
+                for (Map<String, Map<String, String>> test : testCases) {
+                    Map<String, String> input = test.get("input");
+                    if (input == null) {
+                        continue;
+                    }
 
-                        String userAgentString = input.get("user_agent_string");
-                        if (userAgentString == null) {
-                            continue;
-                        }
-                        remainingIterations--;
-                        // Calculate and use result to guarantee not optimized away.
-                        if(!UserAgentAnalyzerDirect.this.parse(userAgentString).hasSyntaxError()) {
-                            goodResults++;
-                        }
-                        if (remainingIterations <= 0) {
-                            break;
-                        }
+                    String userAgentString = input.get("user_agent_string");
+                    if (userAgentString == null) {
+                        continue;
+                    }
+                    remainingIterations--;
+                    // Calculate and use result to guarantee not optimized away.
+                    if(!UserAgentAnalyzerDirect.this.parse(userAgentString).hasSyntaxError()) {
+                        goodResults++;
+                    }
+                    if (remainingIterations <= 0) {
+                        break;
                     }
                 }
-                if (log) {
-                    LOG.info("Preheating JVM completed. ({} proper results)", preheatIterations, goodResults);
-                }
+            }
+            if (log) {
+                LOG.info("Preheating JVM completed. ({} of {} were proper results)", goodResults, preheatIterations);
             }
         }
     }
 
     // ===============================================================================================================
 
-    public static class GetAllPathsAnalyzer extends Analyzer {
+    public static class GetAllPathsAnalyzer implements Analyzer {
         final List<String> values = new ArrayList<>(128);
         final UserAgentTreeFlattener flattener;
 
@@ -967,6 +1030,7 @@ config:
         public void inform(String path, String value, ParseTree ctx) {
             values.add(path);
             values.add(path + "=\"" + value + "\"");
+            values.add(path + "{\"" + firstCharactersForPrefixHash(value, MAX_PREFIX_HASH_MATCH) + "\"");
         }
 
         public void informMeAbout(MatcherAction matcherAction, String keyPattern) {
@@ -1004,6 +1068,11 @@ config:
             return (B)this;
         }
 
+        public B preheat() {
+            this.preheatIterations = -1;
+            return (B)this;
+        }
+
         public B withField(String fieldName) {
             if (uaa.wantedFieldNames == null) {
                 uaa.wantedFieldNames = new ArrayList<>(32);
@@ -1013,9 +1082,6 @@ config:
         }
 
         public B withFields(Collection<String> fieldNames) {
-            if (fieldNames == null) {
-                return (B)this;
-            }
             for (String fieldName : fieldNames) {
                 withField(fieldName);
             }
@@ -1042,6 +1108,16 @@ config:
             return (B)this;
         }
 
+        public B keepTests() {
+            uaa.keepTests();
+            return (B)this;
+        }
+
+        public B dropTests() {
+            uaa.dropTests();
+            return (B)this;
+        }
+
         private void addGeneratedFields(String result, String... dependencies) {
             if (uaa.wantedFieldNames.contains(result)) {
                 Collections.addAll(uaa.wantedFieldNames, dependencies);
@@ -1064,9 +1140,16 @@ config:
                 // Special field that affects ALL fields.
                 uaa.wantedFieldNames.add(SET_ALL_FIELDS);
             }
+            if (preheatIterations != 0) {
+                uaa.keepTests();
+            }
             uaa.initialize();
-            if (preheatIterations > 0) {
-                uaa.preHeat(preheatIterations);
+            if (preheatIterations < 0) {
+                uaa.preHeat();
+            } else {
+                if (preheatIterations > 0) {
+                    uaa.preHeat(preheatIterations);
+                }
             }
             return uaa;
         }

@@ -26,6 +26,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -37,14 +38,12 @@ public class UserAgentAnalyzerTester extends UserAgentAnalyzer {
 
     public UserAgentAnalyzerTester() {
         super(false);
+        keepTests();
     }
 
     public UserAgentAnalyzerTester(String resourceString) {
-        super(resourceString);
-    }
-
-    public void initialize() {
-        super.initialize();
+        this();
+        loadResources(resourceString);
     }
 
     class TestResult {
@@ -328,8 +327,8 @@ public class UserAgentAnalyzerTester extends UserAgentAnalyzer {
 
             if (init || !pass) {
                 sb.setLength(0);
-                sb.append("\n");
-                sb.append("\n");
+                sb.append('\n');
+                sb.append('\n');
                 sb.append("- matcher:\n");
                 sb.append("#    options:\n");
                 sb.append("#    - 'verbose'\n");
@@ -352,8 +351,8 @@ public class UserAgentAnalyzerTester extends UserAgentAnalyzer {
                 sb.append("#    - 'AgentClass            :   1:' \n");
                 sb.append("#    - 'AgentName             :   1:' \n");
                 sb.append("#    - 'AgentVersion          :   1:' \n");
-                sb.append("\n");
-                sb.append("\n");
+                sb.append('\n');
+                sb.append('\n');
                 LOG.info(sb.toString());
             }
 
@@ -394,6 +393,8 @@ public class UserAgentAnalyzerTester extends UserAgentAnalyzer {
 
             LOG.info(separator);
 
+            Map<String, String> failComments = new HashMap<>();
+
             List<String> failedFieldNames = new ArrayList<>();
             for (TestResult result : results) {
                 sb.setLength(0);
@@ -402,8 +403,10 @@ public class UserAgentAnalyzerTester extends UserAgentAnalyzer {
                 } else {
                     if (result.warn) {
                         sb.append("| ~warn~ | ");
+                        failComments.put(result.field, "~~ Unexpected result ~~");
                     } else {
                         sb.append("| -FAIL- | ");
+                        failComments.put(result.field, "FAILED; Should be '" + result.expected + "'");
                         failedFieldNames.add(result.field);
                     }
                 }
@@ -446,7 +449,7 @@ public class UserAgentAnalyzerTester extends UserAgentAnalyzer {
 
             LOG.info(agent.toMatchTrace(failedFieldNames));
 
-            LOG.info("\n\nconfig:\n"+agent.toYamlTestCase(!init));
+            LOG.info("\n\nconfig:\n"+agent.toYamlTestCase(!init, failComments));
             LOG.info("Location of failed test.({}:{})", filename, linenumber);
             if (!pass && !showAll) {
 //                LOG.info("+===========================================================================================");
@@ -459,6 +462,8 @@ public class UserAgentAnalyzerTester extends UserAgentAnalyzer {
 
         if (showPassedTests) {
             LOG.info("+===========================================================================================");
+        } else {
+            LOG.info("All {} tests passed", testcount);
         }
         return allPass;
     }
@@ -501,11 +506,8 @@ public class UserAgentAnalyzerTester extends UserAgentAnalyzer {
     public static class UserAgentAnalyzerTesterBuilder<UAA extends UserAgentAnalyzerTester, B extends UserAgentAnalyzerTesterBuilder<UAA, B>>
         extends UserAgentAnalyzerBuilder<UAA, B> {
 
-        private final UAA uaa;
-
         public UserAgentAnalyzerTesterBuilder(UAA newUaa) {
             super(newUaa);
-            this.uaa = newUaa;
         }
 
         @Override

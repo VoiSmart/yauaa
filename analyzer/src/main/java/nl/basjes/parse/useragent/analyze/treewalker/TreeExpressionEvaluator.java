@@ -51,8 +51,8 @@ public class TreeExpressionEvaluator implements Serializable {
         this.requiredPatternText = requiredPattern.getText();
         this.matcher = matcher;
         this.verbose = verbose;
-        walkList = new WalkList(requiredPattern, matcher.getLookups(), matcher.getLookupSets(), verbose);
         this.fixedValue = calculateFixedValue(requiredPattern);
+        walkList = new WalkList(requiredPattern, matcher.getLookups(), matcher.getLookupSets(), verbose);
     }
 
     /**
@@ -63,7 +63,7 @@ public class TreeExpressionEvaluator implements Serializable {
     }
 
     private String calculateFixedValue(ParserRuleContext requiredPattern) {
-        return (new UserAgentTreeWalkerBaseVisitor<String>() {
+        return new UserAgentTreeWalkerBaseVisitor<String>() {
             @Override
             public String visitMatcherPathLookup(MatcherPathLookupContext ctx) {
                 String value = visit(ctx.matcher());
@@ -93,7 +93,7 @@ public class TreeExpressionEvaluator implements Serializable {
             public String visitPathFixedValue(UserAgentTreeWalkerParser.PathFixedValueContext ctx) {
                 return ctx.value.getText();
             }
-        }).visit(requiredPattern);
+        }.visit(requiredPattern);
     }
 
     // ------------------------------------------

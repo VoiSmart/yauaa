@@ -20,6 +20,7 @@ package nl.basjes.parse.useragent;
 import nl.basjes.parse.useragent.analyze.InvalidParserConfigurationException;
 import nl.basjes.parse.useragent.debug.UserAgentAnalyzerTester;
 import nl.basjes.parse.useragent.parse.EvilManualUseragentStringHacks;
+import org.hamcrest.core.StringContains;
 import org.hamcrest.core.StringStartsWith;
 import org.junit.Assert;
 import org.junit.Rule;
@@ -68,6 +69,52 @@ public class TestErrorHandling {
         UserAgentAnalyzerTester uaa = new UserAgentAnalyzerTester("classpath*:BadDefinitions/FileIsNotAMap.yaml");
         Assert.assertTrue(uaa.runTests(false, false));
     }
+
+    @Test
+    public void checkLookupSetMissing() {
+        expectedEx.expect(InvalidParserConfigurationException.class);
+        expectedEx.expectMessage(new StringStartsWith("Missing lookupSet"));
+
+        UserAgentAnalyzerTester uaa = new UserAgentAnalyzerTester("classpath*:BadDefinitions/LookupSetMissing.yaml");
+        Assert.assertTrue(uaa.runTests(false, false));
+    }
+
+    @Test
+    public void checkBadEntry() {
+        expectedEx.expect(InvalidParserConfigurationException.class);
+        expectedEx.expectMessage(new StringContains("Found unexpected config entry:"));
+
+        UserAgentAnalyzerTester uaa = new UserAgentAnalyzerTester("classpath*:BadDefinitions/BadEntry.yaml");
+        Assert.assertTrue(uaa.runTests(false, false));
+    }
+
+    @Test
+    public void checkLookupMissing() {
+        expectedEx.expect(InvalidParserConfigurationException.class);
+        expectedEx.expectMessage(new StringStartsWith("Missing lookup"));
+
+        UserAgentAnalyzerTester uaa = new UserAgentAnalyzerTester("classpath*:BadDefinitions/LookupMissing.yaml");
+        Assert.assertTrue(uaa.runTests(false, false));
+    }
+
+    @Test
+    public void checkFixedStringLookupMissing() {
+        expectedEx.expect(InvalidParserConfigurationException.class);
+        expectedEx.expectMessage(new StringStartsWith("Missing lookup"));
+
+        UserAgentAnalyzerTester uaa = new UserAgentAnalyzerTester("classpath*:BadDefinitions/FixedStringLookupMissing.yaml");
+        Assert.assertTrue(uaa.runTests(false, false));
+    }
+
+    @Test
+    public void checkFixedStringLookupMissingvalue() {
+        expectedEx.expect(InvalidParserConfigurationException.class);
+        expectedEx.expectMessage(new StringStartsWith("Fixed value"));
+
+        UserAgentAnalyzerTester uaa = new UserAgentAnalyzerTester("classpath*:BadDefinitions/FixedStringLookupMissingValue.yaml");
+        Assert.assertTrue(uaa.runTests(false, false));
+    }
+
 
     @Test
     public void checkNoExtract() {
@@ -124,8 +171,28 @@ public class TestErrorHandling {
     }
 
     @Test
+    public void checkSyntaxErrorVariableBadDefinition() {
+        expectedEx.expect(InvalidParserConfigurationException.class);
+        expectedEx.expectMessage(new StringStartsWith("Invalid variable config line:"));
+
+        UserAgentAnalyzerTester uaa = new UserAgentAnalyzerTester("classpath*:BadDefinitions/Variable-BadDefinition.yaml");
+        Assert.assertTrue(uaa.runTests(false, false));
+    }
+
+    @Test
+    public void checkSyntaxErrorVariableFixedString() {
+        expectedEx.expect(InvalidParserConfigurationException.class);
+        expectedEx.expectMessage(new StringStartsWith("Syntax error"));
+
+        UserAgentAnalyzerTester uaa = new UserAgentAnalyzerTester("classpath*:BadDefinitions/Variable-FixedString.yaml");
+        Assert.assertTrue(uaa.runTests(false, false));
+    }
+
+
+    @Test
     public void methodInputValidation(){
         UserAgentAnalyzer uaa = UserAgentAnalyzer.newBuilder()
+            .withField("AgentClass")
             .build();
 
         UserAgent agent = uaa.parse((String)null);

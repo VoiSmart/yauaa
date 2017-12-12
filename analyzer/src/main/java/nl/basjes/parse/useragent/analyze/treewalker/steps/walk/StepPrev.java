@@ -38,7 +38,7 @@ public class StepPrev extends Step {
                 return prevChild;
             }
         }
-        return null; // There is no previous
+        return null; // This should never happen
     }
 
     @Override
@@ -53,7 +53,7 @@ public class StepPrev extends Step {
 
     @Override
     public String toString() {
-        return "Prev()";
+        return "Prev(1)";
     }
 
 }

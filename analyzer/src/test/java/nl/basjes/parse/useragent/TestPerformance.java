@@ -50,8 +50,8 @@ public class TestPerformance {
         // Calculate the used memory
         long memory = runtime.totalMemory() - runtime.freeMemory();
         LOG.info(String.format(
-            "After %7d iterations and GC --> Used memory is %10d bytes (%5d MiB), Average time per parse %5d ns",
-            iterationsDone, memory, bytesToMegabytes(memory), averageNanos));
+            "After %7d iterations and GC --> Used memory is %10d bytes (%5d MiB), Average time per parse %7d ns ( ~ %4.3f ms)",
+            iterationsDone, memory, bytesToMegabytes(memory), averageNanos, averageNanos/1000000.0));
     }
 
     @Ignore
@@ -60,10 +60,11 @@ public class TestPerformance {
         UserAgentAnalyzer uaa = UserAgentAnalyzer
             .newBuilder()
             .withoutCache()
-            .withField("OperatingSystemName")
-            .withField("OperatingSystemVersion")
-            .withField("DeviceName")
+//            .withField("OperatingSystemName")
+//            .withField("OperatingSystemVersion")
+//            .withField("DeviceClass")
             .hideMatcherLoadStats()
+            .keepTests()
             .build();
 
         LOG.info("Init complete");
@@ -77,6 +78,52 @@ public class TestPerformance {
 
             long averageNanos = (stop - start) / iterationsPerLoop;
             printMemoryUsage(iterationsDone, averageNanos);
+        }
+    }
+
+
+    @Ignore
+    @Test
+    public void assesMemoryImpactPerFieldName() {
+        // Get the Java runtime
+        Runtime runtime = Runtime.getRuntime();
+        UserAgentAnalyzer uaa = UserAgentAnalyzer
+            .newBuilder()
+            .hideMatcherLoadStats()
+            .withoutCache()
+            .keepTests()
+            .build();
+
+        uaa.preHeat();
+        runtime.gc();
+        uaa.preHeat();
+        runtime.gc();
+
+        // Calculate the used memory
+        long memory = runtime.totalMemory() - runtime.freeMemory();
+        LOG.error(String.format(
+            "Querying for 'All fields' and GC --> Used memory is %10d bytes (%5d MiB)",
+            memory, bytesToMegabytes(memory)));
+
+        for (String fieldName: uaa.getAllPossibleFieldNamesSorted()) {
+            uaa = UserAgentAnalyzer
+                .newBuilder()
+                .withoutCache()
+                .withField(fieldName)
+                .hideMatcherLoadStats()
+                .keepTests()
+                .build();
+
+            uaa.preHeat();
+            runtime.gc();
+            uaa.preHeat();
+            runtime.gc();
+
+            // Calculate the used memory
+            memory = runtime.totalMemory() - runtime.freeMemory();
+            LOG.error(String.format(
+                "Querying for %s and GC --> Used memory is %10d bytes (%5d MiB)",
+                fieldName, memory, bytesToMegabytes(memory)));
         }
     }
 

@@ -22,8 +22,7 @@ import java.net.URLDecoder;
 import java.util.regex.Pattern;
 
 public final class EvilManualUseragentStringHacks {
-    private EvilManualUseragentStringHacks() {
-    }
+    private EvilManualUseragentStringHacks() {}
 
     private static final Pattern MISSING_PRODUCT_AT_START =
         Pattern.compile("^\\(( |;|null|compatible|windows|android|linux).*", Pattern.CASE_INSENSITIVE);
@@ -38,12 +37,12 @@ public final class EvilManualUseragentStringHacks {
      * @return Cleaned useragent
      */
     public static String fixIt(String useragent) {
-        if (useragent == null) {
-            return null;
+        if (useragent == null || useragent.isEmpty()) {
+            return useragent;
         }
         String result = useragent;
 
-        if (result.startsWith(" ")) {
+        if (result.charAt(0) == ' ') {
             result = result.trim();
         }
 
@@ -63,7 +62,7 @@ public final class EvilManualUseragentStringHacks {
             result = "Mozilla/5.0 " + result;
         } else {
             // This happens occasionally
-            if (result.startsWith("/")) {
+            if (result.charAt(0) == '/') {
                 // We simply prefix a fake product name to continue parsing.
                 result = "Mozilla" + result;
             }
