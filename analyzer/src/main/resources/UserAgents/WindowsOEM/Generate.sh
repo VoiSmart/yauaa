@@ -1,6 +1,6 @@
 #!/bin/bash
 # Yet Another UserAgent Analyzer
-# Copyright (C) 2013-2017 Niels Basjes
+# Copyright (C) 2013-2018 Niels Basjes
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -32,7 +32,7 @@ echo "# THIS FILE WAS GENERATED; DO NOT EDIT MANUALLY"
 echo "# ============================================="
 echo "#"
 echo "# Yet Another UserAgent Analyzer"
-echo "# Copyright (C) 2013-2017 Niels Basjes"
+echo "# Copyright (C) 2013-2018 Niels Basjes"
 echo "#"
 echo "# Licensed under the Apache License, Version 2.0 (the \"License\");"
 echo "# you may not use this file except in compliance with the License."
@@ -55,10 +55,10 @@ echo "    - 'DeviceBrand :  200:LookUp[WindowsOEMCodes;agent.(1)product.comments
 echo "- lookup:"
 echo "    name: 'WindowsOEMCodes'"
 echo "    map:"
-cat "WindowsOEMCodes.csv" | grep . | fgrep -v '#' | while read line ; \
+fgrep -v '#' "${INPUT}" | grep . | while read line
 do
-    code=$(echo ${line} | cut -d' ' -f1)
-    value=$(echo ${line} | cut -d' ' -f2- | sed 's/^ *//')
+    code=$(echo "${line}" | cut -d' ' -f1)
+    value=$(echo "${line}" | cut -d' ' -f2- | sed 's/^ *//')
     echo "      \"${code}\" : \"${value}\""
 done
 

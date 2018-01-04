@@ -1,6 +1,6 @@
 #
 # Yet Another UserAgent Analyzer
-# Copyright (C) 2013-2017 Niels Basjes
+# Copyright (C) 2013-2018 Niels Basjes
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -438,16 +438,16 @@ config:
 
 # ------------------------------------------------------------
 
-#Google Mobile AdSense	Mediapartners-Google
+#Google Mobile AdSense Mediapartners-Google
 #
 #of
 #
 #Mediapartners
-#(Googlebot)	[verschillende soorten mobiele apparaten] (compatibel; Mediapartners-Google/2.1; +http://www.google.com/bot.html)
-#Google AdSense	Mediapartners-Google
+#(Googlebot)    [verschillende soorten mobiele apparaten] (compatibel; Mediapartners-Google/2.1; +http://www.google.com/bot.html)
+#Google AdSense    Mediapartners-Google
 #Mediapartners
-#(Googlebot)	Mediapartners-Google
-#Kwaliteitscontrole voor Google AdsBot-bestemmingspagina	AdsBot-Google
+#(Googlebot)    Mediapartners-Google
+#Kwaliteitscontrole voor Google AdsBot-bestemmingspagina    AdsBot-Google
 
 - test:
     input:

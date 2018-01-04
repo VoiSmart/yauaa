@@ -1,6 +1,6 @@
 #!/bin/bash
 # Yet Another UserAgent Analyzer
-# Copyright (C) 2013-2017 Niels Basjes
+# Copyright (C) 2013-2018 Niels Basjes
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -33,7 +33,7 @@ echo "# THIS FILE WAS GENERATED; DO NOT EDIT MANUALLY"
 echo "# ============================================="
 echo "#"
 echo "# Yet Another UserAgent Analyzer"
-echo "# Copyright (C) 2013-2017 Niels Basjes"
+echo "# Copyright (C) 2013-2018 Niels Basjes"
 echo "#"
 echo "# Licensed under the Apache License, Version 2.0 (the \"License\");"
 echo "# you may not use this file except in compliance with the License."
@@ -105,25 +105,25 @@ echo "# ------------------------------------------------------------------------
 echo "- lookup:"
 echo "    name: 'ISOLanguageCodes'"
 echo "    map:"
-cat "${INPUT1}" | while read line ; \
+fgrep -v '#' "${INPUT1}" | grep . | while read line
 do
-    echo "      \"$(echo ${line} | cut -d' ' -f1)\" : \"$(echo ${line} | cut -d' ' -f1 | sed 's/_/-/g')\""
+    echo "      \"$(echo "${line}" | cut -d' ' -f1)\" : \"$(echo "${line}" | cut -d' ' -f1 | sed 's/_/-/g')\""
 done
 
 echo "# -----------------------------------------------------------------------------"
 echo "- lookup:"
 echo "    name: 'ISOLanguageCodesName'"
 echo "    map:"
-cat "${INPUT1}" | while read line ; \
+fgrep -v '#' "${INPUT1}" | grep . | while read line
 do
-    echo "      \"$(echo ${line} | cut -d' ' -f1)\" : \"$(echo ${line} | cut -d' ' -f2-)\""
+    echo "      \"$(echo "${line}" | cut -d' ' -f1)\" : \"$(echo "${line}" | cut -d' ' -f2-)\""
 done
 
 echo "# -----------------------------------------------------------------------------"
 echo "- lookup:"
 echo "    name: 'ISOLanguageCodes3'"
 echo "    map:"
-cat "${INPUT2}" | grep -v -f unwanted-language-codes.txt | while read line ; \
+grep -v -f unwanted-language-codes.txt "${INPUT2}" | while read line
 do
     CODE=$(echo "${line}" | cut -d'	' -f1)
     echo "      \"${CODE}\" : \"${CODE}\""
@@ -133,7 +133,7 @@ echo "# ------------------------------------------------------------------------
 echo "- lookup:"
 echo "    name: 'ISOLanguageCodes3Name'"
 echo "    map:"
-cat "${INPUT2}" | grep -v -f unwanted-language-codes.txt | while read line ; \
+grep -v -f unwanted-language-codes.txt "${INPUT2}" | while read line
 do
     CODE=$(echo "${line}" | cut -d'	' -f1)
     NAME=$(echo "${line}" | cut -d'	' -f7)

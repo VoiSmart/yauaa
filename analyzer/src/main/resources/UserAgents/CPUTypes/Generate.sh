@@ -1,6 +1,6 @@
 #!/bin/bash
 # Yet Another UserAgent Analyzer
-# Copyright (C) 2013-2017 Niels Basjes
+# Copyright (C) 2013-2018 Niels Basjes
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -32,7 +32,7 @@ echo "# THIS FILE WAS GENERATED; DO NOT EDIT MANUALLY"
 echo "# ============================================="
 echo "#"
 echo "# Yet Another UserAgent Analyzer"
-echo "# Copyright (C) 2013-2017 Niels Basjes"
+echo "# Copyright (C) 2013-2018 Niels Basjes"
 echo "#"
 echo "# Licensed under the Apache License, Version 2.0 (the \"License\");"
 echo "# you may not use this file except in compliance with the License."
@@ -89,10 +89,10 @@ echo "
 echo "- lookup:"
 echo "    name: 'CPUArchitectures'"
 echo "    map:"
-cat "CPUTypes.csv" | grep -v '#' | grep . | while read line ; \
+fgrep -v '#' "${INPUT}" | grep . | while read line
 do
-    cpu=$(echo ${line} | sed 's/ *| */|/g' | cut -d'|' -f1)
-    value=$(echo ${line} | sed 's/ *| */|/g' | cut -d'|' -f2)
+    cpu=$(echo "${line}" | sed 's/ *| */|/g' | cut -d'|' -f1)
+    value=$(echo "${line}" | sed 's/ *| */|/g' | cut -d'|' -f2)
     echo "      \"${cpu}\" : \"${value}\""
 done
 
@@ -136,10 +136,10 @@ echo "
 echo "- lookup:"
 echo "    name: 'CPUArchitecturesBits'"
 echo "    map:"
-cat "CPUTypes.csv" | grep -v '#' | grep . | while read line ; \
+fgrep -v '#' "${INPUT}" | grep . | while read line
 do
-    cpu=$(echo ${line} | sed 's/ *| */|/g' | cut -d'|' -f1)
-    value=$(echo ${line} | sed 's/ *| */|/g' | cut -d'|' -f3)
+    cpu=$(echo "${line}" | sed 's/ *| */|/g' | cut -d'|' -f1)
+    value=$(echo "${line}" | sed 's/ *| */|/g' | cut -d'|' -f3)
     echo "      \"${cpu}\" : \"${value}\""
 done
 

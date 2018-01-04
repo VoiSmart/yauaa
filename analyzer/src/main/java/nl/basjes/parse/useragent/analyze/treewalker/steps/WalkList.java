@@ -1,6 +1,6 @@
 /*
  * Yet Another UserAgent Analyzer
- * Copyright (C) 2013-2017 Niels Basjes
+ * Copyright (C) 2013-2018 Niels Basjes
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -96,8 +96,8 @@ public class WalkList implements Serializable {
     private final boolean verbose;
 
     public static class WalkResult {
-        private ParseTree tree;
-        private String value;
+        private final ParseTree tree;
+        private final String value;
 
         public WalkResult(ParseTree tree, String value) {
             this.tree = tree;

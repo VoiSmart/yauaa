@@ -1,6 +1,6 @@
 /*
  * Yet Another UserAgent Analyzer
- * Copyright (C) 2013-2017 Niels Basjes
+ * Copyright (C) 2013-2018 Niels Basjes
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,7 +33,6 @@ import org.slf4j.LoggerFactory;
 
 import java.io.BufferedReader;
 import java.io.FileInputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.List;
@@ -100,7 +99,7 @@ public final class Main {
     }
 
     @SuppressWarnings("deprecation")
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) {
         int returnValue = 0;
         final CommandOptions commandlineOptions = new CommandOptions();
         final CmdLineParser parser = new CmdLineParser(commandlineOptions);
@@ -321,7 +320,7 @@ public final class Main {
         private boolean jsonFormat = false;
 
         @Option(name = "-fields", handler = StringArrayOptionHandler.class,
-            usage = "A list of the desired fieldnames (use '"+USERAGENT+"' if you want the input value aswell)")
+            usage = "A list of the desired fieldnames (use '"+USERAGENT+"' if you want the input value as well)")
         private List<String> fields = null;
 
         @Option(name = "-cache", usage = "The number of elements that can be cached (LRU).")

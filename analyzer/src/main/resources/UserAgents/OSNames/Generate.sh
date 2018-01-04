@@ -1,6 +1,6 @@
 #!/bin/bash
 # Yet Another UserAgent Analyzer
-# Copyright (C) 2013-2017 Niels Basjes
+# Copyright (C) 2013-2018 Niels Basjes
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -32,7 +32,7 @@ echo "# THIS FILE WAS GENERATED; DO NOT EDIT MANUALLY"
 echo "# ============================================="
 echo "#"
 echo "# Yet Another UserAgent Analyzer"
-echo "# Copyright (C) 2013-2017 Niels Basjes"
+echo "# Copyright (C) 2013-2018 Niels Basjes"
 echo "#"
 echo "# Licensed under the Apache License, Version 2.0 (the \"License\");"
 echo "# you may not use this file except in compliance with the License."
@@ -51,31 +51,31 @@ echo "config:"
 echo "- lookup:"
 echo "    name: 'OperatingSystemName'"
 echo "    map:"
-cat "OperatingSystemNames.csv" | grep . | fgrep -v '#' | while read line ; \
+fgrep -v '#' "${INPUT}" | grep  . | while read line
 do
-    tag=$(        echo ${line} | sed 's@ *| *@|@g' | cut -d'|' -f1)
-    osname=$(     echo ${line} | sed 's@ *| *@|@g' | cut -d'|' -f2)
+    tag=$(        echo "${line}" | sed 's@ *| *@|@g' | cut -d'|' -f1)
+    osname=$(     echo "${line}" | sed 's@ *| *@|@g' | cut -d'|' -f2)
     echo "      \"${tag}\" : \"${osname}\""
 done
 
 echo "- lookup:"
 echo "    name: 'OperatingSystemVersion'"
 echo "    map:"
-cat "OperatingSystemNames.csv" | grep . | fgrep -v '#' | while read line ; \
+fgrep -v '#' "${INPUT}" | grep  . | while read line
 do
-    tag=$(        echo ${line} | sed 's@ *| *@|@g' | cut -d'|' -f1)
-    osversion=$(  echo ${line} | sed 's@ *| *@|@g' | cut -d'|' -f3)
+    tag=$(        echo "${line}" | sed 's@ *| *@|@g' | cut -d'|' -f1)
+    osversion=$(  echo "${line}" | sed 's@ *| *@|@g' | cut -d'|' -f3)
     echo "      \"${tag}\" : \"${osversion}\""
 done
 
 echo "- lookup:"
 echo "    name: 'OperatingSystemCpuBits'"
 echo "    map:"
-cat "OperatingSystemNames.csv" | grep . | fgrep -v '#' | while read line ; \
+fgrep -v '#' "${INPUT}" | grep  . | while read line
 do
-    tag=$(        echo ${line} | sed 's@ *| *@|@g' | cut -d'|' -f1)
-    cpubits=$(    echo ${line} | sed 's@ *| *@|@g' | cut -d'|' -f4)
-    if [ ! -z ${cpubits} ];
+    tag=$(        echo "${line}" | sed 's@ *| *@|@g' | cut -d'|' -f1)
+    cpubits=$(    echo "${line}" | sed 's@ *| *@|@g' | cut -d'|' -f4)
+    if [ ! -z "${cpubits}" ];
     then
         echo "      \"${tag}\" : \"${cpubits}\""
     fi

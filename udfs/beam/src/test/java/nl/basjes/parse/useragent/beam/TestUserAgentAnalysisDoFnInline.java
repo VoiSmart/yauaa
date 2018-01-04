@@ -1,6 +1,6 @@
 /*
  * Yet Another UserAgent Analyzer
- * Copyright (C) 2013-2017 Niels Basjes
+ * Copyright (C) 2013-2018 Niels Basjes
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,7 @@
 
 package nl.basjes.parse.useragent.beam;
 
-import nl.basjes.parse.useragent.annonate.YauaaField;
+import nl.basjes.parse.useragent.annotate.YauaaField;
 import org.apache.beam.sdk.coders.StringUtf8Coder;
 import org.apache.beam.sdk.testing.PAssert;
 import org.apache.beam.sdk.testing.TestPipeline;
@@ -39,7 +39,7 @@ public class TestUserAgentAnalysisDoFnInline implements Serializable {
     public final transient TestPipeline pipeline = TestPipeline.create();
 
     @Test
-    public void testInlineDefinition() throws Exception {
+    public void testInlineDefinition() {
         List<String> useragents = Arrays.asList(
             "Mozilla/5.0 (X11; Linux x86_64) " +
                 "AppleWebKit/537.36 (KHTML, like Gecko) " +

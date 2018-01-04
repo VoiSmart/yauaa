@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 #
 # Yet Another UserAgent Analyzer
-# Copyright (C) 2013-2017 Niels Basjes
+# Copyright (C) 2013-2018 Niels Basjes
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -19,4 +19,4 @@
 ( cd .. && mvn clean package -DskipTests=true && mvn test ) || exit
 version=$(fgrep '<version>' pom.xml | head -1 | sed 's@.*>\(.*\)<.*$@\1@g')
 echo "Testing version ${version}" && \
-java -jar target/benchmarks.jar > version-${version}-$(date +%Y%m%d-%H%M%S).txt
+java -jar target/benchmarks.jar > "version-${version}-$(date +%Y%m%d-%H%M%S).txt"

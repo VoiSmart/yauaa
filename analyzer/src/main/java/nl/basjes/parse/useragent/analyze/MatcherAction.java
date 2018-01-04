@@ -1,6 +1,6 @@
 /*
  * Yet Another UserAgent Analyzer
- * Copyright (C) 2013-2017 Niels Basjes
+ * Copyright (C) 2013-2018 Niels Basjes
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -182,7 +182,7 @@ public abstract class MatcherAction implements Serializable {
             throw new InvalidParserConfigurationException("NO pattern ?!?!?");
         }
 
-        // We couldn't ditch the double quotes around the fixed values in the parsing pase.
+        // We couldn't ditch the double quotes around the fixed values in the parsing phase.
         // So we ditch them here. We simply walk the tree and modify some of the tokens.
         new UnQuoteValues().visit(requiredPattern);
 
@@ -320,12 +320,7 @@ public abstract class MatcherAction implements Serializable {
     public abstract boolean obtainResult();
 
     boolean isValidIsNull() {
-        if (matches.isEmpty()) {
-            if (evaluator.usesIsNull()) {
-                return true;
-            }
-        }
-        return false;
+        return matches.isEmpty() && evaluator.usesIsNull();
     }
 
     /**

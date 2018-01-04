@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 #
 # Yet Another UserAgent Analyzer
-# Copyright (C) 2013-2017 Niels Basjes
+# Copyright (C) 2013-2018 Niels Basjes
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -18,7 +18,10 @@
 
 (
 echo -n "Name"
-for version in $(ls version*.txt | sed 's@^.*version-\(.*\).txt$@\1@g' | sort -V) ;
+
+find . -type f -name "version*.txt" -print0 | xargs -n1 -0 echo | \
+    sed 's@^.*version-\(.*\).txt$@\1@g' | sort -V | \
+    while read version
 do
     echo -n ";v${version}"
 done

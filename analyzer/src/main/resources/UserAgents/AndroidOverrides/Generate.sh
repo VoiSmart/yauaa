@@ -1,6 +1,6 @@
 #!/bin/bash
 # Yet Another UserAgent Analyzer
-# Copyright (C) 2013-2017 Niels Basjes
+# Copyright (C) 2013-2018 Niels Basjes
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -32,7 +32,7 @@ echo "# THIS FILE WAS GENERATED; DO NOT EDIT MANUALLY"
 echo "# ============================================="
 echo "#"
 echo "# Yet Another UserAgent Analyzer"
-echo "# Copyright (C) 2013-2017 Niels Basjes"
+echo "# Copyright (C) 2013-2018 Niels Basjes"
 echo "#"
 echo "# Licensed under the Apache License, Version 2.0 (the \"License\");"
 echo "# you may not use this file except in compliance with the License."
@@ -49,12 +49,12 @@ echo "#"
 
 echo "config:"
 
-cat ${INPUT} | fgrep -v '#' | grep '[a-z]' | while read line ; \
+fgrep -v '#' "${INPUT}" | grep '[a-z]' | while read line
 do
-    tag=$(        echo ${line} | sed 's@ *| *@|@g' | cut -d'|' -f1 )
-    deviceName=$( echo ${line} | sed 's@ *| *@|@g' | cut -d'|' -f2 )
-    deviceBrand=$(echo ${line} | sed 's@ *| *@|@g' | cut -d'|' -f3 )
-    deviceClass=$(echo ${line} | sed 's@ *| *@|@g' | cut -d'|' -f4 )
+    tag=$(        echo "${line}" | sed 's@ *| *@|@g' | cut -d'|' -f1 )
+    deviceName=$( echo "${line}" | sed 's@ *| *@|@g' | cut -d'|' -f2 )
+    deviceBrand=$(echo "${line}" | sed 's@ *| *@|@g' | cut -d'|' -f3 )
+    deviceClass=$(echo "${line}" | sed 's@ *| *@|@g' | cut -d'|' -f4 )
 
     tagWords=$(echo "${tag}" | sed 's@-@ @g' | wc -w)
 

@@ -309,7 +309,7 @@ OperatingSystemClass
 
 | Value | Meaning |
 | --- | --- |
-| Desktop      | The type of OS you would run on a dekstop or laptop |
+| Desktop      | The type of OS you would run on a Desktop or Laptop |
 | Mobile       | The type of OS you would run on a Phone, Tablet or Watch |
 | Cloud        | Looks like a thing that runs in a cloud environment |
 | Embedded     | Apparently embedded into something like a TV |
@@ -381,7 +381,7 @@ It says it:
 
 - is Mozilla/5.0
 - uses AppleWebKit/537.36
-- for "compatibility" the AppleWebKit lie about being "KHTML" and that it is siliar to "Gecko" are also copied
+- for "compatibility" the AppleWebKit lie about being "KHTML" and that it is similar to "Gecko" are also copied
 - is Chrome 42
 - is Safari 537
 - is Edge 12
@@ -443,7 +443,7 @@ If this project has business value for you then don't hesitate to support me wit
 License
 =======
     Yet Another UserAgent Analyzer
-    Copyright (C) 2013-2017 Niels Basjes
+    Copyright (C) 2013-2018 Niels Basjes
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.

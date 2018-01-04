@@ -1,6 +1,6 @@
 /*
  * Yet Another UserAgent Analyzer
- * Copyright (C) 2013-2017 Niels Basjes
+ * Copyright (C) 2013-2018 Niels Basjes
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -99,7 +99,7 @@ public class TestCaching {
 
         agent = uaa.parse(uuid);
         assertEquals(uuid, agent.get(fieldName).getValue());
-        assertEquals(null, getCache(uaa)    );
+        assertEquals(null, getCache(uaa));
     }
 
     private LRUMap<?, ?> getCache(UserAgentAnalyzer uaa) throws IllegalAccessException {
@@ -111,8 +111,7 @@ public class TestCaching {
         return actualCache;
     }
 
-    private int getAllocatedCacheSize(UserAgentAnalyzer uaa ) throws IllegalAccessException {
-        int actualCaceSize = -1;
+    private int getAllocatedCacheSize(UserAgentAnalyzer uaa) throws IllegalAccessException {
         LRUMap<?, ?> cache = getCache(uaa);
         if (cache == null) {
             return 0;

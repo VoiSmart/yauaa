@@ -1,6 +1,6 @@
 /*
  * Yet Another UserAgent Analyzer
- * Copyright (C) 2013-2017 Niels Basjes
+ * Copyright (C) 2013-2018 Niels Basjes
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,8 +17,8 @@
 
 package nl.basjes.parse.useragent.beam;
 
-import nl.basjes.parse.useragent.annonate.UserAgentAnnotationAnalyzer;
-import nl.basjes.parse.useragent.annonate.UserAgentAnnotationMapper;
+import nl.basjes.parse.useragent.annotate.UserAgentAnnotationAnalyzer;
+import nl.basjes.parse.useragent.annotate.UserAgentAnnotationMapper;
 import org.apache.beam.sdk.repackaged.org.apache.commons.lang3.SerializationUtils;
 import org.apache.beam.sdk.transforms.DoFn;
 

@@ -1,6 +1,6 @@
 #!/bin/bash
 # Yet Another UserAgent Analyzer
-# Copyright (C) 2013-2017 Niels Basjes
+# Copyright (C) 2013-2018 Niels Basjes
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -32,7 +32,7 @@ echo "# THIS FILE WAS GENERATED; DO NOT EDIT MANUALLY"
 echo "# ============================================="
 echo "#"
 echo "# Yet Another UserAgent Analyzer"
-echo "# Copyright (C) 2013-2017 Niels Basjes"
+echo "# Copyright (C) 2013-2018 Niels Basjes"
 echo "#"
 echo "# Licensed under the Apache License, Version 2.0 (the \"License\");"
 echo "# you may not use this file except in compliance with the License."
@@ -48,14 +48,14 @@ echo "# limitations under the License."
 echo "#"
 echo "config:"
 
-cat "OperatingSystemDeviceNames.csv" | grep . | fgrep -v '#' | sed 's/ *|/|/g;s/| */|/g' | while read line ; \
+fgrep -v '#' "${INPUT}" | grep . | sed 's/ *|/|/g;s/| */|/g' | while read line
 do
-    ospattern=$(echo ${line} | cut -d'|' -f1)
-    osname=$(   echo ${line} | cut -d'|' -f2)
-    devclass=$( echo ${line} | cut -d'|' -f3)
-    devname=$(  echo ${line} | cut -d'|' -f4)
-    devbrand=$( echo ${line} | cut -d'|' -f5)
-    osclass=$(  echo ${line} | cut -d'|' -f6)
+    ospattern=$(echo "${line}" | cut -d'|' -f1)
+    osname=$(   echo "${line}" | cut -d'|' -f2)
+    devclass=$( echo "${line}" | cut -d'|' -f3)
+    devname=$(  echo "${line}" | cut -d'|' -f4)
+    devbrand=$( echo "${line}" | cut -d'|' -f5)
+    osclass=$(  echo "${line}" | cut -d'|' -f6)
 echo "
 - matcher:
     require:

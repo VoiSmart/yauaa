@@ -1,6 +1,6 @@
 /*
  * Yet Another UserAgent Analyzer
- * Copyright (C) 2013-2017 Niels Basjes
+ * Copyright (C) 2013-2018 Niels Basjes
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,7 +20,7 @@ package nl.basjes.parse.useragent.beam;
 import java.io.Serializable;
 
 public class TestRecord implements Serializable {
-    String useragent;
+    final String useragent;
     String deviceClass;
     String agentNameVersion;
 
@@ -42,16 +42,20 @@ public class TestRecord implements Serializable {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof TestRecord)) return false;
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof TestRecord)) {
+            return false;
+        }
 
         TestRecord record = (TestRecord) o;
 
         return
-            isSame(useragent,        record.useragent        ) &&
-            isSame(deviceClass,      record.deviceClass      ) &&
-            isSame(agentNameVersion, record.agentNameVersion ) &&
-            isSame(shouldRemainNull, record.shouldRemainNull );
+            isSame(useragent,        record.useragent)         &&
+            isSame(deviceClass,      record.deviceClass)       &&
+            isSame(agentNameVersion, record.agentNameVersion)  &&
+            isSame(shouldRemainNull, record.shouldRemainNull);
     }
 
     private boolean isSame(String a, String b){

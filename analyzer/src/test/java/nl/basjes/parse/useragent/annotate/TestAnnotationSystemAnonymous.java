@@ -1,6 +1,6 @@
 /*
  * Yet Another UserAgent Analyzer
- * Copyright (C) 2013-2017 Niels Basjes
+ * Copyright (C) 2013-2018 Niels Basjes
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,9 +18,6 @@
 package nl.basjes.parse.useragent.annotate;
 
 import nl.basjes.parse.useragent.analyze.InvalidParserConfigurationException;
-import nl.basjes.parse.useragent.annonate.UserAgentAnnotationAnalyzer;
-import nl.basjes.parse.useragent.annonate.UserAgentAnnotationMapper;
-import nl.basjes.parse.useragent.annonate.YauaaField;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -45,7 +42,7 @@ public class TestAnnotationSystemAnonymous {
     @SuppressWarnings("unused")
     public abstract static class MyMapper<T>
         implements UserAgentAnnotationMapper<T>, Serializable {
-        private transient UserAgentAnnotationAnalyzer<T> userAgentAnalyzer = null;
+        private final transient UserAgentAnnotationAnalyzer<T> userAgentAnalyzer;
 
         public MyMapper() {
             userAgentAnalyzer = new UserAgentAnnotationAnalyzer<>();
@@ -64,20 +61,20 @@ public class TestAnnotationSystemAnonymous {
         record =
             new MyMapper<TestRecord>() {
                 @Override
-                public String getUserAgentString(TestRecord record) {
-                    return record.useragent;
+                public String getUserAgentString(TestRecord testRecord) {
+                    return testRecord.useragent;
                 }
 
                 @YauaaField("DeviceClass")
-                public void setDeviceClass(TestRecord record, String value) {
-                    record.deviceClass = value;
+                public void setDeviceClass(TestRecord testRecord, String value) {
+                    testRecord.deviceClass = value;
                 }
 
                 @YauaaField("AgentNameVersion")
-                public void setAgentNameVersion(TestRecord record, String value) {
-                    record.agentNameVersion = value;
+                public void setAgentNameVersion(TestRecord testRecord, String value) {
+                    testRecord.agentNameVersion = value;
                 }
-            } . enrich(record);
+            } .enrich(record);
 
         assertEquals("Desktop", record.deviceClass);
         assertEquals("Chrome 48.0.2564.82", record.agentNameVersion);
@@ -93,74 +90,80 @@ public class TestAnnotationSystemAnonymous {
     }
 
     @Test
-    public void testImpossibleField() throws Exception {
+    public void testImpossibleField() {
         expectedEx.expect(InvalidParserConfigurationException.class);
         expectedEx.expectMessage("We cannot provide these fields:[NielsBasjes]");
         record =
             new MyErrorMapper() {
                 @YauaaField("NielsBasjes")
-                public void setImpossibleField(TestRecord record, String value) {
+                public void setImpossibleField(TestRecord testRecord, String value) {
                     fail("May NEVER call this method");
                 }
-            } . enrich(record);
+            } .enrich(record);
     }
 
     // ----------------------------------------------------------------
 
     @Test
-    public void testInaccessibleSetter() throws Exception {
+    public void testInaccessibleSetter() {
         expectedEx.expect(InvalidParserConfigurationException.class);
         expectedEx.expectMessage("Method annotated with YauaaField is not public: inaccessibleSetter");
         record =
             new MyErrorMapper() {
                 @YauaaField("DeviceClass")
-                private void inaccessibleSetter(TestRecord record, String value) {
+                private void inaccessibleSetter(TestRecord testRecord, String value) {
                     fail("May NEVER call this method");
                 }
-            } . enrich(record);
+            } .enrich(record);
     }
 
     // ----------------------------------------------------------------
 
     @Test
-    public void testTooManyParameters() throws Exception {
+    public void testTooManyParameters() {
         expectedEx.expect(InvalidParserConfigurationException.class);
-        expectedEx.expectMessage("In class [class nl.basjes.parse.useragent.annotate.TestAnnotationSystemAnonymous$4] the method [wrongSetter] has been annotated with YauaaField but it has the wrong method signature. It must look like [ public void wrongSetter(TestRecord record, String value) ]");
+        expectedEx.expectMessage("In class [class nl.basjes.parse.useragent.annotate.TestAnnotationSystemAnonymous$4] the method [wrongSetter] " +
+            "has been annotated with YauaaField but it has the wrong method signature. It must look like " +
+            "[ public void wrongSetter(TestRecord record, String value) ]");
         record =
             new MyErrorMapper() {
                 @YauaaField("DeviceClass")
-                public void wrongSetter(TestRecord record, String value, String extra) {
+                public void wrongSetter(TestRecord testRecord, String value, String extra) {
                     fail("May NEVER call this method");
                 }
-            } . enrich(record);
+            } .enrich(record);
     }
 
     // ----------------------------------------------------------------
 
     @Test
-    public void testWrongTypeParameters1() throws Exception {
-        expectedEx.expectMessage("In class [class nl.basjes.parse.useragent.annotate.TestAnnotationSystemAnonymous$5] the method [wrongSetter] has been annotated with YauaaField but it has the wrong method signature. It must look like [ public void wrongSetter(TestRecord record, String value) ]");
+    public void testWrongTypeParameters1() {
+        expectedEx.expectMessage("In class [class nl.basjes.parse.useragent.annotate.TestAnnotationSystemAnonymous$5] the method [wrongSetter] " +
+            "has been annotated with YauaaField but it has the wrong method signature. It must look like " +
+            "[ public void wrongSetter(TestRecord record, String value) ]");
         record =
             new MyErrorMapper() {
                 @YauaaField("DeviceClass")
-                public void wrongSetter(String record, String value) {
+                public void wrongSetter(String string, String value) {
                     fail("May NEVER call this method");
                 }
-            } . enrich(record);
+            } .enrich(record);
     }
 
     // ----------------------------------------------------------------
 
     @Test
-    public void testWrongTypeParameters2() throws Exception {
-        expectedEx.expectMessage("In class [class nl.basjes.parse.useragent.annotate.TestAnnotationSystemAnonymous$6] the method [wrongSetter] has been annotated with YauaaField but it has the wrong method signature. It must look like [ public void wrongSetter(TestRecord record, String value) ]");
+    public void testWrongTypeParameters2() {
+        expectedEx.expectMessage("In class [class nl.basjes.parse.useragent.annotate.TestAnnotationSystemAnonymous$6] the method [wrongSetter] " +
+            "has been annotated with YauaaField but it has the wrong method signature. It must look like " +
+            "[ public void wrongSetter(TestRecord record, String value) ]");
         record =
             new MyErrorMapper() {
                 @YauaaField("DeviceClass")
-                public void wrongSetter(TestRecord record, Double value) {
+                public void wrongSetter(TestRecord testRecord, Double value) {
                     fail("May NEVER call this method");
                 }
-            } . enrich(record);
+            } .enrich(record);
     }
 
 

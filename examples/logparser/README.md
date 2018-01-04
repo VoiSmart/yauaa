@@ -4,7 +4,7 @@ This file is in the 'combined' LogFormat
 
     LogFormat "%h %l %u %t \"%r\" %>s %b \"%{Referer}i\" \"%{User-Agent}i\"" combined
 
-Although small (3456 lines) this is usefull to do testing on parsing and aggregating the data.
+Although small (3456 lines) this is useful to do testing on parsing and aggregating the data.
 
 All of these ips have accessed the /join_form URL.
 Although it exists this URL is nowhere advertised. 
@@ -17,7 +17,7 @@ Copyright
 ===
    
     Yet Another UserAgent Analyzer
-    Copyright (C) 2013-2017 Niels Basjes
+    Copyright (C) 2013-2018 Niels Basjes
    
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.

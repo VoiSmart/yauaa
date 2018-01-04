@@ -1,6 +1,6 @@
 /*
  * Yet Another UserAgent Analyzer
- * Copyright (C) 2013-2017 Niels Basjes
+ * Copyright (C) 2013-2018 Niels Basjes
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -202,7 +202,7 @@ public class UserAgentAnalyzerTester extends UserAgentAnalyzer {
 
             sb.append("| ").append(testName);
 
-            // We create the log line but we keep it untill we know it actually must be output to the screen
+            // We create the log line but we keep it until we know it actually must be output to the screen
             String testLogLine = sb.toString();
 
             sb.setLength(0);
@@ -499,6 +499,7 @@ public class UserAgentAnalyzerTester extends UserAgentAnalyzer {
         return allMatches;
     }
 
+    @SuppressWarnings("unchecked")
     public static UserAgentAnalyzerTesterBuilder<? extends UserAgentAnalyzerTester, ? extends UserAgentAnalyzerTesterBuilder> newBuilder() {
         return new UserAgentAnalyzerTesterBuilder<>(new UserAgentAnalyzerTester());
     }

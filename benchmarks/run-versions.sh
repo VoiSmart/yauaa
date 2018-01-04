@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 # Yet Another UserAgent Analyzer
-# Copyright (C) 2013-2017 Niels Basjes
+# Copyright (C) 2013-2018 Niels Basjes
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -18,14 +18,13 @@
 
 git tag | \
 sed 's/v//' | \
-egrep -v '^(0.1|0.10|0.3)' | \
-while read version ;
+egrep -v '^(0.1|0.10|0.3)' | while read version ;
 do
-  if [ ! -f version-${version}.txt ];
+  if [ ! -f "version-${version}.txt" ];
   then
-    mvn clean package -Dyauaa.version=${version} && \
+    mvn clean package -Dyauaa.version="${version}" && \
     echo "Testing version ${version}" && \
-    java -jar target/benchmarks.jar > version-${version}.txt
+    java -jar target/benchmarks.jar > "version-${version}.txt"
   fi
 done
 

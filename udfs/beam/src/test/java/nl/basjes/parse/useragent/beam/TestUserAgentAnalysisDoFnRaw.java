@@ -1,6 +1,6 @@
 /*
  * Yet Another UserAgent Analyzer
- * Copyright (C) 2013-2017 Niels Basjes
+ * Copyright (C) 2013-2018 Niels Basjes
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,7 @@
 
 package nl.basjes.parse.useragent.beam;
 
-import nl.basjes.parse.useragent.annonate.YauaaField;
+import nl.basjes.parse.useragent.annotate.YauaaField;
 import org.apache.beam.sdk.transforms.DoFn;
 import org.apache.beam.sdk.transforms.DoFnTester;
 import org.apache.beam.sdk.util.UserCodeException;
@@ -54,7 +54,8 @@ public class TestUserAgentAnalysisDoFnRaw implements Serializable {
         DoFnTester<TestRecord, TestRecord> fnTester = DoFnTester.of(fn);
 
         // Process a bundle containing a single input element:
-        TestRecord testInput = new TestRecord("Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/48.0.2564.82 Safari/537.36");
+        TestRecord testInput = new TestRecord("Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) " +
+            "Chrome/48.0.2564.82 Safari/537.36");
         List<TestRecord> testOutputs = fnTester.processBundle(testInput);
 
         assertEquals(1, testOutputs.size());
@@ -81,7 +82,8 @@ public class TestUserAgentAnalysisDoFnRaw implements Serializable {
         DoFnTester<TestRecord, TestRecord> fnTester = DoFnTester.of(fn);
 
         // Process a bundle containing a single input element:
-        TestRecord testInput = new TestRecord("Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/48.0.2564.82 Safari/537.36");
+        TestRecord testInput = new TestRecord("Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) " +
+            "Chrome/48.0.2564.82 Safari/537.36");
         fnTester.processBundle(testInput);
     }
 }
