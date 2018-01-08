@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 # Yet Another UserAgent Analyzer
-# Copyright (C) 2013-2017 Niels Basjes
+# Copyright (C) 2013-2018 Niels Basjes
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -18,5 +18,5 @@
 
 find src -type f -name Generate.sh | sed 's@/Generate.sh@@' | while read dir ;
 do
-  ( cd ${dir} ; ./Generate.sh )
+  ( cd "${dir}" ; ./Generate.sh )
 done

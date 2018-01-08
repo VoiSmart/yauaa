@@ -1,6 +1,6 @@
 /*
  * Yet Another UserAgent Analyzer
- * Copyright (C) 2013-2017 Niels Basjes
+ * Copyright (C) 2013-2018 Niels Basjes
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,7 +29,7 @@ import static org.junit.Assert.assertTrue;
 public class TestNumberRangeVisitor {
     @Test
     public void rangeSingleValue() {
-        List<Integer> values = new NumberRangeList(5,5);
+        List<Integer> values = new NumberRangeList(5, 5);
         assertEquals(1, values.size());
         assertFalse(values.contains(1));
         assertFalse(values.contains(2));
@@ -46,7 +46,7 @@ public class TestNumberRangeVisitor {
 
     @Test
     public void rangeMultipleValues() {
-        List<Integer> values = new NumberRangeList(3,5);
+        List<Integer> values = new NumberRangeList(3, 5);
         assertEquals(3, values.size());
         assertFalse(values.contains(1));
         assertFalse(values.contains(2));

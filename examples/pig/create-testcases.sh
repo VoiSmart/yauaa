@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 # Yet Another UserAgent Analyzer
-# Copyright (C) 2013-2017 Niels Basjes
+# Copyright (C) 2013-2018 Niels Basjes
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -16,4 +16,12 @@
 # limitations under the License.
 #
 
-find ../../analyzer/src/main/resources/UserAgents/ -type f -name '*.yaml' | xargs cat | fgrep user_a | cut -d':' -f2- | sed 's@^ *@@g' | sed 's@^"@@' | sed "s@^'@@" | sed "s@'\$@@" > testcases.txt
+find ../../analyzer/src/main/resources/UserAgents/ -type f -name '*.yaml' -print0 | \
+    xargs -0 cat | \
+    fgrep user_agent | \
+    cut -d':' -f2- | \
+    sed 's@^ *@@g' | \
+    sed 's@^"@@' | \
+    sed "s@^'@@" | \
+    sed "s@'\$@@" \
+    > testcases.txt

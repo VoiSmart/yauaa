@@ -1,6 +1,6 @@
 /*
  * Yet Another UserAgent Analyzer
- * Copyright (C) 2013-2017 Niels Basjes
+ * Copyright (C) 2013-2018 Niels Basjes
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,11 +37,6 @@ public class UserAgentAnalyzer extends UserAgentAnalyzerDirect implements Serial
 
     public UserAgentAnalyzer(String resourceString) {
         super(resourceString);
-    }
-
-    @Override
-    protected void initialize() {
-        super.initialize();
     }
 
     public void disableCaching() {
@@ -123,6 +118,7 @@ public class UserAgentAnalyzer extends UserAgentAnalyzerDirect implements Serial
             return (B)this;
         }
 
+        @SuppressWarnings("EmptyMethod") // We must override the method because of the generic return value.
         @Override
         public UAA build() {
             return super.build();

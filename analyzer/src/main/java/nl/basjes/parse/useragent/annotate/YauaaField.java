@@ -1,6 +1,6 @@
 /*
  * Yet Another UserAgent Analyzer
- * Copyright (C) 2013-2017 Niels Basjes
+ * Copyright (C) 2013-2018 Niels Basjes
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,8 +15,18 @@
  * limitations under the License.
  */
 
-package nl.basjes.parse.useragent.annonate;
+package nl.basjes.parse.useragent.annotate;
 
-public interface UserAgentAnnotationMapper<T> {
-    String getUserAgentString(T record);
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+
+@Retention(RetentionPolicy.RUNTIME)
+@Target({ElementType.METHOD})
+/*
+ * Defines the resulting field that must be used to call this setter.
+ */
+public @interface YauaaField {
+    String[] value();
 }

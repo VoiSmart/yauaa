@@ -1,6 +1,6 @@
 /*
  * Yet Another UserAgent Analyzer
- * Copyright (C) 2013-2017 Niels Basjes
+ * Copyright (C) 2013-2018 Niels Basjes
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,12 +36,14 @@ public class TestParseUserAgent {
         ParseUserAgent parseUserAgent = new ParseUserAgent();
 
         StandardStructObjectInspector resultInspector = (StandardStructObjectInspector) parseUserAgent
-            .initialize(new ObjectInspector[]{ PrimitiveObjectInspectorFactory.javaStringObjectInspector });
+            .initialize(new ObjectInspector[]{
+                PrimitiveObjectInspectorFactory.javaStringObjectInspector
+            });
 
         Object row = parseUserAgent.evaluate(new DeferredObject[]{new DeferredJavaObject(userAgent)});
 
-        checkField(resultInspector, row, "DeviceName"           , "Linux Desktop");
-        checkField(resultInspector, row, "AgentNameVersionMajor", "Chrome 58"    );
+        checkField(resultInspector, row, "DeviceName",            "Linux Desktop");
+        checkField(resultInspector, row, "AgentNameVersionMajor", "Chrome 58");
     }
 
     private void checkField(StandardStructObjectInspector resultInspector, Object row, String fieldName, String expectedValue) {

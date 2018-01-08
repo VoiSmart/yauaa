@@ -134,7 +134,7 @@ Flattened form of the tree
 
 If we take this useragent as an example the tree is flattened into a set of 'breadcrumb' type paths.
 
-I put some spaces in vairous places so you can see what happens with those (in most places they are trimmed):
+I put some spaces in various places so you can see what happens with those (in most places they are trimmed):
 
     foo/1.0 ( one  ; two three; four  ) bar/2.0 (five;six seven)
 
@@ -248,8 +248,8 @@ Operation | Symbol | Example | Value
 First N Words | [-N] | agent.(1)product.(1)comments.(2)entry.(1)text[-3] | one two three
 Single Word at position N | [N] | agent.(1)product.(1)comments.(2)entry.(1)text[3] | three
 A range of words N-M | [N-M] | agent.(1)product.(1)comments.(2)entry.(1)text[2-4] | two three four
-All words to the end strating at N | [N-] | agent.(1)product.(1)comments.(2)entry.(1)text[3-] | three four five
-Backto full value | @ | agent.(1)product.(1)comments.(2)entry.(1)text[2]="three" <br/> agent.(1)product.(1)comments.(2)entry.(1)text[2]="three"@ | three <br/> one two three four five
+All words to the end starting at N | [N-] | agent.(1)product.(1)comments.(2)entry.(1)text[3-] | three four five
+Back to full value | @ | agent.(1)product.(1)comments.(2)entry.(1)text[2]="three" <br/> agent.(1)product.(1)comments.(2)entry.(1)text[2]="three"@ | three <br/> one two three four five
 
 Special operations
 
@@ -570,7 +570,7 @@ Variables
 There is the option of predefining a value which is then usable by all rules in a matcher.
 
 A variable is simply a named point in the tree that is found only once and the reused as-is by the other rules within the same matcher.
-A variable is also always in essense a 'require', it must be present for the matcher as a whole to continue.
+A variable is also always in essence a 'require', it must be present for the matcher as a whole to continue.
 You can only reference a variable by name in a later variable. This is because they are evaluated in the order
 in which they appear in the definition in the file.
 The variable name follows a similar pattern as variable names in languages like Java: [a-zA-Z][a-zA-Z0-9]+
@@ -613,7 +613,7 @@ it will stay at the first product and never find the 5th product at all.
 License
 =======
     Yet Another UserAgent Analyzer
-    Copyright (C) 2013-2017 Niels Basjes
+    Copyright (C) 2013-2018 Niels Basjes
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.

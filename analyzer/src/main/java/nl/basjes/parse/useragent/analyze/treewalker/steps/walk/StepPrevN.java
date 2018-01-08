@@ -1,6 +1,6 @@
 /*
  * Yet Another UserAgent Analyzer
- * Copyright (C) 2013-2017 Niels Basjes
+ * Copyright (C) 2013-2018 Niels Basjes
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,9 +24,9 @@ import org.antlr.v4.runtime.tree.ParseTree;
 public class StepPrevN extends Step {
 
     private static final int SIZE = 20;
-    ParseTree[] children = new ParseTree[SIZE];
+    final ParseTree[] children = new ParseTree[SIZE];
 
-    private int steps = 1;
+    private final int steps;
 
     public StepPrevN(int steps) {
         this.steps = steps;

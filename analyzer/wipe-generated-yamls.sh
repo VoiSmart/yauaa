@@ -1,3 +1,4 @@
+#!/bin/bash
 #
 # Yet Another UserAgent Analyzer
 # Copyright (C) 2013-2018 Niels Basjes
@@ -14,12 +15,5 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-config:
-# ========================================================================
 
-# Missing lookup
-  - matcher:
-      extract:
-        - 'Test:1:LookUp[Missing;agent]'
-
-
+find src/main/resources/UserAgents/ -type f -name '*.yaml' | xargs fgrep -l 'THIS FILE WAS GENERATED; DO NOT EDIT MANUALLY' | xargs -r rm

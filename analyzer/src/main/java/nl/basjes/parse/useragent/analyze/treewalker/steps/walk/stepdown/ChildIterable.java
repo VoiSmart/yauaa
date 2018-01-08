@@ -1,6 +1,6 @@
 /*
  * Yet Another UserAgent Analyzer
- * Copyright (C) 2013-2017 Niels Basjes
+ * Copyright (C) 2013-2018 Niels Basjes
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,7 +28,7 @@ import static nl.basjes.parse.useragent.analyze.treewalker.steps.Step.treeIsSepa
 
 public class ChildIterable {
 
-    private boolean privateNumberRange = false;
+    private final boolean privateNumberRange;
     private final int start;
     private final int end;
 
