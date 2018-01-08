@@ -1,22 +1,3 @@
-# =============================================
-# THIS FILE WAS GENERATED; DO NOT EDIT MANUALLY
-# =============================================
-#
-# Yet Another UserAgent Analyzer
-# Copyright (C) 2013-2018 Niels Basjes
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-# http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-#
 config:
 
 - matcher:
@@ -39,7 +20,6 @@ config:
     - 'OperatingSystemName   :  150:"ASPLinux"'
     - 'OperatingSystemVersion:  150:CleanVersion[agent.(1)product.(1)comments.entry.product.name="ASPLinux"^.(1)version]'
 
-# Only if the second version field is NOT a type of CPU.
 - matcher:
     variable:
     - 'Version: agent.(1)product.(1)comments.entry.product.name="ASPLinux"^.(2)version'
@@ -73,7 +53,6 @@ config:
     - 'OperatingSystemName   :  150:"ASPLinux"'
     - 'OperatingSystemVersion:  150:CleanVersion[agent.product.name="ASPLinux"^.(1)version]'
 
-# Only if the second version field is NOT a type of CPU.
 - matcher:
     variable:
     - 'Version: agent.product.name="ASPLinux"^.(2)version'
@@ -131,7 +110,6 @@ config:
     - 'OperatingSystemName   :  150:"CentOS"'
     - 'OperatingSystemVersion:  150:CleanVersion[agent.(1)product.(1)comments.entry.product.name="CentOS"^.(1)version]'
 
-# Only if the second version field is NOT a type of CPU.
 - matcher:
     variable:
     - 'Version: agent.(1)product.(1)comments.entry.product.name="CentOS"^.(2)version'
@@ -165,7 +143,6 @@ config:
     - 'OperatingSystemName   :  150:"CentOS"'
     - 'OperatingSystemVersion:  150:CleanVersion[agent.product.name="CentOS"^.(1)version]'
 
-# Only if the second version field is NOT a type of CPU.
 - matcher:
     variable:
     - 'Version: agent.product.name="CentOS"^.(2)version'
@@ -223,7 +200,6 @@ config:
     - 'OperatingSystemName   :  150:"Red Hat"'
     - 'OperatingSystemVersion:  150:CleanVersion[agent.(1)product.(1)comments.entry.product.name="Red Hat"^.(1)version]'
 
-# Only if the second version field is NOT a type of CPU.
 - matcher:
     variable:
     - 'Version: agent.(1)product.(1)comments.entry.product.name="Red Hat"^.(2)version'
@@ -257,7 +233,6 @@ config:
     - 'OperatingSystemName   :  150:"Red Hat"'
     - 'OperatingSystemVersion:  150:CleanVersion[agent.product.name="Red Hat"^.(1)version]'
 
-# Only if the second version field is NOT a type of CPU.
 - matcher:
     variable:
     - 'Version: agent.product.name="Red Hat"^.(2)version'
@@ -315,7 +290,6 @@ config:
     - 'OperatingSystemName   :  150:"Debian"'
     - 'OperatingSystemVersion:  150:CleanVersion[agent.(1)product.(1)comments.entry.product.name="Debian"^.(1)version]'
 
-# Only if the second version field is NOT a type of CPU.
 - matcher:
     variable:
     - 'Version: agent.(1)product.(1)comments.entry.product.name="Debian"^.(2)version'
@@ -349,7 +323,6 @@ config:
     - 'OperatingSystemName   :  150:"Debian"'
     - 'OperatingSystemVersion:  150:CleanVersion[agent.product.name="Debian"^.(1)version]'
 
-# Only if the second version field is NOT a type of CPU.
 - matcher:
     variable:
     - 'Version: agent.product.name="Debian"^.(2)version'
@@ -407,7 +380,6 @@ config:
     - 'OperatingSystemName   :  150:"Debian"'
     - 'OperatingSystemVersion:  150:CleanVersion[agent.(1)product.(1)comments.entry.product.name="Debian GNU"^.(1)version]'
 
-# Only if the second version field is NOT a type of CPU.
 - matcher:
     variable:
     - 'Version: agent.(1)product.(1)comments.entry.product.name="Debian GNU"^.(2)version'
@@ -441,7 +413,6 @@ config:
     - 'OperatingSystemName   :  150:"Debian"'
     - 'OperatingSystemVersion:  150:CleanVersion[agent.product.name="Debian GNU"^.(1)version]'
 
-# Only if the second version field is NOT a type of CPU.
 - matcher:
     variable:
     - 'Version: agent.product.name="Debian GNU"^.(2)version'
@@ -499,7 +470,6 @@ config:
     - 'OperatingSystemName   :  150:"Fedora"'
     - 'OperatingSystemVersion:  150:CleanVersion[agent.(1)product.(1)comments.entry.product.name="Fedora"^.(1)version]'
 
-# Only if the second version field is NOT a type of CPU.
 - matcher:
     variable:
     - 'Version: agent.(1)product.(1)comments.entry.product.name="Fedora"^.(2)version'
@@ -533,7 +503,6 @@ config:
     - 'OperatingSystemName   :  150:"Fedora"'
     - 'OperatingSystemVersion:  150:CleanVersion[agent.product.name="Fedora"^.(1)version]'
 
-# Only if the second version field is NOT a type of CPU.
 - matcher:
     variable:
     - 'Version: agent.product.name="Fedora"^.(2)version'
@@ -591,7 +560,6 @@ config:
     - 'OperatingSystemName   :  150:"FoxOS"'
     - 'OperatingSystemVersion:  150:CleanVersion[agent.(1)product.(1)comments.entry.product.name="FoxOS"^.(1)version]'
 
-# Only if the second version field is NOT a type of CPU.
 - matcher:
     variable:
     - 'Version: agent.(1)product.(1)comments.entry.product.name="FoxOS"^.(2)version'
@@ -625,7 +593,6 @@ config:
     - 'OperatingSystemName   :  150:"FoxOS"'
     - 'OperatingSystemVersion:  150:CleanVersion[agent.product.name="FoxOS"^.(1)version]'
 
-# Only if the second version field is NOT a type of CPU.
 - matcher:
     variable:
     - 'Version: agent.product.name="FoxOS"^.(2)version'
@@ -683,7 +650,6 @@ config:
     - 'OperatingSystemName   :  150:"Joli OS"'
     - 'OperatingSystemVersion:  150:CleanVersion[agent.(1)product.(1)comments.entry.product.name="Joli OS"^.(1)version]'
 
-# Only if the second version field is NOT a type of CPU.
 - matcher:
     variable:
     - 'Version: agent.(1)product.(1)comments.entry.product.name="Joli OS"^.(2)version'
@@ -717,7 +683,6 @@ config:
     - 'OperatingSystemName   :  150:"Joli OS"'
     - 'OperatingSystemVersion:  150:CleanVersion[agent.product.name="Joli OS"^.(1)version]'
 
-# Only if the second version field is NOT a type of CPU.
 - matcher:
     variable:
     - 'Version: agent.product.name="Joli OS"^.(2)version'
@@ -775,7 +740,6 @@ config:
     - 'OperatingSystemName   :  150:"Joli Cloud"'
     - 'OperatingSystemVersion:  150:CleanVersion[agent.(1)product.(1)comments.entry.product.name="JoliCloud"^.(1)version]'
 
-# Only if the second version field is NOT a type of CPU.
 - matcher:
     variable:
     - 'Version: agent.(1)product.(1)comments.entry.product.name="JoliCloud"^.(2)version'
@@ -809,7 +773,6 @@ config:
     - 'OperatingSystemName   :  150:"Joli Cloud"'
     - 'OperatingSystemVersion:  150:CleanVersion[agent.product.name="JoliCloud"^.(1)version]'
 
-# Only if the second version field is NOT a type of CPU.
 - matcher:
     variable:
     - 'Version: agent.product.name="JoliCloud"^.(2)version'
@@ -867,7 +830,6 @@ config:
     - 'OperatingSystemName   :  150:"Linpus"'
     - 'OperatingSystemVersion:  150:CleanVersion[agent.(1)product.(1)comments.entry.product.name="Linpus"^.(1)version]'
 
-# Only if the second version field is NOT a type of CPU.
 - matcher:
     variable:
     - 'Version: agent.(1)product.(1)comments.entry.product.name="Linpus"^.(2)version'
@@ -901,7 +863,6 @@ config:
     - 'OperatingSystemName   :  150:"Linpus"'
     - 'OperatingSystemVersion:  150:CleanVersion[agent.product.name="Linpus"^.(1)version]'
 
-# Only if the second version field is NOT a type of CPU.
 - matcher:
     variable:
     - 'Version: agent.product.name="Linpus"^.(2)version'
@@ -959,7 +920,6 @@ config:
     - 'OperatingSystemName   :  150:"Linspire"'
     - 'OperatingSystemVersion:  150:CleanVersion[agent.(1)product.(1)comments.entry.product.name="Linspire"^.(1)version]'
 
-# Only if the second version field is NOT a type of CPU.
 - matcher:
     variable:
     - 'Version: agent.(1)product.(1)comments.entry.product.name="Linspire"^.(2)version'
@@ -993,7 +953,6 @@ config:
     - 'OperatingSystemName   :  150:"Linspire"'
     - 'OperatingSystemVersion:  150:CleanVersion[agent.product.name="Linspire"^.(1)version]'
 
-# Only if the second version field is NOT a type of CPU.
 - matcher:
     variable:
     - 'Version: agent.product.name="Linspire"^.(2)version'
@@ -1051,7 +1010,6 @@ config:
     - 'OperatingSystemName   :  150:"Mandriva Linux"'
     - 'OperatingSystemVersion:  150:CleanVersion[agent.(1)product.(1)comments.entry.product.name="Mandriva Linux"^.(1)version]'
 
-# Only if the second version field is NOT a type of CPU.
 - matcher:
     variable:
     - 'Version: agent.(1)product.(1)comments.entry.product.name="Mandriva Linux"^.(2)version'
@@ -1085,7 +1043,6 @@ config:
     - 'OperatingSystemName   :  150:"Mandriva Linux"'
     - 'OperatingSystemVersion:  150:CleanVersion[agent.product.name="Mandriva Linux"^.(1)version]'
 
-# Only if the second version field is NOT a type of CPU.
 - matcher:
     variable:
     - 'Version: agent.product.name="Mandriva Linux"^.(2)version'
@@ -1143,7 +1100,6 @@ config:
     - 'OperatingSystemName   :  150:"Mandriva"'
     - 'OperatingSystemVersion:  150:CleanVersion[agent.(1)product.(1)comments.entry.product.name="Mandriva"^.(1)version]'
 
-# Only if the second version field is NOT a type of CPU.
 - matcher:
     variable:
     - 'Version: agent.(1)product.(1)comments.entry.product.name="Mandriva"^.(2)version'
@@ -1177,7 +1133,6 @@ config:
     - 'OperatingSystemName   :  150:"Mandriva"'
     - 'OperatingSystemVersion:  150:CleanVersion[agent.product.name="Mandriva"^.(1)version]'
 
-# Only if the second version field is NOT a type of CPU.
 - matcher:
     variable:
     - 'Version: agent.product.name="Mandriva"^.(2)version'
@@ -1235,7 +1190,6 @@ config:
     - 'OperatingSystemName   :  150:"Linux Mint"'
     - 'OperatingSystemVersion:  150:CleanVersion[agent.(1)product.(1)comments.entry.product.name="Mint"^.(1)version]'
 
-# Only if the second version field is NOT a type of CPU.
 - matcher:
     variable:
     - 'Version: agent.(1)product.(1)comments.entry.product.name="Mint"^.(2)version'
@@ -1269,7 +1223,6 @@ config:
     - 'OperatingSystemName   :  150:"Linux Mint"'
     - 'OperatingSystemVersion:  150:CleanVersion[agent.product.name="Mint"^.(1)version]'
 
-# Only if the second version field is NOT a type of CPU.
 - matcher:
     variable:
     - 'Version: agent.product.name="Mint"^.(2)version'
@@ -1327,7 +1280,6 @@ config:
     - 'OperatingSystemName   :  150:"Linux Mint"'
     - 'OperatingSystemVersion:  150:CleanVersion[agent.(1)product.(1)comments.entry.product.name="Linux Mint"^.(1)version]'
 
-# Only if the second version field is NOT a type of CPU.
 - matcher:
     variable:
     - 'Version: agent.(1)product.(1)comments.entry.product.name="Linux Mint"^.(2)version'
@@ -1361,7 +1313,6 @@ config:
     - 'OperatingSystemName   :  150:"Linux Mint"'
     - 'OperatingSystemVersion:  150:CleanVersion[agent.product.name="Linux Mint"^.(1)version]'
 
-# Only if the second version field is NOT a type of CPU.
 - matcher:
     variable:
     - 'Version: agent.product.name="Linux Mint"^.(2)version'
@@ -1419,7 +1370,6 @@ config:
     - 'OperatingSystemName   :  150:"Linux Mint"'
     - 'OperatingSystemVersion:  150:CleanVersion[agent.(1)product.(1)comments.entry.product.name="Edition Linux Mint"^.(1)version]'
 
-# Only if the second version field is NOT a type of CPU.
 - matcher:
     variable:
     - 'Version: agent.(1)product.(1)comments.entry.product.name="Edition Linux Mint"^.(2)version'
@@ -1453,7 +1403,6 @@ config:
     - 'OperatingSystemName   :  150:"Linux Mint"'
     - 'OperatingSystemVersion:  150:CleanVersion[agent.product.name="Edition Linux Mint"^.(1)version]'
 
-# Only if the second version field is NOT a type of CPU.
 - matcher:
     variable:
     - 'Version: agent.product.name="Edition Linux Mint"^.(2)version'
@@ -1511,7 +1460,6 @@ config:
     - 'OperatingSystemName   :  150:"Moblin"'
     - 'OperatingSystemVersion:  150:CleanVersion[agent.(1)product.(1)comments.entry.product.name="Moblin"^.(1)version]'
 
-# Only if the second version field is NOT a type of CPU.
 - matcher:
     variable:
     - 'Version: agent.(1)product.(1)comments.entry.product.name="Moblin"^.(2)version'
@@ -1545,7 +1493,6 @@ config:
     - 'OperatingSystemName   :  150:"Moblin"'
     - 'OperatingSystemVersion:  150:CleanVersion[agent.product.name="Moblin"^.(1)version]'
 
-# Only if the second version field is NOT a type of CPU.
 - matcher:
     variable:
     - 'Version: agent.product.name="Moblin"^.(2)version'
@@ -1603,7 +1550,6 @@ config:
     - 'OperatingSystemName   :  150:"Namoroka"'
     - 'OperatingSystemVersion:  150:CleanVersion[agent.(1)product.(1)comments.entry.product.name="Namoroka"^.(1)version]'
 
-# Only if the second version field is NOT a type of CPU.
 - matcher:
     variable:
     - 'Version: agent.(1)product.(1)comments.entry.product.name="Namoroka"^.(2)version'
@@ -1637,7 +1583,6 @@ config:
     - 'OperatingSystemName   :  150:"Namoroka"'
     - 'OperatingSystemVersion:  150:CleanVersion[agent.product.name="Namoroka"^.(1)version]'
 
-# Only if the second version field is NOT a type of CPU.
 - matcher:
     variable:
     - 'Version: agent.product.name="Namoroka"^.(2)version'
@@ -1695,7 +1640,6 @@ config:
     - 'OperatingSystemName   :  150:"NaverBot"'
     - 'OperatingSystemVersion:  150:CleanVersion[agent.(1)product.(1)comments.entry.product.name="NaverBot"^.(1)version]'
 
-# Only if the second version field is NOT a type of CPU.
 - matcher:
     variable:
     - 'Version: agent.(1)product.(1)comments.entry.product.name="NaverBot"^.(2)version'
@@ -1729,7 +1673,6 @@ config:
     - 'OperatingSystemName   :  150:"NaverBot"'
     - 'OperatingSystemVersion:  150:CleanVersion[agent.product.name="NaverBot"^.(1)version]'
 
-# Only if the second version field is NOT a type of CPU.
 - matcher:
     variable:
     - 'Version: agent.product.name="NaverBot"^.(2)version'
@@ -1787,7 +1730,6 @@ config:
     - 'OperatingSystemName   :  150:"PCLinuxOS"'
     - 'OperatingSystemVersion:  150:CleanVersion[agent.(1)product.(1)comments.entry.product.name="PCLinuxOS"^.(1)version]'
 
-# Only if the second version field is NOT a type of CPU.
 - matcher:
     variable:
     - 'Version: agent.(1)product.(1)comments.entry.product.name="PCLinuxOS"^.(2)version'
@@ -1821,7 +1763,6 @@ config:
     - 'OperatingSystemName   :  150:"PCLinuxOS"'
     - 'OperatingSystemVersion:  150:CleanVersion[agent.product.name="PCLinuxOS"^.(1)version]'
 
-# Only if the second version field is NOT a type of CPU.
 - matcher:
     variable:
     - 'Version: agent.product.name="PCLinuxOS"^.(2)version'
@@ -1879,7 +1820,6 @@ config:
     - 'OperatingSystemName   :  150:"Slackware"'
     - 'OperatingSystemVersion:  150:CleanVersion[agent.(1)product.(1)comments.entry.product.name="Slackware"^.(1)version]'
 
-# Only if the second version field is NOT a type of CPU.
 - matcher:
     variable:
     - 'Version: agent.(1)product.(1)comments.entry.product.name="Slackware"^.(2)version'
@@ -1913,7 +1853,6 @@ config:
     - 'OperatingSystemName   :  150:"Slackware"'
     - 'OperatingSystemVersion:  150:CleanVersion[agent.product.name="Slackware"^.(1)version]'
 
-# Only if the second version field is NOT a type of CPU.
 - matcher:
     variable:
     - 'Version: agent.product.name="Slackware"^.(2)version'
@@ -1971,7 +1910,6 @@ config:
     - 'OperatingSystemName   :  150:"SUSE"'
     - 'OperatingSystemVersion:  150:CleanVersion[agent.(1)product.(1)comments.entry.product.name="SUSE"^.(1)version]'
 
-# Only if the second version field is NOT a type of CPU.
 - matcher:
     variable:
     - 'Version: agent.(1)product.(1)comments.entry.product.name="SUSE"^.(2)version'
@@ -2005,7 +1943,6 @@ config:
     - 'OperatingSystemName   :  150:"SUSE"'
     - 'OperatingSystemVersion:  150:CleanVersion[agent.product.name="SUSE"^.(1)version]'
 
-# Only if the second version field is NOT a type of CPU.
 - matcher:
     variable:
     - 'Version: agent.product.name="SUSE"^.(2)version'
@@ -2063,7 +2000,6 @@ config:
     - 'OperatingSystemName   :  150:"Ubuntu"'
     - 'OperatingSystemVersion:  150:CleanVersion[agent.(1)product.(1)comments.entry.product.name="Ubuntu"^.(1)version]'
 
-# Only if the second version field is NOT a type of CPU.
 - matcher:
     variable:
     - 'Version: agent.(1)product.(1)comments.entry.product.name="Ubuntu"^.(2)version'
@@ -2097,7 +2033,6 @@ config:
     - 'OperatingSystemName   :  150:"Ubuntu"'
     - 'OperatingSystemVersion:  150:CleanVersion[agent.product.name="Ubuntu"^.(1)version]'
 
-# Only if the second version field is NOT a type of CPU.
 - matcher:
     variable:
     - 'Version: agent.product.name="Ubuntu"^.(2)version'
@@ -2155,7 +2090,6 @@ config:
     - 'OperatingSystemName   :  150:"Kubuntu"'
     - 'OperatingSystemVersion:  150:CleanVersion[agent.(1)product.(1)comments.entry.product.name="Kubuntu"^.(1)version]'
 
-# Only if the second version field is NOT a type of CPU.
 - matcher:
     variable:
     - 'Version: agent.(1)product.(1)comments.entry.product.name="Kubuntu"^.(2)version'
@@ -2189,7 +2123,6 @@ config:
     - 'OperatingSystemName   :  150:"Kubuntu"'
     - 'OperatingSystemVersion:  150:CleanVersion[agent.product.name="Kubuntu"^.(1)version]'
 
-# Only if the second version field is NOT a type of CPU.
 - matcher:
     variable:
     - 'Version: agent.product.name="Kubuntu"^.(2)version'
@@ -2247,7 +2180,6 @@ config:
     - 'OperatingSystemName   :  150:"Xubuntu"'
     - 'OperatingSystemVersion:  150:CleanVersion[agent.(1)product.(1)comments.entry.product.name="Xubuntu"^.(1)version]'
 
-# Only if the second version field is NOT a type of CPU.
 - matcher:
     variable:
     - 'Version: agent.(1)product.(1)comments.entry.product.name="Xubuntu"^.(2)version'
@@ -2281,7 +2213,6 @@ config:
     - 'OperatingSystemName   :  150:"Xubuntu"'
     - 'OperatingSystemVersion:  150:CleanVersion[agent.product.name="Xubuntu"^.(1)version]'
 
-# Only if the second version field is NOT a type of CPU.
 - matcher:
     variable:
     - 'Version: agent.product.name="Xubuntu"^.(2)version'
@@ -2339,7 +2270,6 @@ config:
     - 'OperatingSystemName   :  150:"Yoper"'
     - 'OperatingSystemVersion:  150:CleanVersion[agent.(1)product.(1)comments.entry.product.name="Yoper"^.(1)version]'
 
-# Only if the second version field is NOT a type of CPU.
 - matcher:
     variable:
     - 'Version: agent.(1)product.(1)comments.entry.product.name="Yoper"^.(2)version'
@@ -2373,7 +2303,6 @@ config:
     - 'OperatingSystemName   :  150:"Yoper"'
     - 'OperatingSystemVersion:  150:CleanVersion[agent.product.name="Yoper"^.(1)version]'
 
-# Only if the second version field is NOT a type of CPU.
 - matcher:
     variable:
     - 'Version: agent.product.name="Yoper"^.(2)version'
@@ -2431,7 +2360,6 @@ config:
     - 'OperatingSystemName   :  150:"SugarLabs"'
     - 'OperatingSystemVersion:  150:CleanVersion[agent.(1)product.(1)comments.entry.product.name="SugarLabs"^.(1)version]'
 
-# Only if the second version field is NOT a type of CPU.
 - matcher:
     variable:
     - 'Version: agent.(1)product.(1)comments.entry.product.name="SugarLabs"^.(2)version'
@@ -2465,7 +2393,6 @@ config:
     - 'OperatingSystemName   :  150:"SugarLabs"'
     - 'OperatingSystemVersion:  150:CleanVersion[agent.product.name="SugarLabs"^.(1)version]'
 
-# Only if the second version field is NOT a type of CPU.
 - matcher:
     variable:
     - 'Version: agent.product.name="SugarLabs"^.(2)version'
@@ -2523,7 +2450,6 @@ config:
     - 'OperatingSystemName   :  150:"SunOS"'
     - 'OperatingSystemVersion:  150:CleanVersion[agent.(1)product.(1)comments.entry.product.name="SunOS"^.(1)version]'
 
-# Only if the second version field is NOT a type of CPU.
 - matcher:
     variable:
     - 'Version: agent.(1)product.(1)comments.entry.product.name="SunOS"^.(2)version'
@@ -2557,7 +2483,6 @@ config:
     - 'OperatingSystemName   :  150:"SunOS"'
     - 'OperatingSystemVersion:  150:CleanVersion[agent.product.name="SunOS"^.(1)version]'
 
-# Only if the second version field is NOT a type of CPU.
 - matcher:
     variable:
     - 'Version: agent.product.name="SunOS"^.(2)version'
@@ -2615,7 +2540,6 @@ config:
     - 'OperatingSystemName   :  150:"Solaris"'
     - 'OperatingSystemVersion:  150:CleanVersion[agent.(1)product.(1)comments.entry.product.name="Solaris"^.(1)version]'
 
-# Only if the second version field is NOT a type of CPU.
 - matcher:
     variable:
     - 'Version: agent.(1)product.(1)comments.entry.product.name="Solaris"^.(2)version'
@@ -2649,7 +2573,6 @@ config:
     - 'OperatingSystemName   :  150:"Solaris"'
     - 'OperatingSystemVersion:  150:CleanVersion[agent.product.name="Solaris"^.(1)version]'
 
-# Only if the second version field is NOT a type of CPU.
 - matcher:
     variable:
     - 'Version: agent.product.name="Solaris"^.(2)version'
@@ -2707,7 +2630,6 @@ config:
     - 'OperatingSystemName   :  150:"illumOS"'
     - 'OperatingSystemVersion:  150:CleanVersion[agent.(1)product.(1)comments.entry.product.name="illumOS"^.(1)version]'
 
-# Only if the second version field is NOT a type of CPU.
 - matcher:
     variable:
     - 'Version: agent.(1)product.(1)comments.entry.product.name="illumOS"^.(2)version'
@@ -2741,7 +2663,6 @@ config:
     - 'OperatingSystemName   :  150:"illumOS"'
     - 'OperatingSystemVersion:  150:CleanVersion[agent.product.name="illumOS"^.(1)version]'
 
-# Only if the second version field is NOT a type of CPU.
 - matcher:
     variable:
     - 'Version: agent.product.name="illumOS"^.(2)version'
@@ -2799,7 +2720,6 @@ config:
     - 'OperatingSystemName   :  150:"MeeGo"'
     - 'OperatingSystemVersion:  150:CleanVersion[agent.(1)product.(1)comments.entry.product.name="MeeGo"^.(1)version]'
 
-# Only if the second version field is NOT a type of CPU.
 - matcher:
     variable:
     - 'Version: agent.(1)product.(1)comments.entry.product.name="MeeGo"^.(2)version'
@@ -2833,7 +2753,6 @@ config:
     - 'OperatingSystemName   :  150:"MeeGo"'
     - 'OperatingSystemVersion:  150:CleanVersion[agent.product.name="MeeGo"^.(1)version]'
 
-# Only if the second version field is NOT a type of CPU.
 - matcher:
     variable:
     - 'Version: agent.product.name="MeeGo"^.(2)version'
@@ -2891,7 +2810,6 @@ config:
     - 'OperatingSystemName   :  150:"Symbian"'
     - 'OperatingSystemVersion:  150:CleanVersion[agent.(1)product.(1)comments.entry.product.name="Symbian"^.(1)version]'
 
-# Only if the second version field is NOT a type of CPU.
 - matcher:
     variable:
     - 'Version: agent.(1)product.(1)comments.entry.product.name="Symbian"^.(2)version'
@@ -2925,7 +2843,6 @@ config:
     - 'OperatingSystemName   :  150:"Symbian"'
     - 'OperatingSystemVersion:  150:CleanVersion[agent.product.name="Symbian"^.(1)version]'
 
-# Only if the second version field is NOT a type of CPU.
 - matcher:
     variable:
     - 'Version: agent.product.name="Symbian"^.(2)version'
@@ -2983,7 +2900,6 @@ config:
     - 'OperatingSystemName   :  150:"SymbianOS"'
     - 'OperatingSystemVersion:  150:CleanVersion[agent.(1)product.(1)comments.entry.product.name="SymbianOS"^.(1)version]'
 
-# Only if the second version field is NOT a type of CPU.
 - matcher:
     variable:
     - 'Version: agent.(1)product.(1)comments.entry.product.name="SymbianOS"^.(2)version'
@@ -3017,7 +2933,6 @@ config:
     - 'OperatingSystemName   :  150:"SymbianOS"'
     - 'OperatingSystemVersion:  150:CleanVersion[agent.product.name="SymbianOS"^.(1)version]'
 
-# Only if the second version field is NOT a type of CPU.
 - matcher:
     variable:
     - 'Version: agent.product.name="SymbianOS"^.(2)version'
@@ -3075,7 +2990,6 @@ config:
     - 'OperatingSystemName   :  150:"SymbianOS"'
     - 'OperatingSystemVersion:  150:CleanVersion[agent.(1)product.(1)comments.entry.product.name="Symbian OS"^.(1)version]'
 
-# Only if the second version field is NOT a type of CPU.
 - matcher:
     variable:
     - 'Version: agent.(1)product.(1)comments.entry.product.name="Symbian OS"^.(2)version'
@@ -3109,7 +3023,6 @@ config:
     - 'OperatingSystemName   :  150:"SymbianOS"'
     - 'OperatingSystemVersion:  150:CleanVersion[agent.product.name="Symbian OS"^.(1)version]'
 
-# Only if the second version field is NOT a type of CPU.
 - matcher:
     variable:
     - 'Version: agent.product.name="Symbian OS"^.(2)version'
@@ -3167,7 +3080,6 @@ config:
     - 'OperatingSystemName   :  150:"PalmSource"'
     - 'OperatingSystemVersion:  150:CleanVersion[agent.(1)product.(1)comments.entry.product.name="PalmSource"^.(1)version]'
 
-# Only if the second version field is NOT a type of CPU.
 - matcher:
     variable:
     - 'Version: agent.(1)product.(1)comments.entry.product.name="PalmSource"^.(2)version'
@@ -3201,7 +3113,6 @@ config:
     - 'OperatingSystemName   :  150:"PalmSource"'
     - 'OperatingSystemVersion:  150:CleanVersion[agent.product.name="PalmSource"^.(1)version]'
 
-# Only if the second version field is NOT a type of CPU.
 - matcher:
     variable:
     - 'Version: agent.product.name="PalmSource"^.(2)version'
@@ -3259,7 +3170,6 @@ config:
     - 'OperatingSystemName   :  150:"FreeBSD"'
     - 'OperatingSystemVersion:  150:CleanVersion[agent.(1)product.(1)comments.entry.product.name="FreeBSD"^.(1)version]'
 
-# Only if the second version field is NOT a type of CPU.
 - matcher:
     variable:
     - 'Version: agent.(1)product.(1)comments.entry.product.name="FreeBSD"^.(2)version'
@@ -3293,7 +3203,6 @@ config:
     - 'OperatingSystemName   :  150:"FreeBSD"'
     - 'OperatingSystemVersion:  150:CleanVersion[agent.product.name="FreeBSD"^.(1)version]'
 
-# Only if the second version field is NOT a type of CPU.
 - matcher:
     variable:
     - 'Version: agent.product.name="FreeBSD"^.(2)version'
@@ -3351,7 +3260,6 @@ config:
     - 'OperatingSystemName   :  150:"NetBSD"'
     - 'OperatingSystemVersion:  150:CleanVersion[agent.(1)product.(1)comments.entry.product.name="NetBSD"^.(1)version]'
 
-# Only if the second version field is NOT a type of CPU.
 - matcher:
     variable:
     - 'Version: agent.(1)product.(1)comments.entry.product.name="NetBSD"^.(2)version'
@@ -3385,7 +3293,6 @@ config:
     - 'OperatingSystemName   :  150:"NetBSD"'
     - 'OperatingSystemVersion:  150:CleanVersion[agent.product.name="NetBSD"^.(1)version]'
 
-# Only if the second version field is NOT a type of CPU.
 - matcher:
     variable:
     - 'Version: agent.product.name="NetBSD"^.(2)version'
@@ -3443,7 +3350,6 @@ config:
     - 'OperatingSystemName   :  150:"OpenBSD"'
     - 'OperatingSystemVersion:  150:CleanVersion[agent.(1)product.(1)comments.entry.product.name="OpenBSD"^.(1)version]'
 
-# Only if the second version field is NOT a type of CPU.
 - matcher:
     variable:
     - 'Version: agent.(1)product.(1)comments.entry.product.name="OpenBSD"^.(2)version'
@@ -3477,7 +3383,6 @@ config:
     - 'OperatingSystemName   :  150:"OpenBSD"'
     - 'OperatingSystemVersion:  150:CleanVersion[agent.product.name="OpenBSD"^.(1)version]'
 
-# Only if the second version field is NOT a type of CPU.
 - matcher:
     variable:
     - 'Version: agent.product.name="OpenBSD"^.(2)version'
@@ -3512,5 +3417,3 @@ config:
     - 'OperatingSystemClass  :  152:"Desktop"'
     - 'OperatingSystemName   :  152:"OpenBSD"'
     - 'OperatingSystemVersion:  149:"??"'
-
-

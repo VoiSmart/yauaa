@@ -1,25 +1,4 @@
-# =============================================
-# THIS FILE WAS GENERATED; DO NOT EDIT MANUALLY
-# =============================================
-#
-# Yet Another UserAgent Analyzer
-# Copyright (C) 2013-2018 Niels Basjes
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-# http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-#
-
 config:
-# Match the 2 and 2-2 letter variants:
 - matcher:
     extract:
     - 'AgentLanguageCode :  5:LookUp[ISOLanguageCodes;agent.(1)product.(1)comments.entry.(1-2)text]'
@@ -40,7 +19,6 @@ config:
     - 'AgentLanguageCode :  5:LookUp[ISOLanguageCodes;agent.product.name="Language"^.version]'
     - 'AgentLanguage     :  5:LookUp[ISOLanguageCodesName;agent.product.name="Language"^.version]'
 
-# Match the 3 variants:
 - matcher:
     extract:
     - 'AgentLanguageCode :  4:LookUp[ISOLanguageCodes3;agent.(1)product.(1)comments.entry.(1-2)text]'
@@ -61,7 +39,6 @@ config:
     - 'AgentLanguageCode :  5:LookUp[ISOLanguageCodes3;agent.product.name="Language"^.version]'
     - 'AgentLanguage     :  5:LookUp[ISOLanguageCodes3Name;agent.product.name="Language"^.version]'
 
-# -----------------------------------------------------------------------------
 - lookup:
     name: 'ISOLanguageCodes'
     map:
@@ -462,7 +439,6 @@ config:
       "zu_za" : "zu-za"
       "zu-za" : "zu-za"
       "zu" : "zu"
-# -----------------------------------------------------------------------------
 - lookup:
     name: 'ISOLanguageCodesName'
     map:
@@ -863,7 +839,6 @@ config:
       "zu_za" : "Zulu (South Africa)"
       "zu-za" : "Zulu (South Africa)"
       "zu" : "Zulu"
-# -----------------------------------------------------------------------------
 - lookup:
     name: 'ISOLanguageCodes3'
     map:
@@ -8685,7 +8660,6 @@ config:
       "zyp" : "zyp"
       "zza" : "zza"
       "zzj" : "zzj"
-# -----------------------------------------------------------------------------
 - lookup:
     name: 'ISOLanguageCodes3Name'
     map:
@@ -16507,4 +16481,3 @@ config:
       "zyp" : "Zyphe Chin"
       "zza" : "Zaza"
       "zzj" : "Zuojiang Zhuang"
-# -----------------------------------------------------------------------------
