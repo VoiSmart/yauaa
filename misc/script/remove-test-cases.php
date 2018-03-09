@@ -64,7 +64,7 @@ function performCopy($sourceDir, $destinationDir) {
 
 	if (!is_dir($destinationDir)) {
 
-	    die("\nSource directory '$destinationDir' is not valid...\n\n");
+	    die("\nDestination directory '$destinationDir' is not valid...\n\n");
 	}
 
 	echo("\nStarting script...\n\n");
