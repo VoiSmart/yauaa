@@ -340,6 +340,7 @@ AgentClass
 | Robot             | A robot that wants to be treated as a desktop device |
 | Robot Mobile      | A robot that wants to be treated as a mobile device |
 | Cloud Application | Something running in a cloud (but not a regular robot) |
+| Email Client      | This is an email application that did the request |
 | Special           | Something special we cannot fully classify |
 | Testclient        | A website testing tool |
 | Hacker            | A hacker, so it can really be anything. |
