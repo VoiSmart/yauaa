@@ -42,9 +42,9 @@
     <checkstyle-plugin.version>2.17</checkstyle-plugin.version>
     <checkstyle.version>8.5</checkstyle.version>
     <slf4j.version>1.7.25</slf4j.version>
-    <logparser.version>3.1</logparser.version>
-    <rat.version>0.9</rat.version>
-    <jacoco.version>0.7.9</jacoco.version>
+    <logparser.version>5.0</logparser.version>
+    <rat.version>0.12</rat.version>
+    <jacoco.version>0.8.0</jacoco.version>
 
     <!-- See http://www.eclemma.org/jacoco/trunk/doc/prepare-agent-mojo.html-->
     <jacoco.surefireArgLine/>
@@ -200,6 +200,9 @@
           <compilerVersion>${jdkLevel}</compilerVersion>
           <source>${jdkLevel}</source>
           <target>${jdkLevel}</target>
+          <compilerArgument>
+            -Xlint:unchecked
+          </compilerArgument>
         </configuration>
       </plugin>
 
@@ -284,6 +287,7 @@
           </execution>
         </executions>
         <configuration>
+          <consoleOutput>true</consoleOutput>
           <excludeSubProjects>false</excludeSubProjects>
           <excludes>
             <!-- Version control files -->
@@ -326,6 +330,7 @@
             <exclude>webapp/src/main/webapp/manifest.json</exclude>
             <exclude>webapp/src/main/webapp/browserconfig.xml</exclude>
             <exclude>webapp/src/main/webapp/safari-pinned-tab.svg</exclude>
+            <exclude>webapp/README.md</exclude>
             <exclude>webapp/icon/README.md</exclude>
           </excludes>
         </configuration>
