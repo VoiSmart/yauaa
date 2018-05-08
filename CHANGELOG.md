@@ -1,11 +1,29 @@
 This is intended as an overview of the major changes
 
+v4.3
+===
+- Bump Apache Beam version from 2.0.0 to 2.4.0
+- Added Processor (UDF) for Apache Nifi 1.6.0
+- Detect Opera Touch
+- Optimized construction and memory usage.
+
+v4.2
+===
+- Changed CPU classification regarding Intel/AMD x86_64 and Intel Itanium x64
+- Fixed several problem cases with Internet Explorer
+- Added more complete Docker scripting for the webapp.
+ 
+v4.1
+===
+- Added newer Apple devices like iPhone 8 and X
+
 v4.0
 ===
 - Switch Analyzer to interface with default methods
 - Rename package annonate to annotate (which was a typo)
 - Upgrade Antlr to 4.7.1 and get rid of bug workaround
 - Introduce "Email Client" as a new AgentClass value.
+- Included the UDF for Apache Drill originally written by [Charles S. Givre](https://github.com/cgivre)
 
 v3.3
 ===
