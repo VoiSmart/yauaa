@@ -134,7 +134,7 @@ This has been published to maven central so that should work in almost any envir
     <dependency>
       <groupId>nl.basjes.parse.useragent</groupId>
       <artifactId>yauaa</artifactId>
-      <version>3.3</version>
+      <version>4.3</version>
     </dependency>
 
 and in your application you can use it as simple as this
@@ -270,13 +270,9 @@ I have written such a UDF which are all part of this project.
 * [Apache Flink](README-Flink.md)
 * [Apache Beam](README-Beam.md)
 * [Apache Hive](README-Hive.md)
-* ~~[Platfora](README-Platfora.md)~~ (Deprecated)
 * [Commandline tool](README-Commandline.md)
-
-UDFs written by other people:
-
-* [Apache Drill](https://github.com/cgivre/drill-useragent-function)
-
+* [Apache Drill](README-Drill.md) which was originally written by [Charles S. Grive](https://github.com/cgivre/drill-useragent-function)
+* [Apache Nifi](README-Nifi.md)
 
 Values explained
 ================

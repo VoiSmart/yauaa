@@ -8,7 +8,7 @@ If you use a maven based project simply add this dependency
       <groupId>nl.basjes.parse.useragent</groupId>
       <artifactId>yauaa-hive</artifactId>
       <classifier>udf</classifier>
-      <version>3.3</version>
+      <version>4.3</version>
     </dependency>
 
 ## Building
@@ -21,13 +21,13 @@ Simply install the normal build tools for a Java project (i.e. maven and jdk) an
 First the jar file must be 'known'
 Either by doing 
 
-    ADD JAR hdfs:///yauaa-hive-2.0-SNAPSHOT-udf.jar;
+    ADD JAR hdfs:///yauaa-hive-4.3-udf.jar;
 
 or by defining it as a [permanent function](https://cwiki.apache.org/confluence/display/Hive/LanguageManual+DDL#LanguageManualDDL-PermanentFunctions) 
 
     CREATE FUNCTION ParseUserAgent 
     AS 'nl.basjes.parse.useragent.hive.ParseUserAgent' 
-    USING JAR 'hdfs:///yauaa-hive-2.0-SNAPSHOT-udf.jar';
+    USING JAR 'hdfs:///yauaa-hive-4.3-udf.jar';
 
 or installing it locally with the Hive Server
 
