@@ -16,4 +16,7 @@
 # limitations under the License.
 #
 
+echo 'Skipping yaml files wiping...'
+exit 0
+
 find src/main/resources/UserAgents/ -type f -name '*.yaml' | xargs fgrep -l 'THIS FILE WAS GENERATED; DO NOT EDIT MANUALLY' | xargs -r rm

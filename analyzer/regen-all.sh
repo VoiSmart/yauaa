@@ -16,6 +16,9 @@
 # limitations under the License.
 #
 
+echo 'Skipping yaml files regeneration...'
+exit 0
+
 find src -type f -name Generate.sh | sed 's@/Generate.sh@@' | while read dir ;
 do
   ( cd "${dir}" ; ./Generate.sh )
