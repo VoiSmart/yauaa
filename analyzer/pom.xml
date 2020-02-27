@@ -24,7 +24,7 @@
   <parent>
     <artifactId>yauaa-parent</artifactId>
     <groupId>nl.basjes.parse.useragent</groupId>
-    <version>4.1.13</version>
+    <version>4.1.14</version>
   </parent>
   <artifactId>yauaa</artifactId>
 
@@ -116,6 +116,15 @@
         </configuration>
       </plugin>
 
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <version>2.12.4</version>
+        <configuration>
+          <skipTests>true</skipTests>
+        </configuration>
+      </plugin>
+
       <!-- Some of the dependencies (Antlr4, Spring and SnakeYaml) have proven to be problematic -->
       <!-- for downstream users who need different versions of these in the same application.    -->
       <!-- So for only these we include and relocate the used classes into the main jar.         -->
@@ -163,101 +172,101 @@
 
         </executions>
       </plugin>
+      <!--
+            <plugin>
+              <groupId>com.alexecollins.maven.plugin</groupId>
+              <artifactId>script-maven-plugin</artifactId>
+              <version>1.0.0</version>
+              <executions>
+                <execution>
+                  <id>Verify jar contents to ensure the shading of dependencies went right</id>
+                  <phase>verify</phase>
+                  <goals>
+                    <goal>execute</goal>
+                  </goals>
 
-      <plugin>
-        <groupId>com.alexecollins.maven.plugin</groupId>
-        <artifactId>script-maven-plugin</artifactId>
-        <version>1.0.0</version>
-        <executions>
-          <execution>
-            <id>Verify jar contents to ensure the shading of dependencies went right</id>
-            <phase>verify</phase>
-            <goals>
-              <goal>execute</goal>
-            </goals>
+                  <configuration>
+                    <language>beanshell</language>
+                    <script>
+                      import java.io.*;
+                      import java.util.jar.*;
+                      import java.util.Arrays;
+                      import org.codehaus.plexus.util.*;
 
-            <configuration>
-              <language>beanshell</language>
-              <script>
-                import java.io.*;
-                import java.util.jar.*;
-                import java.util.Arrays;
-                import org.codehaus.plexus.util.*;
+                      System.out.println("Verifying if the shading went correctly");
 
-                System.out.println("Verifying if the shading went correctly");
+                      String[] libraryWanted = {
+                        "nl/basjes/parse/useragent/utils/YauaaVersion.class",
+                        "nl/basjes/shaded/org/antlr/v4/runtime/Parser.class",
+                        "nl/basjes/shaded/org/springframework/core/io/support/PathMatchingResourcePatternResolver.class",
+                      };
 
-                String[] libraryWanted = {
-                  "nl/basjes/parse/useragent/utils/YauaaVersion.class",
-                  "nl/basjes/shaded/org/antlr/v4/runtime/Parser.class",
-                  "nl/basjes/shaded/org/springframework/core/io/support/PathMatchingResourcePatternResolver.class",
-                };
+                      String[] libraryUnwanted = {
+                        "org/antlr/v4/runtime/Parser.class",
+                        "org/springframework/core/io/support/PathMatchingResourcePatternResolver.class",
+                        "org/slf4j/LoggerFactory.class",
+                      };
 
-                String[] libraryUnwanted = {
-                  "org/antlr/v4/runtime/Parser.class",
-                  "org/springframework/core/io/support/PathMatchingResourcePatternResolver.class",
-                  "org/slf4j/LoggerFactory.class",
-                };
+                      JarFile libraryJarFile = new JarFile( new File( "${project.basedir}/target", "yauaa-${project.version}.jar" ) );
 
-                JarFile libraryJarFile = new JarFile( new File( "${project.basedir}/target", "yauaa-${project.version}.jar" ) );
+                      for ( String path : libraryWanted ) {
+                        if ( libraryJarFile.getEntry( path ) == null ) {
+                          throw new IllegalStateException( "Library: wanted path is missing: " + path );
+                        }
+                      }
 
-                for ( String path : libraryWanted ) {
-                  if ( libraryJarFile.getEntry( path ) == null ) {
-                    throw new IllegalStateException( "Library: wanted path is missing: " + path );
-                  }
-                }
+                      for ( String path : libraryUnwanted ) {
+                        if ( libraryJarFile.getEntry( path ) != null ) {
+                          throw new IllegalStateException( "Library: unwanted path is present: " + path );
+                        }
+                      }
+                    </script>
+                  </configuration>
+                </execution>
+              </executions>
+              <dependencies>
+                <dependency>
+                  <groupId>org.apache-extras.beanshell</groupId>
+                  <artifactId>bsh</artifactId>
+                  <version>2.0b6</version>
+                </dependency>
+              </dependencies>
+            </plugin>
 
-                for ( String path : libraryUnwanted ) {
-                  if ( libraryJarFile.getEntry( path ) != null ) {
-                    throw new IllegalStateException( "Library: unwanted path is present: " + path );
-                  }
-                }
-              </script>
-            </configuration>
-          </execution>
-        </executions>
-        <dependencies>
-          <dependency>
-            <groupId>org.apache-extras.beanshell</groupId>
-            <artifactId>bsh</artifactId>
-            <version>2.0b6</version>
-          </dependency>
-        </dependencies>
-      </plugin>
+                  <plugin>
+                    <groupId>org.codehaus.mojo</groupId>
+                    <artifactId>exec-maven-plugin</artifactId>
+                    <version>1.6.0</version>
+                    <executions>
+                      <execution>
+                        <id>Generate Matchers and Lookups</id>
+                        <phase>generate-sources</phase>
+                        <goals>
+                          <goal>exec</goal>
+                        </goals>
+                        <configuration>
+                          <executable>./regen-all.sh</executable>
+                        </configuration>
+                      </execution>
 
-      <plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>exec-maven-plugin</artifactId>
-        <version>1.6.0</version>
-        <executions>
-          <execution>
-            <id>Generate Matchers and Lookups</id>
-            <phase>generate-sources</phase>
-            <goals>
-              <goal>exec</goal>
-            </goals>
-            <configuration>
-              <executable>./regen-all.sh</executable>
-            </configuration>
-          </execution>
+                      <execution>
+                        <id>Inject dependency-reduced-pom.xml to the final jar file</id>
+                        <phase>package</phase>
+                        <goals>
+                          <goal>exec</goal>
+                        </goals>
+                        <configuration>
+                          <executable>./inject-dependency-reduced-pom-into-jar.sh</executable>
+                          <arguments>
+                            <argument>${project.groupId}</argument>
+                            <argument>${project.artifactId}</argument>
+                            <argument>${project.version}</argument>
+                          </arguments>
+                        </configuration>
+                      </execution>
 
-          <execution>
-            <id>Inject dependency-reduced-pom.xml to the final jar file</id>
-            <phase>package</phase>
-            <goals>
-              <goal>exec</goal>
-            </goals>
-            <configuration>
-              <executable>./inject-dependency-reduced-pom-into-jar.sh</executable>
-              <arguments>
-                <argument>${project.groupId}</argument>
-                <argument>${project.artifactId}</argument>
-                <argument>${project.version}</argument>
-              </arguments>
-            </configuration>
-          </execution>
-
-        </executions>
-      </plugin>
+                    </executions>
+            </plugin>-->
 
       <plugin>
         <groupId>org.antlr</groupId>
