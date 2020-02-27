@@ -2,13 +2,13 @@
 
 <!--
   ~ Yet Another UserAgent Analyzer
-  ~ Copyright (C) 2013-2018 Niels Basjes
+  ~ Copyright (C) 2013-2020 Niels Basjes
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
   ~ You may obtain a copy of the License at
   ~
-  ~ http://www.apache.org/licenses/LICENSE-2.0
+  ~ https://www.apache.org/licenses/LICENSE-2.0
   ~
   ~ Unless required by applicable law or agreed to in writing, software
   ~ distributed under the License is distributed on an "AS IS" BASIS,
@@ -30,43 +30,179 @@
   <name>Yauaa : </name>
   <description>A parsing and analyzing library to get information from a useragent string.</description>
 
-  <url>http://github.com/nielsbasjes/yauaa</url>
+  <url>https://yauaa.basjes.nl</url>
 
   <properties>
     <jdkLevel>1.8</jdkLevel>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <project.build.outputEncoding>UTF-8</project.build.outputEncoding>
+    <maven.compiler.source>${jdkLevel}</maven.compiler.source>
+    <maven.compiler.target>${jdkLevel}</maven.compiler.target>
 
-    <hadoop.version>2.8.0</hadoop.version>
+    <!-- In order for everything to work correctly we need atleast this version of maven. -->
+    <maven.minimal.version>3.5.2</maven.minimal.version>
+
+    <antlr.version>4.7.2</antlr.version>
+    <snakeyaml.version>1.25</snakeyaml.version>
+
+    <!-- ============================================== -->
+    <!-- ================ UDF Versions ================ -->
+    <!-- ============================================== -->
+    <!-- Apache Flink -->
+    <flink.version>1.9.2</flink.version>
+    <flink.scala.version>2.11</flink.scala.version>
+
+    <!-- Apache Beam -->
+    <beam.version>2.19.0</beam.version>
+    <hamcrest-all.version>1.3</hamcrest-all.version>
+
+    <!-- Apache Drill -->
+    <drill.version>1.17.0</drill.version>
+    <netty.version>4.1.32.Final</netty.version>
+
+    <!-- Apache Hadoop -->
+    <hadoop.version>3.2.1</hadoop.version>
+
+    <!-- Apache Pig-->
     <pig.version>0.17.0</pig.version>
-    <hive.version>2.1.1</hive.version>
-    <checkstyle-plugin.version>2.17</checkstyle-plugin.version>
-    <checkstyle.version>8.5</checkstyle.version>
-    <slf4j.version>1.7.25</slf4j.version>
-    <logparser.version>5.0</logparser.version>
-    <rat.version>0.12</rat.version>
-    <jacoco.version>0.8.1</jacoco.version>
+
+    <!-- Apache Hive -->
+    <hive.version>3.1.2</hive.version>
+
+    <!-- Apache Nifi -->
+    <nifi.version>1.11.0</nifi.version>
+    <nifi-nar-maven-plugin.version>1.2.0</nifi-nar-maven-plugin.version>
+
+    <!-- LogParser -->
+    <logparser.version>5.2</logparser.version>
+
+    <!-- LogStash -->
+    <logstash.version>7.5.2</logstash.version>
+
+    <!-- ============================================== -->
+
+    <checkstyle-plugin.version>3.1.0</checkstyle-plugin.version>
+    <checkstyle.version>8.29</checkstyle.version>
+    <slf4j.version>1.7.30</slf4j.version>
+    <kryo.version>4.0.2</kryo.version>
+    <rat.version>0.13</rat.version>
+    <jacoco.version>0.8.5</jacoco.version>
+    <junit5.version>5.6.0-RC1</junit5.version>
+    <hamcrest-core.version>2.2</hamcrest-core.version>
+
+    <spring.version>5.2.3.RELEASE</spring.version>
+    <spring-boot.version>2.2.3.RELEASE</spring-boot.version>
+    <spring-boot-legacy.version>2.1.0.RELEASE</spring-boot-legacy.version>
+
+    <!-- FIXME: Update when springfox 3.0.0 has been released! -->
+    <springfox-swagger.version>3.0.0-SNAPSHOT</springfox-swagger.version>
 
     <!-- See http://www.eclemma.org/jacoco/trunk/doc/prepare-agent-mojo.html-->
     <jacoco.surefireArgLine/>
     <argLine>@{jacoco.surefireArgLine} -Xmx2048m</argLine>
 
-    <git-commit-id-plugin.version>2.2.3</git-commit-id-plugin.version>
+    <sonar.language>java</sonar.language>
+    <sonar.java.coveragePlugin>jacoco</sonar.java.coveragePlugin>
+    <sonar.core.codeCoveragePlugin>jacoco</sonar.core.codeCoveragePlugin>
+    <sonar.dynamicAnalysis>reuseReports</sonar.dynamicAnalysis>
+
+    <!-- For some parts the code coverage has been disabled because it is -->
+    <!-- either debugging or demonstration code. -->
+    <!-- Sonar does not look at the Jacoco configs so we need to duplicate these -->
+    <!-- rules here a second time. -->
+    <!-- This is NASTY! -->
+    <sonar.exclusions>
+      src/main/java/nl/basjes/parse/useragent/Version.*,
+      src/main/java/nl/basjes/parse/useragent/parser/**,
+      src/main/java/nl/basjes/parse/useragent/debug/**,
+      src/main/java/nl/basjes/parse/useragent/benchmarks/**,
+      src/main/java/nl/basjes/parse/useragent/servlet/**,
+      src/main/java/nl/basjes/parse/useragent/commandline/**,
+      src/main/java/nl/basjes/parse/useragent/drill/**,
+    </sonar.exclusions>
+
+    <git-commit-id-plugin.version>4.0.0</git-commit-id-plugin.version>
+    <version.copyright>Copyright (C) 2013-2020 Niels Basjes</version.copyright>
+    <version.license>License Apache 2.0</version.license>
+    <version.url>${project.url}</version.url>
   </properties>
 
+  <!-- Enable this only to run:  mvn versions:display-dependency-updates versions:display-plugin-updates  -->
+  <!-- <prerequisites>                            -->
+  <!--   <maven>${maven.minimal.version}</maven>  -->
+  <!-- </prerequisites>                           -->
+
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>org.junit</groupId>
+        <artifactId>junit-bom</artifactId>
+        <version>${junit5.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
+
   <dependencies>
+
     <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
-      <version>4.12</version>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter-engine</artifactId>
       <scope>test</scope>
     </dependency>
+
+    <dependency>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter-params</artifactId>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.hamcrest</groupId>
+      <artifactId>hamcrest-core</artifactId>
+      <version>${hamcrest-core.version}</version>
+      <scope>test</scope>
+    </dependency>
+
   </dependencies>
 
   <profiles>
     <profile>
-      <id>release</id>
+      <id>packageForRelease</id>
       <build>
         <plugins>
+
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-enforcer-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>Ensure-releasing-using-JDK-1.8</id>
+                <phase>validate</phase>
+                <goals>
+                  <goal>enforce</goal>
+                </goals>
+                <configuration>
+                  <rules>
+                    <!-- This MUST be done via a property of else it won't work -->
+                    <!-- https://stackoverflow.com/questions/33442256/maven-enforcer-plugin-and-child-pom -->
+                    <requireProperty>
+                      <property>BuildingWithJDK</property>
+                      <regex>1\.8</regex>
+                      <regexMessage>.
+
+                        ----------------------------------------------
+                        We are ONLY releasing Yauaa built using Java 8
+                        ----------------------------------------------
+                      </regexMessage>
+                    </requireProperty>
+                  </rules>
+                  <fail>true</fail>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
 
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
@@ -86,7 +222,6 @@
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-source-plugin</artifactId>
-            <version>2.2.1</version>
             <executions>
               <execution>
                 <id>attach-sources</id>
@@ -100,7 +235,6 @@
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-javadoc-plugin</artifactId>
-            <version>2.10.4</version>
             <executions>
               <execution>
                 <id>attach-javadocs</id>
@@ -115,10 +249,9 @@
             <!-- explicitly define maven-deploy-plugin after other to force exec order -->
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-deploy-plugin</artifactId>
-            <version>2.8.2</version>
             <executions>
               <execution>
-                <id>deploy</id>
+                <id>default-deploy</id>
                 <phase>deploy</phase>
                 <goals>
                   <goal>deploy</goal>
@@ -127,6 +260,41 @@
             </executions>
           </plugin>
 
+          <plugin>
+            <!-- Description: https://github.com/ktoso/maven-git-commit-id-plugin -->
+            <groupId>pl.project13.maven</groupId>
+            <artifactId>git-commit-id-plugin</artifactId>
+            <version>${git-commit-id-plugin.version}</version>
+            <executions>
+              <execution>
+                <id>Validate-Revision-Information</id>
+                <phase>validate</phase>
+                <goals>
+                  <goal>validateRevision</goal>
+                </goals>
+                <configuration>
+                  <validationProperties>
+                    <!-- verify that the current repository is not dirty -->
+                    <validationProperty>
+                      <name>Don't try to release if something has not yet been committed.</name>
+                      <value>${git.dirty}</value>
+                      <shouldMatchTo>false</shouldMatchTo>
+                    </validationProperty>
+                  </validationProperties>
+                  <validationShouldFailIfNoMatch>true</validationShouldFailIfNoMatch>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+
+        </plugins>
+      </build>
+    </profile>
+
+    <profile>
+      <id>release</id>
+      <build>
+        <plugins>
           <plugin>
             <!-- Description: https://github.com/ktoso/maven-git-commit-id-plugin -->
             <groupId>pl.project13.maven</groupId>
@@ -165,10 +333,23 @@
     </profile>
 
     <profile>
+      <id>deployToSonatype</id>
+      <properties>
+        <altReleaseDeploymentRepository>sonatype::https://oss.sonatype.org/service/local/staging/deploy/maven2/</altReleaseDeploymentRepository>
+        <altSnapshotDeploymentRepository>sonatype::https://oss.sonatype.org/content/repositories/snapshots</altSnapshotDeploymentRepository>
+      </properties>
+    </profile>
+
+    <profile>
       <id>EnableReportPlugins</id>
+      <activation>
+        <property>
+          <name>EnableReportPlugins</name>
+        </property>
+        <jdk>1.8</jdk>
+      </activation>
       <build>
         <plugins>
-
           <plugin>
             <groupId>org.jacoco</groupId>
             <artifactId>jacoco-maven-plugin</artifactId>
@@ -178,44 +359,125 @@
             <artifactId>coveralls-maven-plugin</artifactId>
             <version>4.3.0</version>
             <configuration>
-              <relativeReportDirs>
-                <relativeReportDir>/jacoco-ut</relativeReportDir>
-                <!--<relativeReportDir>/jacoco-it</relativeReportDir>-->
-              </relativeReportDirs>
+              <timestampFormat>EpochMillis</timestampFormat>
             </configuration>
           </plugin>
         </plugins>
       </build>
     </profile>
 
+    <profile>
+      <id>SkipSonarBecauseItWasNotConfigured</id>
+      <activation>
+        <property>
+          <name>!env.SONAR_TOKEN</name>
+        </property>
+      </activation>
+      <properties>
+        <sonar.skip>true</sonar.skip>
+      </properties>
+    </profile>
+
+    <profile>
+      <id>Build with JDK 8</id>
+      <activation>
+        <jdk>1.8</jdk>
+      </activation>
+      <properties>
+        <BuildingWithJDK>1.8</BuildingWithJDK>
+      </properties>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-compiler-plugin</artifactId>
+            <configuration>
+              <compilerVersion>${jdkLevel}</compilerVersion>
+              <source>${jdkLevel}</source>
+              <target>${jdkLevel}</target>
+              <compilerArgs>
+                <!-- Enable almost all warnings.-->
+                <!-- FIXME: Why does the hive udf fail with "An unknown compilation problem occurred" when using -Xlint:classfile,processing ? -->
+                <!-- Ignore the 'serial' warnings about not having a serialVersionUID -->
+                <arg>-Xlint:all,-classfile,-processing,-serial</arg>
+                <arg>-Werror</arg>
+              </compilerArgs>
+              <showWarnings>true</showWarnings>
+              <showDeprecation>true</showDeprecation>
+            </configuration>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+
+    <profile>
+      <id>Build with JDK 11+</id>
+      <activation>
+        <jdk>[1.11,)</jdk>
+      </activation>
+      <properties>
+        <BuildingWithJDK>11</BuildingWithJDK>
+      </properties>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-compiler-plugin</artifactId>
+            <configuration>
+              <compilerVersion>${jdkLevel}</compilerVersion>
+              <source>${jdkLevel}</source>
+              <target>${jdkLevel}</target>
+              <compilerArgs>
+                <!-- Enable almost all warnings.-->
+                <!-- FIXME: Why does the hive udf fail with "An unknown compilation problem occurred" when using -Xlint:classfile,processing ? -->
+                <!-- Ignore the 'serial' warnings about not having a serialVersionUID -->
+                <arg>-Xlint:all,-classfile,-processing,-serial</arg>
+                <arg>-Werror</arg>
+                <arg>-implicit:class</arg>
+              </compilerArgs>
+              <showWarnings>true</showWarnings>
+              <showDeprecation>true</showDeprecation>
+              <release>8</release>
+            </configuration>
+          </plugin>
+
+          <!-- Never run Coveralls under JDK 11 ... it won't work -->
+          <plugin>
+            <groupId>org.eluder.coveralls</groupId>
+            <artifactId>coveralls-maven-plugin</artifactId>
+            <version>4.3.0</version>
+            <configuration>
+              <skip>true</skip>
+            </configuration>
+          </plugin>
+
+        </plugins>
+      </build>
+    </profile>
+
+    <profile>
+      <id>Build with JDK 13</id>
+      <activation>
+        <jdk>[1.11,)</jdk>
+      </activation>
+      <properties>
+        <BuildingWithJDK>13</BuildingWithJDK>
+      </properties>
+      </profile>
+
   </profiles>
 
   <build>
+    <defaultGoal>clean package</defaultGoal>
     <plugins>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-compiler-plugin</artifactId>
-        <version>3.5.1</version>
-        <configuration>
-          <compilerVersion>${jdkLevel}</compilerVersion>
-          <source>${jdkLevel}</source>
-          <target>${jdkLevel}</target>
-          <compilerArgument>
-            -Xlint:unchecked
-          </compilerArgument>
-        </configuration>
-      </plugin>
-
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
-        <version>2.19.1</version>
       </plugin>
 
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-deploy-plugin</artifactId>
-        <version>2.8.2</version>
       </plugin>
 
       <plugin>
@@ -240,7 +502,6 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-enforcer-plugin</artifactId>
-        <version>1.4.1</version>
         <executions>
           <execution>
             <id>enforce-maven</id>
@@ -250,13 +511,121 @@
             <configuration>
               <rules>
                 <requireMavenVersion>
-                  <version>[3.1,)</version>
-                  <message>You must use a newer version of Maven (the Maven 3.0.5 built in into IntelliJ IDEA is too old!)</message>
+                  <version>[${maven.minimal.version},)</version>
+                  <message>You must use Maven version ${maven.minimal.version} or newer to build this project.</message>
+                  <!-- Reasons for this need:                            -->
+                  <!-- https://issues.apache.org/jira/browse/MDEPLOY-221 -->
+                  <!-- https://issues.apache.org/jira/browse/MNG-6581    -->
                 </requireMavenVersion>
               </rules>
             </configuration>
           </execution>
+
+          <execution>
+            <id>dependency-convergence</id>
+            <phase>validate</phase>
+            <goals>
+              <goal>enforce</goal>
+            </goals>
+            <configuration>
+              <rules>
+                <dependencyConvergence/>
+              </rules>
+            </configuration>
+          </execution>
+
         </executions>
+      </plugin>
+
+      <plugin>
+        <groupId>org.apache.rat</groupId>
+        <artifactId>apache-rat-plugin</artifactId>
+        <version>${rat.version}</version>
+        <inherited>false</inherited>
+        <!-- https://issues.apache.org/jira/browse/RAT-158 -->
+        <dependencies>
+          <dependency>
+            <groupId>org.apache.maven.doxia</groupId>
+            <artifactId>doxia-core</artifactId>
+            <version>1.9</version>
+            <exclusions>
+              <exclusion>
+                <groupId>xerces</groupId>
+                <artifactId>xercesImpl</artifactId>
+              </exclusion>
+            </exclusions>
+          </dependency>
+        </dependencies>
+        <executions>
+          <execution>
+            <phase>test</phase>
+            <goals>
+              <goal>check</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <consoleOutput>true</consoleOutput>
+          <excludeSubProjects>false</excludeSubProjects>
+          <excludes>
+            <!-- Version control files -->
+            <exclude>**/.git/**</exclude>
+            <exclude>**/.gitignore</exclude>
+            <!-- IDE settings and files -->
+            <exclude>**/.classpath</exclude>
+            <exclude>**/.project</exclude>
+            <exclude>**/.settings/**</exclude>
+            <exclude>**/.idea/**</exclude>
+            <exclude>**/*.iml</exclude>
+            <exclude>*.patch</exclude>
+            <exclude>*.diff</exclude>
+            <!-- Documentation -->
+            <exclude>src/**</exclude>
+            <exclude>docs/**</exclude>
+            <!-- Raw benchmark results -->
+            <exclude>benchmarks/results/*.txt</exclude>
+            <!-- Files that cannot be 'polluted' -->
+            <exclude>.github/**</exclude>
+            <exclude>udfs/drill/function/src/main/resources/drill-module.conf</exclude>
+            <exclude>examples/pig/testcases.txt</exclude>
+            <exclude>**/src/main/resources/META-INF/services/org.apache.nifi.processor.Processor</exclude>
+            <exclude>analyzer/src/test/resources/YamlParsingTests/Empty.yaml</exclude>
+            <!-- Files from external sources -->
+            <exclude>**/analyzer/src/main/code-gen/UserAgents/AppleTypes/*.csv</exclude>
+            <exclude>**/analyzer/src/main/code-gen/UserAgents/ISOLanguageCode/*.tab</exclude>
+            <exclude>**/analyzer/src/main/code-gen/UserAgents/ISOLanguageCode/*.csv</exclude>
+            <exclude>**/analyzer/src/main/code-gen/UserAgents/ISOLanguageCode/*.md</exclude>
+            <exclude>**/analyzer/src/main/code-gen/Antlr/PublicSuffix/public_suffix_list.dat</exclude>
+            <exclude>**/analyzer/src/main/code-gen/Antlr/PublicSuffix/PublicSuffix.g4.fragment</exclude>
+            <!-- Test and demo input files -->
+            <exclude>**/testfiles/**</exclude>
+            <exclude>**/*.log</exclude>
+            <exclude>**/examples/**/*.jar</exclude>
+            <exclude>**/udfs/logstash/manualtest/__testrun/**</exclude>
+            <!-- File generated during build -->
+            <exclude>**/target/**</exclude>
+            <exclude>**/dependency-reduced-pom.xml</exclude>
+            <!-- Other files -->
+            <exclude>ReleaseProcedure.txt</exclude>
+            <exclude>benchmarks/*.txt</exclude>
+            <exclude>benchmarks/*.csv</exclude>
+            <exclude>analyzer/run-pitest.sh</exclude>
+            <exclude>analyzer/pitest/</exclude>
+            <exclude>**/.~lock.*</exclude>
+            <exclude>docker/_m2/**</exclude>
+            <exclude>docker/_gnupg/**</exclude>
+            <!-- Test scripts -->
+            <exclude>*.sh</exclude>
+            <exclude>**/_*/**</exclude>
+            <!-- Icon stuff in the demo webapp -->
+            <exclude>webapp/src/main/**/*.json</exclude>
+            <exclude>webapp/src/main/**/*.xml</exclude>
+            <exclude>webapp/src/main/**/*.svg</exclude>
+            <exclude>webapp/src/main/**/robots.txt</exclude>
+            <exclude>webapp/README.md</exclude>
+            <exclude>webapp/icon/**</exclude>
+          </excludes>
+        </configuration>
       </plugin>
 
     </plugins>
@@ -315,8 +684,6 @@
                 <goal>prepare-agent</goal>
               </goals>
               <configuration>
-                <!-- Sets the path to the file which contains the execution data. -->
-                <destFile>${project.build.directory}/coverage-reports/jacoco-ut.exec</destFile>
                 <!--
                     Sets the name of the property containing the settings
                     for JaCoCo runtime agent.
@@ -334,15 +701,61 @@
               <goals>
                 <goal>report</goal>
               </goals>
-              <configuration>
-                <!-- Sets the path to the file which contains the execution data. -->
-                <dataFile>${project.build.directory}/coverage-reports/jacoco-ut.exec</dataFile>
-                <!-- Sets the output directory for the code coverage report. -->
-                <outputDirectory>${project.reporting.outputDirectory}/jacoco-ut</outputDirectory>
-              </configuration>
             </execution>
           </executions>
         </plugin>
+
+        <plugin>
+          <groupId>com.github.spotbugs</groupId>
+          <artifactId>spotbugs-maven-plugin</artifactId>
+          <version>3.1.12.2</version>
+          <configuration>
+            <excludeFilterFile>spotbugs/spotbugs-exclude.xml</excludeFilterFile>
+          </configuration>
+          <dependencies>
+            <!-- overwrite dependency on spotbugs if you want to specify the version of spotbugs -->
+            <dependency>
+              <groupId>com.github.spotbugs</groupId>
+              <artifactId>spotbugs</artifactId>
+              <version>4.0.0-RC1</version>
+            </dependency>
+            <dependency>
+              <groupId>nl.basjes.parse.useragent</groupId>
+              <artifactId>devtools</artifactId>
+              <version>${project.version}</version>
+            </dependency>
+          </dependencies>
+          <executions>
+            <execution>
+              <id>validate bugs</id>
+              <phase>compile</phase>
+              <goals>
+                <goal>check</goal>
+              </goals>
+            </execution>
+          </executions>
+        </plugin>
+
+        <plugin>
+          <groupId>org.sonarsource.scanner.maven</groupId>
+          <artifactId>sonar-maven-plugin</artifactId>
+          <version>3.7.0.1746</version>
+        </plugin>
+
+        <plugin><artifactId>maven-assembly-plugin</artifactId><version>3.2.0</version></plugin>
+        <plugin><artifactId>maven-clean-plugin</artifactId><version>3.1.0</version></plugin>
+        <plugin><artifactId>maven-compiler-plugin</artifactId><version>3.8.1</version></plugin>
+        <plugin><artifactId>maven-deploy-plugin</artifactId><version>3.0.0-M1</version></plugin>
+        <plugin><artifactId>maven-enforcer-plugin</artifactId><version>3.0.0-M3</version></plugin>
+        <plugin><artifactId>maven-install-plugin</artifactId><version>3.0.0-M1</version></plugin>
+        <plugin><artifactId>maven-jar-plugin</artifactId><version>3.2.0</version></plugin>
+        <plugin><artifactId>maven-javadoc-plugin</artifactId><version>3.1.1</version></plugin>
+        <plugin><artifactId>maven-resources-plugin</artifactId><version>3.1.0</version></plugin>
+        <plugin><artifactId>maven-shade-plugin</artifactId><version>3.2.1</version></plugin>
+        <plugin><artifactId>maven-site-plugin</artifactId><version>3.8.2</version></plugin>
+        <plugin><artifactId>maven-source-plugin</artifactId><version>3.2.1</version></plugin>
+        <plugin><artifactId>maven-surefire-plugin</artifactId><version>3.0.0-M4</version></plugin>
+        <plugin><artifactId>maven-war-plugin</artifactId><version>3.2.3</version></plugin>
 
       </plugins>
     </pluginManagement>
@@ -354,13 +767,14 @@
     <module>udfs</module>
     <module>webapp</module>
     <module>commandline</module>
+<!--    <module>examples</module> FIXME: The Scala example fails in Travis -->
     <module>benchmarks</module>
   </modules>
 
   <licenses>
     <license>
       <name>Apache License, Version 2.0</name>
-      <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+      <url>https://www.apache.org/licenses/LICENSE-2.0.txt</url>
       <distribution>repo</distribution>
     </license>
   </licenses>
@@ -378,7 +792,7 @@
   </developers>
 
   <scm>
-    <url>https://github.com/nielsbasjes/yauaa</url>
+    <url>https://yauaa.basjes.nl</url>
     <connection>scm:git:https://github.com/nielsbasjes/yauaa.git</connection>
     <developerConnection>scm:git:.</developerConnection>
   </scm>

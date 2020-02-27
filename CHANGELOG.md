@@ -1,5 +1,254 @@
 This is intended as an overview of the major changes
 
+v5.15-SNAPSHOT
+===
+- Analyzer:
+  - Better url extraction.
+  - Fix NPE when defining invalid rules (walk left/right/up from the top of the tree)
+  - The Tencent/Alibaba NetType and Language tags are now better extracted.
+  - AgentName is now more consistent (konqueror/Konqueror)
+  - Handle the BlackBerry Leap devices a bit better
+- New/improved detections
+  - App: Desktop apps using Electron (https://electronjs.org/)
+  - Devices: Improve detection of Apple devices
+  - Brand: Huawei/Honor
+  - Robots: 'probe' and 'alyzer' both imply 'Robot', new Bing useragents.
+- Updated UDF dependencies
+  - Apache Flink     1.9.2
+  - Apache Beam      2.19.0
+  - Apache Nifi      1.11.0
+  - Elastic Logstash 7.5.2
+- Build
+  - Improve scripting for generated files
+  - Only build the docker image for the webservlet if docker is available.
+  - Automatically download the logstash dependency from the elastic website.
+  - Use SpotBugs (=FindBugs) to detect subtle problems.
+- Demonstration WebServlet
+  - Updated to SpringFox 3.0.0-SNAPSHOT to support better examples in the Swagger UI.
+  - Support for custom rules
+- UDF changes
+  - Flink Table function now returns a Map&gt;String, Stringi&lt; with all the values in a single call.
+
+v5.14.1
+===
+- Use the latest STABLE slf4j version 1.7.29
+
+v5.14
+===
+- The Builders no longer expose any generic parameters to ease use by Scala users (contributed by [Robert Stoll](https://github.com/tegonal)).
+- Replace Guava with Apache HTTPComponents for Public Suffix matching
+- Migrate to JUnit 5 for everything except specific UDFs
+- Analyzer:
+  - Handles a COMMA better.
+  - New LookUpContains and IsInLookUpContains functions used to speedup Hacker and Robot pattern matching.
+- Bugs:
+  - LayoutEngine for Chrome on iOS is AppleWebKit (not Blink)
+  - Matchers with only IsNull rules did not fire after deserialization with Kryo.
+  - Fixed nasty problem in the serialization of various classes. Added many toString implementations to track it down.
+- New/improved detections
+  - Agent: EmbeddedBrowser
+- Updated UDF dependencies
+  - Apache Nifi   1.10.0
+  - Apache Hive   3.1.2
+  - Apache Hadoop 3.2.1
+
+v5.13
+===
+- Analyzer improvement by allocating less AgentFields (i.e. less memory).
+- Optimized rules to reduce startup time and memory usage.
+- Update public suffix list for detecting hostnames.
+- Added a basic API and Swagger UI to the demo webservlet
+- New/improved detections
+  - Agent: Latest Edge, HeadlessChrome, CrMo (=very old Chrome), Hawk
+  - Robots: Apache Nifi, Wget, Curl, Bytedance Bytespider, Popular product "con_aff" robot., TencentTraveler, EmbeddedWB
+  - Device: Improved Xiaomi detection., Improved RaspberryPi
+- Fixes:
+  - Check if a used variable actually exists.
+  - Many TODO items (mostly corner cases).
+  - Domains like Github and Gmail are no longer used as "DeviceBrand" when they occur in URL or Email.
+  - Edgecase where much of the useragent was incorrectly seen as a BASE64 fragment.
+- Updated UDF dependencies
+  - Apache Flink  1.9.1
+  - Apache Beam   2.16.0
+
+v5.12
+===
+- New detections
+  - Agent: AdobeAir, Whale, Tungsten, Kinza, Iridium, Superbird, Avast, Comodo Dragon & IceDragon
+  - Device: Raspberry PI
+  - OS: KaiOS
+  - Brands: Lyf
+  - Robots: Naver Yeti, TrueClicks
+  - Anonymized: Google Web Light (proxy)
+- Updated UDF dependencies
+  - Apache Flink  1.9.0
+  - Apache Beam   2.15.0
+
+v5.11
+===
+- Finalized detection of Chromium/Blink based Edge both for Windows 10 and Mac
+- Detect Liebao Browser
+- Make compiler a bit stricter, fixed the warnings.
+- Updated UDF dependencies
+  - Apache Flink  1.8.1
+  - Apache Beam   2.13.0
+  - Apache Drill  1.16.0
+- Added two new fields: OperatingSystemVersionMajor and OperatingSystemNameVersionMajor
+- Fix detection of iOS in specific edge case
+- Modularized and optimized the postprocessing of the found fields.
+- Updated Kryo
+- Updated all dependencies and build plugins.
+- Now builds under both the JDK 8 and JDK 11
+- Improve detection of Maemo / Nokia N900
+- Extra testcases for Firefox (They implemented some small useragent changes)
+
+v5.10
+===
+- Document Scala usage.
+- Updated UDF dependencies
+  - Apache Flink  1.8.0
+  - Apache Beam   2.12.0
+- Improved SpeedCurve Robot detection (thanks to Ben Rogers)
+- Detection for Chromium/Blink based Edge on Windows 10
+- Detect Sogou Explorer (Sogou Browser)
+
+v5.9
+===
+- Speedup in handling IsNull cases.
+- Speedup in skipping the untouched Matchers.
+- Detection for Google Go, Google Docs, Google Docs Script
+- New class of Device and Agent: Voice
+- Added experimental filter for logstash
+- Detection for CAT, General Mobile, Wileyfox, ZTE, Fairphone, Gigaset, PlayStation 3, Kobo Desktop Edition
+- Improved Robot detection, most of them are now "Cloud" instead of "normal" hardware/os.
+- Updated the way yaml files are loaded. An analyzer without any rules will fail faster.
+- An imperfect fallback is attempted when the classloader cannot find the yaml files via a wildcard (happens on Android, OSGi, ...).
+- Improved detection of Ubuntu
+- Detection for very old Windows Phones, Nikto, Dell devices
+- Updated UDF dependencies
+  - Apache Flink  1.7.2
+  - Apache Beam   2.11.0
+  - Apache Nifi   1.9.2
+  - Apache Hadoop 3.2.0
+  - Apache Hive   3.1.1
+- Massive improvement in detection of URLs.
+- New more realistic performance benchmark test
+- Renamed DeviceClass "Spy" to "Robot Imitator"
+- More consistently add the DeviceBrand to the DeviceName
+- Detect Apple iOS Universal Links updater, Netsparker, CasperJs
+- Fix the AirWatch scenario
+
+v5.8
+===
+- Lookup for MS-Edge versions (which are a MESS!)
+- Fixed detection Chromium running in a snap on Ubuntu.
+- Fixed detection Epiphany (Gnome Web)
+- Report the actual version of Edge using a lookup.
+- Detection MSOffice, Falkon, QupZilla
+- Improved OS detection, added BeOS/Haiku
+- Detection Colibri, Midori, Arora, WebKitGTK / luakit, Kodi
+- Detection of Android on Sony Bravia TV
+- Updated UDF dependencies
+  - Apache Flink  1.7.1
+  - Apache Beam   2.9.0
+  - Apache Drill  1.15.0
+  - Apache Hadoop 2.8.5
+  - Apache Hive   2.3.4
+  - Apache Nifi   1.8.0
+  - Logparser     5.2
+- Support for serialization using Kryo
+
+v5.7
+===
+- Fixed exception handling if an illegal TLD is used in the domainname of an email address or website url.
+
+v5.6
+===
+- Added Flink Table scalar function
+- Better extraction of NetType and Language tags as used by Tencent.
+- Detect the brand better for many more devices (Blackberry, Huawei, HiSense, HTC, OnePlus, Oppo, QMobile, Wiko)
+- Added two new functions for prefix matching lookups.
+- Rewrote DeviceBrand detection to improve speed and memory usage.
+- Allow setting cache size in Flink, Flink Table and Beam UDFs
+- Updated UDF dependencies
+  - Apache Flink 1.6.2
+  - Apache Beam 2.8.0
+
+v5.5
+===
+- Fixed the Chrome 70 pattern for many brands
+- Detect Alibaba Apps (like DingTalk)
+
+v5.4
+===
+- Detect more Iron variations
+- Major change in the Android Chrome 70 pattern --> broke DeviceBrand
+- Detect Vivo brand
+
+v5.3
+===
+- Detect Iron, Quark and Otter browsers
+- Handle the 'too many spaces' effect.
+- Fixed Rat checking
+- Major update of the UDF for logparser
+- Updated dependencies: Jacoco, Spring
+- Updated UDF dependencies
+  - Apache Flink 1.6.1
+  - Apache Beam 2.7.0
+
+v5.2
+===
+- Documentation website generated with gitbook
+- Added layout to web servlet.
+- Fixed shading of Guava
+
+v5.1
+===
+- Massive change of the OS Version for all Windows variants. Much cleaner now.
+- Windows NT 7/8/8.1/10 on ARM cpu = Windows Phone --> Mobile device, not Desktop
+- Get the DeviceBrand from the URL/Email if no other is available
+- Split version field by a '-' too.
+- Fix bug in UCBrowser detection (too often reported as Tablet)
+- More language-region codes detected
+- Many bug fixes found on the input provided by https://github.com/DaimonPl (Thank you)
+- Better detection and naming of the Amazon, HP, PocketBook, Manta and Prestigio devices
+- Detect the new Gecko fork Goanna (used by Palemoon)
+- Updated UDF dependencies
+  - Apache Flink 1.6.0
+  - Apache Drill 1.14.0
+  - Apache Beam 2.6.0
+  - Apache Nifi 1.7.1
+
+v5.0
+===
+- Fix bug in iOS detection with some apps
+- Drop tests after preheat if dropTests is requested
+- Changed the default to use the delayed initialization.
+- Only calculate special fields if needed.
+- Dropped support for old style constructors
+- Flink UDF: Test both DataSet and DataStream use.
+- Updated UDF dependencies
+  - Apache Flink 1.5.0
+  - Apache Drill 1.13
+  - Apache Beam 2.5.0
+  - Apache Nifi 1.7.0
+- Use Spring 2.0.x for the webapp
+
+v4.5
+===
+- Check (and fail) if two (possibly different) versions are both loaded.
+- Default cache size was not used.
+
+v4.4
+===
+- Added extra checks to avoid using the builder twice
+- Completely dropped Platfora
+- Detect the brand 'Cubot' as not a robot
+- Improved performance by rewriting some Robot detection rules
+- Fixed OWASMIME plugin problem.
+- Improved Netfront detection
+- Fallback to Stock Android Browser in a few more cases.
+
 v4.3
 ===
 - Bump Apache Beam version from 2.0.0 to 2.4.0
@@ -12,7 +261,7 @@ v4.2
 - Changed CPU classification regarding Intel/AMD x86_64 and Intel Itanium x64
 - Fixed several problem cases with Internet Explorer
 - Added more complete Docker scripting for the webapp.
- 
+
 v4.1
 ===
 - Added newer Apple devices like iPhone 8 and X
@@ -214,13 +463,13 @@ v0.1
 License
 =======
     Yet Another UserAgent Analyzer
-    Copyright (C) 2013-2018 Niels Basjes
+    Copyright (C) 2013-2020 Niels Basjes
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
     You may obtain a copy of the License at
 
-    http://www.apache.org/licenses/LICENSE-2.0
+    https://www.apache.org/licenses/LICENSE-2.0
 
     Unless required by applicable law or agreed to in writing, software
     distributed under the License is distributed on an "AS IS" BASIS,

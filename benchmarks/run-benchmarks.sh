@@ -1,13 +1,13 @@
 #!/usr/bin/env bash
 #
 # Yet Another UserAgent Analyzer
-# Copyright (C) 2013-2018 Niels Basjes
+# Copyright (C) 2013-2020 Niels Basjes
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
 #
-# http://www.apache.org/licenses/LICENSE-2.0
+# https://www.apache.org/licenses/LICENSE-2.0
 #
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an AS IS BASIS,
@@ -16,7 +16,7 @@
 # limitations under the License.
 #
 
-( cd .. && mvn clean package -DskipTests=true ) || exit
-version=$(fgrep '<version>' pom.xml | head -1 | sed 's@.*>\(.*\)<.*$@\1@g')
+( cd .. && mvn clean package -DskipTests=true -Drat.skip=true ) || exit
+version=$(grep -F '<version>' pom.xml | head -1 | sed 's@.*>\(.*\)<.*$@\1@g')
 echo "Testing version ${version}" && \
-java -jar target/benchmarks.jar > "version-${version}-$(date +%Y%m%d-%H%M%S).txt"
+java -jar target/benchmarks.jar > "results/version-${version}-$(date +%Y%m%d-%H%M%S).txt"

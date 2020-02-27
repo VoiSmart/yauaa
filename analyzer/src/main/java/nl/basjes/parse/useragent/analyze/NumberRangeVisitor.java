@@ -1,12 +1,12 @@
 /*
  * Yet Another UserAgent Analyzer
- * Copyright (C) 2013-2018 Niels Basjes
+ * Copyright (C) 2013-2020 Niels Basjes
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -26,8 +26,10 @@ import java.util.Map;
 import static nl.basjes.parse.useragent.parser.UserAgentTreeWalkerParser.NumberRangeAllContext;
 import static nl.basjes.parse.useragent.parser.UserAgentTreeWalkerParser.NumberRangeContext;
 import static nl.basjes.parse.useragent.parser.UserAgentTreeWalkerParser.NumberRangeEmptyContext;
+import static nl.basjes.parse.useragent.parser.UserAgentTreeWalkerParser.NumberRangeOpenStartToEndContext;
 import static nl.basjes.parse.useragent.parser.UserAgentTreeWalkerParser.NumberRangeSingleValueContext;
 import static nl.basjes.parse.useragent.parser.UserAgentTreeWalkerParser.NumberRangeStartToEndContext;
+import static nl.basjes.parse.useragent.parser.UserAgentTreeWalkerParser.NumberRangeStartToOpenEndContext;
 import static nl.basjes.parse.useragent.parser.UserAgentTreeWalkerParser.StepDownContext;
 
 public final class NumberRangeVisitor extends UserAgentTreeWalkerBaseVisitor<NumberRangeList> {
@@ -46,7 +48,7 @@ public final class NumberRangeVisitor extends UserAgentTreeWalkerBaseVisitor<Num
         // Did statistics on over 200K real useragents from 2015.
         // These are the maximum values from that test set (+ a little margin)
         MAX_RANGE.put("value",                2); // Max was 2
-        MAX_RANGE.put("version",              5); // Max was 4
+        MAX_RANGE.put("version",              4); // Max was 4
         MAX_RANGE.put("comments",             2); // Max was 2
         MAX_RANGE.put("entry",               20); // Max was much higher
         MAX_RANGE.put("product",             10); // Max was much higher
@@ -54,8 +56,8 @@ public final class NumberRangeVisitor extends UserAgentTreeWalkerBaseVisitor<Num
         MAX_RANGE.put("email",                2);
         MAX_RANGE.put("keyvalue",             3);
         MAX_RANGE.put("text",                 8);
-        MAX_RANGE.put("url",                  3);
-        MAX_RANGE.put("uuid",                 4);
+        MAX_RANGE.put("url",                  2);
+        MAX_RANGE.put("uuid",                 2);
     }
 
     private NumberRangeVisitor() {
@@ -63,13 +65,7 @@ public final class NumberRangeVisitor extends UserAgentTreeWalkerBaseVisitor<Num
 
     private static Integer getMaxRange(NumberRangeContext ctx) {
         ParserRuleContext parent = ctx.getParent();
-        if (!(parent instanceof StepDownContext)) {
-            return DEFAULT_MAX;
-        }
         String name = ((StepDownContext) parent).name.getText();
-        if (name == null) {
-            return DEFAULT_MAX;
-        }
         Integer maxRange = MAX_RANGE.get(name);
         if (maxRange == null) {
             return DEFAULT_MAX;
@@ -88,6 +84,20 @@ public final class NumberRangeVisitor extends UserAgentTreeWalkerBaseVisitor<Num
         return new NumberRangeList(
                 Integer.parseInt(ctx.rangeStart.getText()),
                 Integer.parseInt(ctx.rangeEnd.getText()));
+    }
+
+    @Override
+    public NumberRangeList visitNumberRangeOpenStartToEnd(NumberRangeOpenStartToEndContext ctx) {
+        return new NumberRangeList(
+            1,
+            Integer.parseInt(ctx.rangeEnd.getText()));
+    }
+
+    @Override
+    public NumberRangeList visitNumberRangeStartToOpenEnd(NumberRangeStartToOpenEndContext ctx) {
+        return new NumberRangeList(
+            Integer.parseInt(ctx.rangeStart.getText()),
+            getMaxRange(ctx));
     }
 
     @Override

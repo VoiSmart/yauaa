@@ -1,12 +1,12 @@
 /*
  * Yet Another UserAgent Analyzer
- * Copyright (C) 2013-2018 Niels Basjes
+ * Copyright (C) 2013-2020 Niels Basjes
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -19,13 +19,17 @@ package nl.basjes.parse.useragent.debug;
 
 import nl.basjes.parse.useragent.analyze.Analyzer;
 import nl.basjes.parse.useragent.analyze.MatcherAction;
+import nl.basjes.parse.useragent.analyze.WordRangeVisitor;
 import org.antlr.v4.runtime.tree.ParseTree;
 
 import java.io.PrintStream;
+import java.util.Collections;
+import java.util.Map;
+import java.util.Set;
 
 public class FlattenPrinter implements Analyzer {
 
-    final PrintStream outputStream;
+    final transient PrintStream outputStream;
 
     public FlattenPrinter(PrintStream outputStream) {
         this.outputStream = outputStream;
@@ -38,6 +42,37 @@ public class FlattenPrinter implements Analyzer {
 
     @Override
     public void informMeAbout(MatcherAction matcherAction, String keyPattern) {
-
+        // Not needed
     }
+
+    public void lookingForRange(String treeName, WordRangeVisitor.Range range) {
+        // Never called
+    }
+
+    public Set<WordRangeVisitor.Range> getRequiredInformRanges(String treeName){
+        // Never called
+        return Collections.emptySet();
+    }
+
+    public void informMeAboutPrefix(MatcherAction matcherAction, String treeName, String prefix) {
+        // Never called
+    }
+
+    public Set<Integer> getRequiredPrefixLengths(String treeName){
+        // Never called
+        return Collections.emptySet();
+    }
+
+    @Override
+    public Map<String, Map<String, String>> getLookups() {
+        // Never called
+        return Collections.emptyMap();
+    }
+
+    @Override
+    public Map<String, Set<String>> getLookupSets() {
+        // Never called
+        return Collections.emptyMap();
+    }
+
 }

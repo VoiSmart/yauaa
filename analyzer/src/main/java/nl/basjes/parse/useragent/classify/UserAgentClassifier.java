@@ -1,12 +1,12 @@
 /*
  * Yet Another UserAgent Analyzer
- * Copyright (C) 2013-2018 Niels Basjes
+ * Copyright (C) 2013-2020 Niels Basjes
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -28,9 +28,9 @@ import static nl.basjes.parse.useragent.classify.DeviceClass.HandheldGameConsole
 import static nl.basjes.parse.useragent.classify.DeviceClass.Mobile;
 import static nl.basjes.parse.useragent.classify.DeviceClass.Phone;
 import static nl.basjes.parse.useragent.classify.DeviceClass.Robot;
+import static nl.basjes.parse.useragent.classify.DeviceClass.RobotImitator;
 import static nl.basjes.parse.useragent.classify.DeviceClass.RobotMobile;
 import static nl.basjes.parse.useragent.classify.DeviceClass.SetTopBox;
-import static nl.basjes.parse.useragent.classify.DeviceClass.Spy;
 import static nl.basjes.parse.useragent.classify.DeviceClass.TV;
 import static nl.basjes.parse.useragent.classify.DeviceClass.Tablet;
 import static nl.basjes.parse.useragent.classify.DeviceClass.Unclassified;
@@ -58,7 +58,7 @@ public final class UserAgentClassifier {
             case "Handheld Game Console":  return HandheldGameConsole;
             case "Robot":                  return Robot;
             case "Robot Mobile":           return RobotMobile;
-            case "Spy":                    return Spy;
+            case "Robot Imitator":         return RobotImitator;
             case "Hacker":                 return Hacker;
             case "Unknown":                return Unknown;
             default:                       return Unclassified;
@@ -87,7 +87,7 @@ public final class UserAgentClassifier {
             case Anonymized:
             case Robot:
             case RobotMobile:
-            case Spy:
+            case RobotImitator:
             case Hacker:
             case Unknown:
             case Unclassified:
@@ -118,7 +118,7 @@ public final class UserAgentClassifier {
             case GameConsole:
             case Anonymized:
             case Robot:
-            case Spy:
+            case RobotImitator:
             case Hacker:
             case Unknown:
             case Unclassified:
@@ -149,7 +149,7 @@ public final class UserAgentClassifier {
 
             case Robot:
             case RobotMobile:
-            case Spy:
+            case RobotImitator:
             case Hacker:
             case Unknown:
             case Unclassified:
@@ -165,7 +165,7 @@ public final class UserAgentClassifier {
     public static boolean isDeliberateMisuse(UserAgent userAgent) {
         switch (getDeviceClass(userAgent)) {
             case Anonymized:
-            case Spy:
+            case RobotImitator:
             case Hacker:
                 return true;
 

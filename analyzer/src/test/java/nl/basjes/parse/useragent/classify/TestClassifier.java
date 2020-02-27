@@ -1,12 +1,12 @@
 /*
  * Yet Another UserAgent Analyzer
- * Copyright (C) 2013-2018 Niels Basjes
+ * Copyright (C) 2013-2020 Niels Basjes
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,7 +18,7 @@
 package nl.basjes.parse.useragent.classify;
 
 import nl.basjes.parse.useragent.UserAgent;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import static nl.basjes.parse.useragent.UserAgent.DEVICE_CLASS;
 import static nl.basjes.parse.useragent.classify.DeviceClass.Anonymized;
@@ -29,9 +29,9 @@ import static nl.basjes.parse.useragent.classify.DeviceClass.HandheldGameConsole
 import static nl.basjes.parse.useragent.classify.DeviceClass.Mobile;
 import static nl.basjes.parse.useragent.classify.DeviceClass.Phone;
 import static nl.basjes.parse.useragent.classify.DeviceClass.Robot;
+import static nl.basjes.parse.useragent.classify.DeviceClass.RobotImitator;
 import static nl.basjes.parse.useragent.classify.DeviceClass.RobotMobile;
 import static nl.basjes.parse.useragent.classify.DeviceClass.SetTopBox;
-import static nl.basjes.parse.useragent.classify.DeviceClass.Spy;
 import static nl.basjes.parse.useragent.classify.DeviceClass.TV;
 import static nl.basjes.parse.useragent.classify.DeviceClass.Tablet;
 import static nl.basjes.parse.useragent.classify.DeviceClass.Unclassified;
@@ -43,7 +43,7 @@ import static nl.basjes.parse.useragent.classify.UserAgentClassifier.isDeliberat
 import static nl.basjes.parse.useragent.classify.UserAgentClassifier.isHuman;
 import static nl.basjes.parse.useragent.classify.UserAgentClassifier.isMobile;
 import static nl.basjes.parse.useragent.classify.UserAgentClassifier.isNormalConsumerDevice;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class TestClassifier {
 
@@ -63,7 +63,7 @@ public class TestClassifier {
         verifyEnum("Handheld Game Console");
         verifyEnum("Robot");
         verifyEnum("Robot Mobile");
-        verifyEnum("Spy");
+        verifyEnum("Robot Imitator");
         verifyEnum("Hacker");
         verifyEnum("Unknown");
     }
@@ -92,7 +92,7 @@ public class TestClassifier {
         verifyDeviceClass(HandheldGameConsole,   true,   true,  true, false);
         verifyDeviceClass(Robot,                 false, false, false, false);
         verifyDeviceClass(RobotMobile,           false,  true, false, false);
-        verifyDeviceClass(Spy,                   false, false, false,  true);
+        verifyDeviceClass(RobotImitator,         false, false, false,  true);
         verifyDeviceClass(Hacker,                false, false, false,  true);
         verifyDeviceClass(Unknown,               false, false, false, false);
         verifyDeviceClass(Unclassified,          false, false, false, false);
@@ -102,14 +102,14 @@ public class TestClassifier {
         UserAgent userAgent = new UserAgent();
 
         userAgent.set(DEVICE_CLASS, deviceClass.getValue(), 1);
-        assertEquals("For the DeviceClass " + deviceClass.toString() + " the isHuman() was incorrect.",
-            human, isHuman(userAgent));
-        assertEquals("For the DeviceClass " + deviceClass.toString() + " the isMobile() was incorrect.",
-            mobile, isMobile(userAgent));
-        assertEquals("For the DeviceClass " + deviceClass.toString() + " the isNormalConsumerDevice() was incorrect.",
-            normal, isNormalConsumerDevice(userAgent));
-        assertEquals("For the DeviceClass " + deviceClass.toString() + " the isDeliberateMisuse() was incorrect.",
-            misuse, isDeliberateMisuse(userAgent));
+        assertEquals(human, isHuman(userAgent),
+            "For the DeviceClass " + deviceClass.toString() + " the isHuman() was incorrect.");
+        assertEquals(mobile, isMobile(userAgent),
+            "For the DeviceClass " + deviceClass.toString() + " the isMobile() was incorrect.");
+        assertEquals(normal, isNormalConsumerDevice(userAgent),
+            "For the DeviceClass " + deviceClass.toString() + " the isNormalConsumerDevice() was incorrect.");
+        assertEquals(misuse, isDeliberateMisuse(userAgent),
+            "For the DeviceClass " + deviceClass.toString() + " the isDeliberateMisuse() was incorrect.");
     }
 
 }

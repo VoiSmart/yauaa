@@ -1,12 +1,12 @@
 /*
  * Yet Another UserAgent Analyzer
- * Copyright (C) 2013-2018 Niels Basjes
+ * Copyright (C) 2013-2020 Niels Basjes
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -17,111 +17,21 @@
 
 package nl.basjes.parse.useragent;
 
-import org.apache.commons.collections4.map.LRUMap;
+import com.esotericsoftware.kryo.DefaultSerializer;
 
 import java.io.Serializable;
 
-public class UserAgentAnalyzer extends UserAgentAnalyzerDirect implements Serializable {
-    private static final int DEFAULT_PARSE_CACHE_SIZE = 10000;
+@DefaultSerializer(UserAgentAnalyzer.KryoSerializer.class)
+public final class UserAgentAnalyzer extends AbstractUserAgentAnalyzer implements Serializable {
 
-    private int cacheSize = DEFAULT_PARSE_CACHE_SIZE;
-    private LRUMap<String, UserAgent> parseCache = null;
-
-    public UserAgentAnalyzer() {
-        super();
+    public static UserAgentAnalyzerBuilder  newBuilder() {
+        return new UserAgentAnalyzerBuilder(new UserAgentAnalyzer());
     }
 
-    protected UserAgentAnalyzer(boolean initialize) {
-        super(initialize);
-    }
+    public static final class UserAgentAnalyzerBuilder extends AbstractUserAgentAnalyzerBuilder<UserAgentAnalyzer, UserAgentAnalyzerBuilder>{
 
-    public UserAgentAnalyzer(String resourceString) {
-        super(resourceString);
-    }
-
-    public void disableCaching() {
-        setCacheSize(0);
-    }
-
-    /**
-     * Sets the new size of the parsing cache.
-     * Note that this will also wipe the existing cache.
-     *
-     * @param newCacheSize The size of the new LRU cache. As size of 0 will disable caching.
-     */
-    public void setCacheSize(int newCacheSize) {
-        cacheSize = newCacheSize > 0 ? newCacheSize : 0;
-        if (cacheSize >= 1) {
-            parseCache = new LRUMap<>(cacheSize);
-        } else {
-            parseCache = null;
-        }
-    }
-
-    public int getCacheSize() {
-        return cacheSize;
-    }
-
-    @Override
-    public synchronized UserAgent parse(UserAgent userAgent) {
-        if (userAgent == null) {
-            return null;
-        }
-        userAgent.reset();
-
-        if (parseCache == null) {
-            return super.parse(userAgent);
-        }
-
-        String userAgentString = userAgent.getUserAgentString();
-        UserAgent cachedValue = parseCache.get(userAgentString);
-        if (cachedValue != null) {
-            userAgent.clone(cachedValue);
-        } else {
-            cachedValue = new UserAgent(super.parse(userAgent));
-            parseCache.put(userAgentString, cachedValue);
-        }
-        // We have our answer.
-        return userAgent;
-    }
-
-    @SuppressWarnings("unchecked")
-    public static UserAgentAnalyzerBuilder<? extends UserAgentAnalyzer, ? extends UserAgentAnalyzerBuilder> newBuilder() {
-        return new UserAgentAnalyzerBuilder<>(new UserAgentAnalyzer(false));
-    }
-
-    // This is purely to retain backwards compatibility
-    @SuppressWarnings("unchecked")
-    public static class Builder extends UserAgentAnalyzerBuilder{
-        public Builder(UserAgentAnalyzer newUaa) {
+        private UserAgentAnalyzerBuilder(UserAgentAnalyzer newUaa) {
             super(newUaa);
-        }
-    }
-
-    @SuppressWarnings("unchecked")
-    public static class UserAgentAnalyzerBuilder<UAA extends UserAgentAnalyzer, B extends UserAgentAnalyzerBuilder<UAA, B>>
-            extends UserAgentAnalyzerDirectBuilder<UAA, B> {
-        private final UAA uaa;
-
-        public UserAgentAnalyzerBuilder(UAA newUaa) {
-            super(newUaa);
-            this.uaa = newUaa;
-        }
-
-        public B withCache(int newCacheSize) {
-            uaa.setCacheSize(newCacheSize);
-            return (B)this;
-        }
-
-        public B withoutCache() {
-            uaa.setCacheSize(0);
-            return (B)this;
-        }
-
-        @SuppressWarnings("EmptyMethod") // We must override the method because of the generic return value.
-        @Override
-        public UAA build() {
-            return super.build();
         }
     }
 }

@@ -1,12 +1,12 @@
 /*
  * Yet Another UserAgent Analyzer
- * Copyright (C) 2013-2018 Niels Basjes
+ * Copyright (C) 2013-2020 Niels Basjes
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -27,13 +27,16 @@ import nl.basjes.parse.useragent.analyze.treewalker.steps.compare.StepIsInSet;
 import nl.basjes.parse.useragent.analyze.treewalker.steps.compare.StepIsNull;
 import nl.basjes.parse.useragent.analyze.treewalker.steps.compare.StepNotEquals;
 import nl.basjes.parse.useragent.analyze.treewalker.steps.compare.StepStartsWith;
+import nl.basjes.parse.useragent.analyze.treewalker.steps.lookup.StepIsInLookupContains;
+import nl.basjes.parse.useragent.analyze.treewalker.steps.lookup.StepIsInLookupPrefix;
 import nl.basjes.parse.useragent.analyze.treewalker.steps.lookup.StepLookup;
+import nl.basjes.parse.useragent.analyze.treewalker.steps.lookup.StepLookupContains;
+import nl.basjes.parse.useragent.analyze.treewalker.steps.lookup.StepLookupPrefix;
 import nl.basjes.parse.useragent.analyze.treewalker.steps.value.StepBackToFull;
 import nl.basjes.parse.useragent.analyze.treewalker.steps.value.StepCleanVersion;
 import nl.basjes.parse.useragent.analyze.treewalker.steps.value.StepConcat;
 import nl.basjes.parse.useragent.analyze.treewalker.steps.value.StepConcatPostfix;
 import nl.basjes.parse.useragent.analyze.treewalker.steps.value.StepConcatPrefix;
-import nl.basjes.parse.useragent.analyze.treewalker.steps.value.StepFixedString;
 import nl.basjes.parse.useragent.analyze.treewalker.steps.value.StepNormalizeBrand;
 import nl.basjes.parse.useragent.analyze.treewalker.steps.value.StepWordRange;
 import nl.basjes.parse.useragent.analyze.treewalker.steps.walk.StepDown;
@@ -43,23 +46,27 @@ import nl.basjes.parse.useragent.analyze.treewalker.steps.walk.StepPrev;
 import nl.basjes.parse.useragent.analyze.treewalker.steps.walk.StepPrevN;
 import nl.basjes.parse.useragent.analyze.treewalker.steps.walk.StepUp;
 import nl.basjes.parse.useragent.parser.UserAgentTreeWalkerBaseVisitor;
-import nl.basjes.parse.useragent.parser.UserAgentTreeWalkerParser;
 import nl.basjes.parse.useragent.parser.UserAgentTreeWalkerParser.MatcherCleanVersionContext;
 import nl.basjes.parse.useragent.parser.UserAgentTreeWalkerParser.MatcherConcatContext;
 import nl.basjes.parse.useragent.parser.UserAgentTreeWalkerParser.MatcherConcatPostfixContext;
 import nl.basjes.parse.useragent.parser.UserAgentTreeWalkerParser.MatcherConcatPrefixContext;
 import nl.basjes.parse.useragent.parser.UserAgentTreeWalkerParser.MatcherNormalizeBrandContext;
 import nl.basjes.parse.useragent.parser.UserAgentTreeWalkerParser.MatcherPathContext;
+import nl.basjes.parse.useragent.parser.UserAgentTreeWalkerParser.MatcherPathIsInLookupContainsContext;
+import nl.basjes.parse.useragent.parser.UserAgentTreeWalkerParser.MatcherPathIsInLookupPrefixContext;
 import nl.basjes.parse.useragent.parser.UserAgentTreeWalkerParser.MatcherPathIsNullContext;
+import nl.basjes.parse.useragent.parser.UserAgentTreeWalkerParser.MatcherPathLookupContainsContext;
 import nl.basjes.parse.useragent.parser.UserAgentTreeWalkerParser.MatcherPathLookupContext;
+import nl.basjes.parse.useragent.parser.UserAgentTreeWalkerParser.MatcherPathLookupPrefixContext;
 import nl.basjes.parse.useragent.parser.UserAgentTreeWalkerParser.PathContext;
-import nl.basjes.parse.useragent.parser.UserAgentTreeWalkerParser.PathFixedValueContext;
+import nl.basjes.parse.useragent.parser.UserAgentTreeWalkerParser.PathVariableContext;
 import nl.basjes.parse.useragent.parser.UserAgentTreeWalkerParser.PathWalkContext;
 import nl.basjes.parse.useragent.parser.UserAgentTreeWalkerParser.StepBackToFullContext;
 import nl.basjes.parse.useragent.parser.UserAgentTreeWalkerParser.StepContainsValueContext;
 import nl.basjes.parse.useragent.parser.UserAgentTreeWalkerParser.StepDownContext;
 import nl.basjes.parse.useragent.parser.UserAgentTreeWalkerParser.StepEndsWithValueContext;
 import nl.basjes.parse.useragent.parser.UserAgentTreeWalkerParser.StepEqualsValueContext;
+import nl.basjes.parse.useragent.parser.UserAgentTreeWalkerParser.StepIsInSetContext;
 import nl.basjes.parse.useragent.parser.UserAgentTreeWalkerParser.StepNext2Context;
 import nl.basjes.parse.useragent.parser.UserAgentTreeWalkerParser.StepNext3Context;
 import nl.basjes.parse.useragent.parser.UserAgentTreeWalkerParser.StepNext4Context;
@@ -72,12 +79,15 @@ import nl.basjes.parse.useragent.parser.UserAgentTreeWalkerParser.StepPrevContex
 import nl.basjes.parse.useragent.parser.UserAgentTreeWalkerParser.StepStartsWithValueContext;
 import nl.basjes.parse.useragent.parser.UserAgentTreeWalkerParser.StepUpContext;
 import org.antlr.v4.runtime.ParserRuleContext;
+import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -102,9 +112,6 @@ public class WalkList implements Serializable {
         public WalkResult(ParseTree tree, String value) {
             this.tree = tree;
             this.value = value;
-//            if (value == null || tree == null ) {
-//                throw new IllegalStateException("An invalid WalkResult was created :" + this.toString());
-//            }
         }
 
         public ParseTree getTree() {
@@ -124,6 +131,13 @@ public class WalkList implements Serializable {
         }
     }
 
+    @SuppressWarnings("unused") // Private constructor for serialization systems ONLY (like Kryo)
+    private WalkList() {
+        lookups = Collections.emptyMap();
+        lookupSets = Collections.emptyMap();
+        verbose = false;
+    }
+
     public WalkList(ParserRuleContext requiredPattern,
                     Map<String, Map<String, String>> lookups,
                     Map<String, Set<String>> lookupSets,
@@ -138,7 +152,7 @@ public class WalkList implements Serializable {
         int i = 1;
         if (verbose) {
             LOG.info("------------------------------------");
-            LOG.info("Required: " + requiredPattern.getText());
+            LOG.info("Required: {}", requiredPattern.getText());
             for (Step step : steps) {
                 step.setVerbose(true);
                 LOG.info("{}: {}", i++, step);
@@ -153,6 +167,33 @@ public class WalkList implements Serializable {
             current.setNextStep(i, nextStep);
             nextStep = current;
         }
+    }
+
+    public long pruneTrailingStepsThatCannotFail() {
+        int lastStepThatCannotFail = Integer.MAX_VALUE;
+        for (int i = steps.size() - 1; i >= 0; i--) {
+            Step current = steps.get(i);
+            if (current.canFail()) {
+                break; // We're done. We have the last step that CAN fail.
+            }
+            lastStepThatCannotFail = i;
+        }
+
+        if (lastStepThatCannotFail == Integer.MAX_VALUE) {
+            return 0;
+        }
+        if (lastStepThatCannotFail == 0) {
+            long prunedSteps = steps.size();
+            steps.clear();
+            return prunedSteps;
+        }
+
+        int lastRelevantStepIndex = lastStepThatCannotFail - 1;
+        Step lastRelevantStep = steps.get(lastRelevantStepIndex);
+        lastRelevantStep.setNextStep(lastRelevantStepIndex, null);
+
+        steps.subList(lastRelevantStepIndex + 1, steps.size()).clear();
+        return steps.size() - (lastRelevantStepIndex + 1);
     }
 
     public WalkResult walk(ParseTree tree, String value) {
@@ -172,7 +213,7 @@ public class WalkList implements Serializable {
     }
 
     public Step getFirstStep() {
-        return steps == null || steps.isEmpty() ? null : steps.get(0);
+        return steps.isEmpty() ? null : steps.get(0);
     }
 
     private Boolean usesIsNull = null;
@@ -237,6 +278,13 @@ public class WalkList implements Serializable {
             return null; // Void
         }
 
+        private String extractText(Token token) {
+            if (token == null) {
+                return null;
+            }
+            return token.getText();
+        }
+
         @Override
         public Void visitMatcherPathLookup(MatcherPathLookupContext ctx) {
             visit(ctx.matcher());
@@ -244,18 +292,72 @@ public class WalkList implements Serializable {
             fromHereItCannotBeInHashMapAnymore();
 
             String lookupName = ctx.lookup.getText();
+            Map<String, String> lookup = getLookup(lookupName);
+
+            add(new StepLookup(lookupName, lookup, extractText(ctx.defaultValue)));
+            return null; // Void
+        }
+
+        @Override
+        public Void visitMatcherPathLookupContains(MatcherPathLookupContainsContext ctx) {
+            visit(ctx.matcher());
+
+            fromHereItCannotBeInHashMapAnymore();
+
+            String lookupName = ctx.lookup.getText();
+            Map<String, String> lookup = getLookup(lookupName);
+
+            add(new StepLookupContains(lookupName, lookup, extractText(ctx.defaultValue)));
+            return null; // Void
+        }
+
+        @Override
+        public Void visitMatcherPathLookupPrefix(MatcherPathLookupPrefixContext ctx) {
+            visit(ctx.matcher());
+
+            fromHereItCannotBeInHashMapAnymore();
+
+            String lookupName = ctx.lookup.getText();
+            Map<String, String> lookup = getLookup(lookupName);
+
+            add(new StepLookupPrefix(lookupName, lookup, extractText(ctx.defaultValue)));
+            return null; // Void
+        }
+
+
+        @Override
+        public Void visitMatcherPathIsInLookupContains(MatcherPathIsInLookupContainsContext ctx) {
+            visit(ctx.matcher());
+
+            fromHereItCannotBeInHashMapAnymore();
+
+            String lookupName = ctx.lookup.getText();
+            Map<String, String> lookup = getLookup(lookupName);
+
+            add(new StepIsInLookupContains(lookupName, lookup));
+            return null; // Void
+        }
+
+
+        @Override
+        public Void visitMatcherPathIsInLookupPrefix(MatcherPathIsInLookupPrefixContext ctx) {
+            visit(ctx.matcher());
+
+            fromHereItCannotBeInHashMapAnymore();
+
+            String lookupName = ctx.lookup.getText();
+            Map<String, String> lookup = getLookup(lookupName);
+
+            add(new StepIsInLookupPrefix(lookupName, lookup));
+            return null; // Void
+        }
+
+        private Map<String, String> getLookup(String lookupName) {
             Map<String, String> lookup = lookups.get(lookupName);
             if (lookup == null) {
-                throw new InvalidParserConfigurationException("Missing lookup \"" + ctx.lookup.getText() + "\" ");
+                throw new InvalidParserConfigurationException("Missing lookup \"" + lookupName + "\" ");
             }
-
-            String defaultValue = null;
-            if (ctx.defaultValue != null) {
-                defaultValue = ctx.defaultValue.getText();
-            }
-
-            add(new StepLookup(lookupName, lookup, defaultValue));
-            return null; // Void
+            return lookup;
         }
 
         @Override
@@ -315,15 +417,9 @@ public class WalkList implements Serializable {
         }
 
         @Override
-        public Void visitPathVariable(UserAgentTreeWalkerParser.PathVariableContext ctx) {
+        public Void visitPathVariable(PathVariableContext ctx) {
             fromHereItCannotBeInHashMapAnymore();
             visitNext(ctx.nextStep);
-            return null; // Void
-        }
-
-        @Override
-        public Void visitPathFixedValue(PathFixedValueContext ctx) {
-            add(new StepFixedString(ctx.value.getText()));
             return null; // Void
         }
 
@@ -428,7 +524,7 @@ public class WalkList implements Serializable {
         }
 
         @Override
-        public Void visitStepIsInSet(UserAgentTreeWalkerParser.StepIsInSetContext ctx) {
+        public Void visitStepIsInSet(StepIsInSetContext ctx) {
             fromHereItCannotBeInHashMapAnymore();
 
             String lookupSetName = ctx.set.getText();
@@ -436,7 +532,7 @@ public class WalkList implements Serializable {
             if (lookupSet == null) {
                 Map<String, String> lookup = lookups.get(lookupSetName);
                 if (lookup != null) {
-                    lookupSet = lookup.keySet();
+                    lookupSet = new LinkedHashSet<>(lookup.keySet());
                 }
             }
             if (lookupSet == null) {

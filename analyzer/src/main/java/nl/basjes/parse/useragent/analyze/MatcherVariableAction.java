@@ -1,12 +1,12 @@
 /*
  * Yet Another UserAgent Analyzer
- * Copyright (C) 2013-2018 Niels Basjes
+ * Copyright (C) 2013-2020 Niels Basjes
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -29,18 +29,21 @@ public class MatcherVariableAction extends MatcherAction {
     private static final Logger LOG = LoggerFactory.getLogger(MatcherVariableAction.class);
 
     private final String variableName;
-    private WalkResult foundValue = null;
-    private final String expression;
+    private transient WalkResult foundValue = null;
     private Set<MatcherAction> interestedActions;
+
+    @SuppressWarnings("unused") // Private constructor for serialization systems ONLY (like Kryo)
+    private MatcherVariableAction() {
+        variableName = null;
+    }
 
     public MatcherVariableAction(String variableName, String config, Matcher matcher) {
         this.variableName = variableName;
-        expression = config;
         init(config, matcher);
     }
 
     protected ParserRuleContext parseWalkerExpression(UserAgentTreeWalkerParser parser) {
-        return parser.matcher();
+        return parser.matcherVariable();
     }
 
     protected void setFixedValue(String fixedValue) {
@@ -73,10 +76,6 @@ public class MatcherVariableAction extends MatcherAction {
                     action.inform(variableName, newlyFoundValue.getValue(), newlyFoundValue.getTree());
                 }
             }
-        } else {
-            if (verbose) {
-                LOG.info("IGNORE: VARIABLE ({}): {}", variableName, key);
-            }
         }
     }
 
@@ -85,6 +84,7 @@ public class MatcherVariableAction extends MatcherAction {
         return this.foundValue != null;
     }
 
+    @Override
     public void reset() {
         super.reset();
         this.foundValue = null;
@@ -92,7 +92,7 @@ public class MatcherVariableAction extends MatcherAction {
 
     @Override
     public String toString() {
-        return "VARIABLE: (" + variableName + "): " + expression;
+        return "Variable.("+matcher.getMatcherSourceLocation()+"): (" + variableName + "): " + getMatchExpression();
     }
 
     public void setInterestedActions(Set<MatcherAction> newInterestedActions) {

@@ -1,12 +1,12 @@
 /*
  * Yet Another UserAgent Analyzer
- * Copyright (C) 2013-2018 Niels Basjes
+ * Copyright (C) 2013-2020 Niels Basjes
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -19,18 +19,31 @@ package nl.basjes.parse.useragent.beam;
 
 import nl.basjes.parse.useragent.annotate.UserAgentAnnotationAnalyzer;
 import nl.basjes.parse.useragent.annotate.UserAgentAnnotationMapper;
-import org.apache.beam.sdk.repackaged.org.apache.commons.lang3.SerializationUtils;
 import org.apache.beam.sdk.transforms.DoFn;
+import org.apache.commons.lang3.SerializationUtils;
 
 import java.io.Serializable;
+
+import static nl.basjes.parse.useragent.UserAgentAnalyzer.DEFAULT_PARSE_CACHE_SIZE;
 
 public abstract class UserAgentAnalysisDoFn<T extends Serializable> extends DoFn<T, T>
     implements UserAgentAnnotationMapper<T>, Serializable {
     private transient UserAgentAnnotationAnalyzer<T> userAgentAnalyzer = null;
 
+    private int cacheSize;
+
+    public UserAgentAnalysisDoFn() {
+        this.cacheSize = DEFAULT_PARSE_CACHE_SIZE;
+    }
+
+    public UserAgentAnalysisDoFn(int cacheSize) {
+        this.cacheSize = cacheSize;
+    }
+
     @Setup
     public void initialize() {
         userAgentAnalyzer = new UserAgentAnnotationAnalyzer<>();
+        userAgentAnalyzer.setCacheSize(cacheSize);
         userAgentAnalyzer.initialize(this);
     }
 

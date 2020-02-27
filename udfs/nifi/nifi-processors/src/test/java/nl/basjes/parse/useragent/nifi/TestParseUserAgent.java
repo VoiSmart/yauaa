@@ -1,12 +1,12 @@
 /*
  * Yet Another UserAgent Analyzer
- * Copyright (C) 2013-2018 Niels Basjes
+ * Copyright (C) 2013-2020 Niels Basjes
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -20,17 +20,16 @@ package nl.basjes.parse.useragent.nifi;
 import org.apache.nifi.util.MockFlowFile;
 import org.apache.nifi.util.TestRunner;
 import org.apache.nifi.util.TestRunners;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import static nl.basjes.parse.useragent.nifi.ParseUserAgent.PROPERTY_PREFIX;
 import static nl.basjes.parse.useragent.nifi.ParseUserAgent.ATTRIBUTE_PREFIX;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 // CHECKSTYLE.OFF: ParenPad
 public class TestParseUserAgent {
@@ -39,14 +38,15 @@ public class TestParseUserAgent {
         "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/48.0.2564.82 Safari/537.36";
 
     private TestRunner runner;
-    @Before
+
+    @BeforeEach
     public void before(){
         // Generate a test runner to mock a processor in a flow
         runner = TestRunners.newTestRunner(new ParseUserAgent());
     }
 
     @Test
-    public void testParserFull() throws IOException {
+    public void testParserFull() {
         // Content to be mock a json file
         String content = "CONTENT:>>" + TEST_USER_AGENT + "<<";
 
@@ -105,7 +105,7 @@ public class TestParseUserAgent {
 
         // If you need to read or do additional tests on results you can access the content
         List<MockFlowFile> results = runner.getFlowFilesForRelationship(ParseUserAgent.SUCCESS);
-        assertTrue("1 match", results.size() == 1);
+        assertEquals(1, results.size(), "Must be 1 match");
         MockFlowFile result = results.get(0);
         result.assertAttributeEquals(ATTRIBUTE_PREFIX + "DeviceClass",                      "Desktop"             );
         result.assertAttributeEquals(ATTRIBUTE_PREFIX + "DeviceName",                       "Linux Desktop"       );
@@ -151,9 +151,8 @@ public class TestParseUserAgent {
         result.assertContentEquals(content);
     }
 
-
     @Test
-    public void testParserPartial() throws IOException {
+    public void testParserPartial() {
         // Content to be mock a json file
         String content = "CONTENT:>>" + TEST_USER_AGENT + "<<";
 
@@ -179,7 +178,7 @@ public class TestParseUserAgent {
 
         // If you need to read or do additional tests on results you can access the content
         List<MockFlowFile> results = runner.getFlowFilesForRelationship(ParseUserAgent.SUCCESS);
-        assertTrue("1 match", results.size() == 1);
+        assertEquals(1, results.size(), "Must be 1 match");
         MockFlowFile result = results.get(0);
         result.assertAttributeEquals(ATTRIBUTE_PREFIX + "DeviceClass",            "Desktop"      );
         result.assertAttributeEquals(ATTRIBUTE_PREFIX + "OperatingSystemName",    "Linux"        );
@@ -226,9 +225,8 @@ public class TestParseUserAgent {
         result.assertContentEquals(content);
     }
 
-
     @Test
-    public void testParserMissingInput() throws IOException {
+    public void testParserMissingInput() {
         // Content to be mock a json file
         String content = "CONTENT:>>" + TEST_USER_AGENT + "<<";
         // Add properties
@@ -240,12 +238,9 @@ public class TestParseUserAgent {
         runner.setProperty(PROPERTY_PREFIX + "AgentNameVersionMajor",            "true");
 
         // Add the content to the runner (just because we 'should' have some content).
-        MockFlowFile flowfile = runner.enqueue(content);
-        Map<String, String> attributes = new HashMap<>();
+        runner.enqueue(content);
 
         // We deliberatly DO NOT add the required attribute
-//        attributes.put(ParseUserAgent.USERAGENTSTRING_ATTRIBUTENAME, TEST_USER_AGENT);
-//        flowfile.putAttributes(attributes);
 
         // Run the enqueued content, it also takes an int = number of contents queued
         runner.run(1);
@@ -254,10 +249,10 @@ public class TestParseUserAgent {
         runner.assertQueueEmpty();
 
         List<MockFlowFile> results = runner.getFlowFilesForRelationship(ParseUserAgent.SUCCESS);
-        assertTrue("None at success", results.size() == 0);
+        assertEquals(0, results.size(), "None at success");
 
         results = runner.getFlowFilesForRelationship(ParseUserAgent.MISSING);
-        assertTrue("1 match", results.size() == 1);
+        assertEquals(1, results.size(), "Must be 1 match");
         MockFlowFile result = results.get(0);
         result.assertAttributeNotExists(ATTRIBUTE_PREFIX + "DeviceClass"                    );
         result.assertAttributeNotExists(ATTRIBUTE_PREFIX + "OperatingSystemName"            );
@@ -303,6 +298,5 @@ public class TestParseUserAgent {
         // Test attributes and content
         result.assertContentEquals(content);
     }
-
 
 }

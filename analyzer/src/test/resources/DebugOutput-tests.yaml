@@ -1,12 +1,12 @@
 #
 # Yet Another UserAgent Analyzer
-# Copyright (C) 2013-2018 Niels Basjes
+# Copyright (C) 2013-2020 Niels Basjes
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
 #
-# http://www.apache.org/licenses/LICENSE-2.0
+# https://www.apache.org/licenses/LICENSE-2.0
 #
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an AS IS BASIS,
@@ -28,6 +28,8 @@ config:
     - 'FirstProductName: agent.(1)product.(1)name'
     require:
     - 'LookUp[Dummy;@FirstProductName;"Fake"]'
+    - 'IsInLookUpContains[Dummy;@FirstProductName]'
+    - 'LookUpContains[Dummy;@FirstProductName;"Fake"]'
     - 'IsNull[@FirstProductName^.name="Word"!="Other"^.name[1]@{"Start"}"End"@@[-1][2-3][3-]<><>><<]'
     extract:
     - 'WordMatchFlipFlop: 1:@FirstProductName^.(1)comments.(1-3)entry.(1)text[-1]="One"@[3]="Three"@[2]'
@@ -51,6 +53,14 @@ config:
     - 'verbose'
     extract:
     - 'Impossible: 2:CleanVersion[LookUp[Dummy;agent.(1)product.(1)name="Bla"]]'
+
+# Partial match
+- matcher:
+    options:
+      - 'verbose'
+    extract:
+      - 'Impossible: 2:CleanVersion[LookUp[Dummy;agent.(1)product.(1)name="Bla"]]'
+      - 'Impossible2: 2:CleanVersion[LookUp[Dummy;agent.(1)product.(1)name="Word"]]'
 
 - matcher:
     options:
@@ -87,7 +97,6 @@ config:
       user_agent_string: 'Word/1 ( One Two Three )'
     expected:
       Name:              'Word'
-      WordMatchFlipFlop: 'Two'
 
 - matcher:
     options:
@@ -117,7 +126,9 @@ config:
       OperatingSystemClass                 : 'Hacker'
       OperatingSystemName                  : 'Hacker'
       OperatingSystemVersion               : 'Hacker'
+      OperatingSystemVersionMajor          : 'Hacker'
       OperatingSystemNameVersion           : 'Hacker'
+      OperatingSystemNameVersionMajor      : 'Hacker'
       LayoutEngineClass                    : 'Hacker'
       LayoutEngineName                     : 'Hacker'
       LayoutEngineVersion                  : 'Hacker'
@@ -145,8 +156,6 @@ config:
 
 
 - test:
-    options:
-      - 'only'
     input:
       name: 'Double match ignore second'
       user_agent_string: 'Name/1 Name/2'

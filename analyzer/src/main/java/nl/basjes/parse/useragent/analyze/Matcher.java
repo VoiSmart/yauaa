@@ -1,12 +1,12 @@
 /*
  * Yet Another UserAgent Analyzer
- * Copyright (C) 2013-2018 Niels Basjes
+ * Copyright (C) 2013-2020 Niels Basjes
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -26,8 +26,10 @@ import org.yaml.snakeyaml.nodes.NodeTuple;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -44,24 +46,32 @@ public class Matcher implements Serializable {
 
     private final Analyzer analyzer;
     private final List<MatcherVariableAction> variableActions;
-    private List<MatcherAction> dynamicActions;
+    private final List<MatcherAction> dynamicActions;
     private final List<MatcherAction> fixedStringActions;
 
-    private final UserAgent newValuesUserAgent = new UserAgent();
+    private UserAgent newValuesUserAgent = null;
 
     private long actionsThatRequireInput;
-    private final Map<String, Map<String, String>> lookups;
-    private final Map<String, Set<String>> lookupSets;
     private boolean verbose;
     private boolean permanentVerbose;
+
+    public String getMatcherSourceLocation() {
+        return matcherSourceLocation;
+    }
 
     // Used for error reporting: The filename and line number where the config was located.
     private String matcherSourceLocation;
 
+    @SuppressWarnings("unused") // Private constructor for serialization systems ONLY (like Kryo)
+    private Matcher() {
+        this.analyzer = null;
+        this.fixedStringActions = new ArrayList<>();
+        this.variableActions = new ArrayList<>();
+        this.dynamicActions = new ArrayList<>();
+    }
+
     // Package private constructor for testing purposes only
-    Matcher(Analyzer analyzer, Map<String, Map<String, String>> lookups, Map<String, Set<String>> lookupSets) {
-        this.lookups = lookups;
-        this.lookupSets = lookupSets;
+    Matcher(Analyzer analyzer) {
         this.analyzer = analyzer;
         this.fixedStringActions = new ArrayList<>();
         this.variableActions = new ArrayList<>();
@@ -69,11 +79,11 @@ public class Matcher implements Serializable {
     }
 
     public Map<String, Map<String, String>> getLookups() {
-        return lookups;
+        return analyzer.getLookups();
     }
 
     public Map<String, Set<String>> getLookupSets() {
-        return lookupSets;
+        return analyzer.getLookupSets();
     }
 
     static class ConfigLine {
@@ -93,30 +103,17 @@ public class Matcher implements Serializable {
             this.confidence = confidence;
             this.expression = expression;
         }
-
-        @Override
-        public String toString() {
-            return "ConfigLine{" +
-                "type=" + type +
-                ", attribute='" + attribute + '\'' +
-                ", confidence=" + confidence +
-                ", expression='" + expression + '\'' +
-                '}';
-        }
     }
 
     public Matcher(Analyzer analyzer,
-                   Map<String, Map<String, String>> lookups,
-                   Map<String, Set<String>> lookupSets,
-                   List<String> wantedFieldNames,
+                   Collection<String> wantedFieldNames,
                    MappingNode matcherConfig,
                    String filename) throws UselessMatcherException {
-        this.lookups = lookups;
-        this.lookupSets = lookupSets;
         this.analyzer = analyzer;
         this.fixedStringActions = new ArrayList<>();
         this.variableActions = new ArrayList<>();
         this.dynamicActions = new ArrayList<>();
+        this.newValuesUserAgent = new UserAgent(wantedFieldNames);
 
         matcherSourceLocation = filename + ':' + matcherConfig.getStartMark().getLine();
 
@@ -132,9 +129,7 @@ public class Matcher implements Serializable {
             switch (name) {
                 case "options":
                     List<String> options = YamlUtils.getStringValues(nodeTuple.getValueNode(), matcherSourceLocation);
-                    if (options != null) {
-                        verbose = options.contains("verbose");
-                    }
+                    verbose = options.contains("verbose");
                     break;
                 case "variable":
                     for (String variableConfig : YamlUtils.getStringValues(nodeTuple.getValueNode(), matcherSourceLocation)) {
@@ -177,7 +172,6 @@ public class Matcher implements Serializable {
                     break;
                 default:
                     // Ignore
-//                    fail(nodeTuple.getKeyNode(), matcherSourceLocation, "Unexpected " + name);
             }
         }
 
@@ -189,48 +183,47 @@ public class Matcher implements Serializable {
         }
 
         if (!hasDefinedExtractConfigs) {
-            throw new InvalidParserConfigurationException("Matcher does not extract anything");
+            throw new InvalidParserConfigurationException("Matcher does not extract anything:" + matcherSourceLocation);
         }
 
         if (!hasActiveExtractConfigs) {
-            throw new UselessMatcherException("Does not extract any wanted fields");
+            throw new UselessMatcherException("Does not extract any wanted fields" + matcherSourceLocation);
         }
 
         for (ConfigLine configLine : configLines) {
-            try {
-                if (verbose) {
-                    LOG.info("{}: {}", configLine.type, configLine.expression);
-                }
-                switch (configLine.type) {
-                    case VARIABLE:
-                        variableActions.add(new MatcherVariableAction(configLine.attribute, configLine.expression, this));
-                        break;
-                    case REQUIRE:
-                        dynamicActions.add(new MatcherRequireAction(configLine.expression, this));
-                        break;
-                    case EXTRACT:
-                        MatcherExtractAction action =
-                            new MatcherExtractAction(configLine.attribute, configLine.confidence, configLine.expression, this);
-                        dynamicActions.add(action);
-
-                        // Make sure the field actually exists
-                        newValuesUserAgent.set(configLine.attribute, "Dummy", -9999);
-                        action.setResultAgentField(newValuesUserAgent.get(configLine.attribute));
-                        break;
-                    default:
-                        break;
-                }
-            } catch (InvalidParserConfigurationException e) {
-                throw new InvalidParserConfigurationException("Syntax error.(" + matcherSourceLocation + ") => " + configLine, e);
+            if (verbose) {
+                LOG.info("{}: {}", configLine.type, configLine.expression);
             }
+            switch (configLine.type) {
+                case VARIABLE:
+                    variableActions.add(new MatcherVariableAction(configLine.attribute, configLine.expression, this));
+                    break;
+                case REQUIRE:
+                    dynamicActions.add(new MatcherRequireAction(configLine.expression, this));
+                    break;
+                case EXTRACT:
+                    MatcherExtractAction action =
+                        new MatcherExtractAction(configLine.attribute, configLine.confidence, configLine.expression, this);
+                    dynamicActions.add(action);
 
+                    // Make sure the field actually exists
+                    newValuesUserAgent.set(configLine.attribute, "Dummy", -9999);
+                    action.setResultAgentField(newValuesUserAgent.get(configLine.attribute));
+                    break;
+                default:
+                    break;
+            }
         }
 
     }
 
     public void initialize() {
+        long newEntries = 0;
+        long initStart = System.nanoTime();
         try {
-            variableActions.forEach(MatcherAction::initialize);
+            for (MatcherVariableAction variableAction : variableActions) {
+                newEntries += variableAction.initialize();
+            }
         } catch (InvalidParserConfigurationException e) {
             throw new InvalidParserConfigurationException("Syntax error.(" + matcherSourceLocation + ")", e);
         }
@@ -238,7 +231,7 @@ public class Matcher implements Serializable {
         Set<MatcherAction> uselessRequireActions = new HashSet<>();
         for (MatcherAction dynamicAction : dynamicActions) {
             try {
-                dynamicAction.initialize();
+                newEntries += dynamicAction.initialize();
             } catch (InvalidParserConfigurationException e) {
                 if (!e.getMessage().startsWith("It is useless to put a fixed value")) {// Ignore fixed values in require
                     throw new InvalidParserConfigurationException("Syntax error.(" + matcherSourceLocation + ")" + e.getMessage(), e);
@@ -256,8 +249,8 @@ public class Matcher implements Serializable {
             }
         }
 
-        fixedStringActions.forEach(action -> dynamicActions.remove(action));
-        uselessRequireActions.forEach(action -> dynamicActions.remove(action));
+        fixedStringActions.forEach(dynamicActions::remove);
+        uselessRequireActions.forEach(dynamicActions::remove);
 
         // Verify that a variable only contains the variables that have been defined BEFORE it (also not referencing itself).
         // If all is ok we link them
@@ -269,19 +262,37 @@ public class Matcher implements Serializable {
                 variableAction.setInterestedActions(interestedActions);
                 for (MatcherAction interestedAction : interestedActions) {
                     if (seenVariables.contains(interestedAction)) {
-                        throw new InvalidParserConfigurationException("Syntax error: The line >>" + interestedAction + "<< " +
+                        throw new InvalidParserConfigurationException(
+                            "Syntax error (" + matcherSourceLocation + "): The line >>" + interestedAction + "<< " +
                             "is referencing variable @"+variableAction.getVariableName()+ " which is not defined yet.");
                     }
                 }
             }
         }
 
-        List<MatcherAction> allDynamicActions = new ArrayList<>(variableActions.size() + dynamicActions.size());
-        allDynamicActions.addAll(variableActions);
-        allDynamicActions.addAll(dynamicActions);
-        dynamicActions = allDynamicActions;
+        // Check if any variable was requested that was not defined.
+        Set<String> missingVariableNames = new HashSet<>();
+        Set<String> seenVariableNames = new HashSet<>();
+        seenVariables.forEach(m -> seenVariableNames.add(((MatcherVariableAction)m).getVariableName()));
+        for (String variableName: informMatcherActionsAboutVariables.keySet()) {
+            if (!seenVariableNames.contains(variableName)) {
+                missingVariableNames.add(variableName);
+            }
+        }
+        if (missingVariableNames.size() > 0) {
+            throw new InvalidParserConfigurationException(
+                "Syntax error (" + matcherSourceLocation + "): Used, yet undefined variables: " + missingVariableNames);
+        }
+
+        // Make sure the variable actions are BEFORE the rest in the list
+        dynamicActions.addAll(0, variableActions);
 
         actionsThatRequireInput = countActionsThatMustHaveMatches(dynamicActions);
+
+        long initFinish = System.nanoTime();
+        if (newEntries > 3000) {
+            LOG.warn("Large matcher: {} in {} ms:.({})", newEntries, (initFinish-initStart)/1000000, matcherSourceLocation);
+        }
 
         if (verbose) {
             LOG.info("---------------------------");
@@ -337,7 +348,7 @@ public class Matcher implements Serializable {
 
     void informMeAboutVariable(MatcherAction matcherAction, String variableName) {
         Set<MatcherAction> analyzerSet = informMatcherActionsAboutVariables
-            .computeIfAbsent(variableName, k -> new HashSet<>());
+            .computeIfAbsent(variableName, k -> new LinkedHashSet<>());
         analyzerSet.add(matcherAction);
     }
 
@@ -351,7 +362,7 @@ public class Matcher implements Serializable {
 
         if (verbose) {
             LOG.info("");
-            LOG.info("--- Matcher ------------------------");
+            LOG.info("--- Matcher.({}) ------------------------", matcherSourceLocation);
             LOG.info("ANALYSE ----------------------------");
             boolean good = true;
             for (MatcherAction action : dynamicActions) {
@@ -390,6 +401,19 @@ public class Matcher implements Serializable {
         return verbose;
     }
 
+    private boolean alreadyNotifiedAnalyzerWeReceivedInput = false;
+    void receivedInput() {
+        if (alreadyNotifiedAnalyzerWeReceivedInput) {
+            return;
+        }
+        analyzer.receivedInput(this);
+        alreadyNotifiedAnalyzerWeReceivedInput = true;
+    }
+
+    public long getActionsThatRequireInput() {
+        return actionsThatRequireInput;
+    }
+
     private long actionsThatRequireInputAndReceivedInput = 0;
     void gotMyFirstStartingPoint() {
         actionsThatRequireInputAndReceivedInput++;
@@ -404,6 +428,7 @@ public class Matcher implements Serializable {
 
     public void reset() {
         // If there are no dynamic actions we have fixed strings only
+        alreadyNotifiedAnalyzerWeReceivedInput = false;
         actionsThatRequireInputAndReceivedInput = 0;
         verbose = permanentVerbose;
         for (MatcherAction action : dynamicActions) {
@@ -452,14 +477,18 @@ public class Matcher implements Serializable {
         for (MatcherAction action : dynamicActions) {
             if (action instanceof MatcherRequireAction) {
                 sb.append("        ").append(action.getMatchExpression()).append('\n');
-                sb.append("        -->").append(action.getMatches().toStrings()).append('\n');
+                if (action.getMatches() != null) {
+                    sb.append("        -->").append(action.getMatches().toStrings()).append('\n');
+                }
             }
         }
         sb.append("    EXTRACT:\n");
         for (MatcherAction action : dynamicActions) {
             if (action instanceof MatcherExtractAction) {
                 sb.append("        ").append(action.toString()).append('\n');
-                sb.append("        -->").append(action.getMatches().toStrings()).append('\n');
+                if (action.getMatches() != null) {
+                    sb.append("        -->").append(action.getMatches()).append('\n');
+                }
             }
         }
         for (MatcherAction action : fixedStringActions) {

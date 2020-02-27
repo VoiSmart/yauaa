@@ -1,12 +1,12 @@
 /*
  * Yet Another UserAgent Analyzer
- * Copyright (C) 2013-2018 Niels Basjes
+ * Copyright (C) 2013-2020 Niels Basjes
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -19,8 +19,9 @@ package nl.basjes.parse.useragent.analyze.treewalker.steps.value;
 
 import nl.basjes.parse.useragent.analyze.treewalker.steps.Step;
 import nl.basjes.parse.useragent.analyze.treewalker.steps.WalkList.WalkResult;
-import nl.basjes.parse.useragent.parse.EvilManualUseragentStringHacks;
 import org.antlr.v4.runtime.tree.ParseTree;
+
+import static nl.basjes.parse.useragent.utils.Normalize.replaceString;
 
 public class StepCleanVersion extends Step {
 
@@ -28,8 +29,16 @@ public class StepCleanVersion extends Step {
     public WalkResult walk(ParseTree tree, String value) {
         String actualValue = getActualValue(tree, value);
 
-        String cleanedValue = EvilManualUseragentStringHacks.replaceString(actualValue, "_", ".");
-        return walkNextStep(tree, cleanedValue);
+        // Sanitize the provided value
+        actualValue = replaceString(actualValue, "_", ".");
+        actualValue = replaceString(actualValue, "/", " ");
+
+        return walkNextStep(tree, actualValue);
+    }
+
+    @Override
+    public boolean canFail(){
+        return false;
     }
 
     @Override

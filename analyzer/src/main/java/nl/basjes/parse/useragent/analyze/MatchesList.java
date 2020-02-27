@@ -1,12 +1,12 @@
 /*
  * Yet Another UserAgent Analyzer
- * Copyright (C) 2013-2018 Niels Basjes
+ * Copyright (C) 2013-2020 Niels Basjes
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,6 +16,11 @@
  */
 package nl.basjes.parse.useragent.analyze;
 
+import com.esotericsoftware.kryo.DefaultSerializer;
+import com.esotericsoftware.kryo.Kryo;
+import com.esotericsoftware.kryo.io.Input;
+import com.esotericsoftware.kryo.io.Output;
+import com.esotericsoftware.kryo.serializers.FieldSerializer;
 import org.antlr.v4.runtime.tree.ParseTree;
 
 import java.io.Serializable;
@@ -24,13 +29,19 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
+import java.util.NoSuchElementException;
 
+@DefaultSerializer(MatchesList.KryoSerializer.class)
 public final class MatchesList implements Collection<MatchesList.Match>, Serializable {
 
     public static final class Match implements Serializable {
         private String key;
         private String value;
-        private ParseTree result;
+        private transient ParseTree result;
+
+        @SuppressWarnings("unused") // Private constructor for serialization systems ONLY (like Kryo)
+        private Match() {
+        }
 
         public Match(String key, String value, ParseTree result) {
             fill(key, value, result);
@@ -55,14 +66,50 @@ public final class MatchesList implements Collection<MatchesList.Match>, Seriali
         }
     }
 
-    private int size;
     private int maxSize;
 
-    private Match[] allElements;
+    private transient int size;
+    private transient Match[] allElements;
+
+    @SuppressWarnings("unused") // Private constructor for serialization systems ONLY (like Kryo)
+    private MatchesList() {
+    }
+
+    public static class KryoSerializer extends FieldSerializer<MatchesList> {
+        public KryoSerializer(Kryo kryo, Class<?> type) {
+            super(kryo, type);
+        }
+
+        @Override
+        public void write(Kryo kryo, Output output, MatchesList object) {
+            output.write(object.maxSize);
+        }
+
+        @Override
+        public MatchesList read(Kryo kryo, Input input, Class<MatchesList> type) {
+            MatchesList matchesList = new MatchesList();
+            matchesList.maxSize = input.read();
+
+            // Note: The matches list is always empty after deserialization.
+            matchesList.initialize();
+
+            return matchesList;
+        }
+
+    }
+
+    private void readObject(java.io.ObjectInputStream stream)
+        throws java.io.IOException, ClassNotFoundException {
+        stream.defaultReadObject();
+        initialize();
+    }
 
     public MatchesList(int newMaxSize) {
         maxSize = newMaxSize;
+        initialize();
+    }
 
+    private void initialize() {
         size = 0;
         allElements = new Match[maxSize];
         for (int i = 0; i < maxSize; i++) {
@@ -85,14 +132,13 @@ public final class MatchesList implements Collection<MatchesList.Match>, Seriali
         size = 0;
     }
 
-    public boolean add(String key, String value, ParseTree result) {
+    public void add(String key, String value, ParseTree result) {
         if (size >= maxSize) {
             increaseCapacity();
         }
 
         allElements[size].fill(key, value, result);
         size++;
-        return true;
     }
 
     @Override
@@ -107,6 +153,9 @@ public final class MatchesList implements Collection<MatchesList.Match>, Seriali
 
             @Override
             public Match next() {
+                if (!hasNext()) {
+                    throw new NoSuchElementException("Array index out of bounds");
+                }
                 return allElements[offset++];
             }
         };
@@ -136,6 +185,11 @@ public final class MatchesList implements Collection<MatchesList.Match>, Seriali
             result.add("{ \"" + match.key + "\"=\"" + match.value + "\" }");
         }
         return result;
+    }
+
+    public String toString() {
+//        return "MatchesList("+maxSize+","+size+"){allElements="+(allElements==null?"<<null>>":("array of "+ allElements.length))+"} " + toStrings().toString() + " ";
+        return "MatchesList("+size+") " + toStrings().toString();
     }
 
 // ============================================================

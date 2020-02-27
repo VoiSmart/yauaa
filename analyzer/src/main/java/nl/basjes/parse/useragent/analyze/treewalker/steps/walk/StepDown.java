@@ -1,12 +1,12 @@
 /*
  * Yet Another UserAgent Analyzer
- * Copyright (C) 2013-2018 Niels Basjes
+ * Copyright (C) 2013-2020 Niels Basjes
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -17,17 +17,21 @@
 
 package nl.basjes.parse.useragent.analyze.treewalker.steps.walk;
 
+import com.esotericsoftware.kryo.DefaultSerializer;
+import com.esotericsoftware.kryo.Kryo;
+import com.esotericsoftware.kryo.io.Input;
+import com.esotericsoftware.kryo.serializers.FieldSerializer;
 import nl.basjes.parse.useragent.analyze.NumberRangeList;
 import nl.basjes.parse.useragent.analyze.NumberRangeVisitor;
 import nl.basjes.parse.useragent.analyze.treewalker.steps.Step;
 import nl.basjes.parse.useragent.analyze.treewalker.steps.WalkList.WalkResult;
 import nl.basjes.parse.useragent.analyze.treewalker.steps.walk.stepdown.UserAgentGetChildrenVisitor;
 import nl.basjes.parse.useragent.parser.UserAgentTreeWalkerParser.NumberRangeContext;
-import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.tree.ParseTree;
 
 import java.util.Iterator;
 
+@DefaultSerializer(StepDown.KryoSerializer.class)
 public class StepDown extends Step {
 
     private final int start;
@@ -48,6 +52,26 @@ public class StepDown extends Step {
         setDefaultFieldValues();
     }
 
+    public static final class KryoSerializer extends FieldSerializer<StepDown> {
+        public KryoSerializer(Kryo kryo, Class<?> type) {
+            super(kryo, type);
+        }
+
+        @Override
+        public StepDown read(Kryo kryo, Input input, Class<StepDown> type) {
+            StepDown stepDown = super.read(kryo, input, type);
+            stepDown.setDefaultFieldValues();
+            return stepDown;
+        }
+    }
+
+    @SuppressWarnings("unused") // Private constructor for serialization systems ONLY (like Kryo)
+    private StepDown() {
+        start = -1;
+        end = -1;
+        name = null;
+    }
+
     public StepDown(NumberRangeContext numberRange, String name) {
         this(NumberRangeVisitor.getList(numberRange), name);
     }
@@ -60,15 +84,10 @@ public class StepDown extends Step {
     }
 
     @Override
-    public String toString() {
-        return "Down([" + start + ":" + end + "]" + name + ")";
-    }
-
-    @Override
     public WalkResult walk(ParseTree tree, String value) {
-        Iterator<? extends ParserRuleContext> children = userAgentGetChildrenVisitor.visit(tree);
+        Iterator<? extends ParseTree> children = userAgentGetChildrenVisitor.visit(tree);
         while (children.hasNext()) {
-            ParserRuleContext child = children.next();
+            ParseTree child = children.next();
             WalkResult childResult = walkNextStep(child, null);
             if (childResult != null) {
                 return childResult;
@@ -76,4 +95,10 @@ public class StepDown extends Step {
         }
         return null;
     }
+
+    @Override
+    public String toString() {
+        return "Down([" + start + ":" + end + "]" + name + ")";
+    }
+
 }

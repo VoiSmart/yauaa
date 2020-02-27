@@ -1,12 +1,12 @@
 /*
  * Yet Another UserAgent Analyzer
- * Copyright (C) 2013-2018 Niels Basjes
+ * Copyright (C) 2013-2020 Niels Basjes
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -111,6 +111,16 @@ public abstract class Step implements Serializable {
      * @return Either null or the actual value that was found.
      */
     public abstract WalkResult walk(ParseTree tree, String value);
+
+    /**
+     * Some steps cannot fail.
+     * For a require rule if the last step cannot fail then this can be removed from the require list
+     * to improve performance at run time.
+     * @return If this specific step can or cannot fail.
+     */
+    public boolean canFail(){
+        return true; // Default is to assume the step is always needed.
+    }
 
     public Step getNextStep() {
         return nextStep;

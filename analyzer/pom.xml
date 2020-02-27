@@ -1,13 +1,13 @@
 <?xml version="1.0"?>
 <!--
   ~ Yet Another UserAgent Analyzer
-  ~ Copyright (C) 2013-2018 Niels Basjes
+  ~ Copyright (C) 2013-2020 Niels Basjes
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
   ~ You may obtain a copy of the License at
   ~
-  ~ http://www.apache.org/licenses/LICENSE-2.0
+  ~ https://www.apache.org/licenses/LICENSE-2.0
   ~
   ~ Unless required by applicable law or agreed to in writing, software
   ~ distributed under the License is distributed on an "AS IS" BASIS,
@@ -31,11 +31,7 @@
   <name>Yauaa : Analyzer</name>
   <description>A parsing and analyzing library to get information from a useragent string.</description>
 
-  <url>http://github.com/nielsbasjes/yauaa</url>
-
-  <properties>
-    <antlr.version>4.7.1</antlr.version>
-  </properties>
+  <url>https://yauaa.basjes.nl</url>
 
   <dependencies>
     <dependency>
@@ -45,37 +41,39 @@
     </dependency>
 
     <dependency>
-      <groupId>args4j</groupId>
-      <artifactId>args4j</artifactId>
-      <version>2.33</version>
-    </dependency>
-
-    <!--========================================-->
-    <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-core</artifactId>
-      <version>4.3.9.RELEASE</version>
+      <version>${spring.version}</version>
     </dependency>
 
-    <!-- Needed to define this dependency for spring-core explicitly because we shaded spring-core in -->
     <dependency>
-      <groupId>commons-logging</groupId>
-      <artifactId>commons-logging</artifactId>
-      <version>1.2</version>
-      <scope>compile</scope>
+      <groupId>org.yaml</groupId>
+      <artifactId>snakeyaml</artifactId>
+      <version>${snakeyaml.version}</version>
     </dependency>
-    <!--========================================-->
+
+    <dependency>
+      <groupId>org.apache.httpcomponents</groupId>
+      <artifactId>httpclient</artifactId>
+      <version>4.5.11</version>
+    </dependency>
 
     <dependency>
       <groupId>org.apache.commons</groupId>
       <artifactId>commons-text</artifactId>
-      <version>1.1</version>
+      <version>1.8</version>
     </dependency>
 
     <dependency>
       <groupId>org.apache.commons</groupId>
       <artifactId>commons-collections4</artifactId>
-      <version>4.1</version>
+      <version>4.4</version>
+    </dependency>
+
+    <dependency>
+      <groupId>nl.basjes.collections</groupId>
+      <artifactId>prefixmap</artifactId>
+      <version>1.1</version>
     </dependency>
 
     <dependency>
@@ -92,29 +90,20 @@
     </dependency>
 
     <dependency>
-      <groupId>org.yaml</groupId>
-      <artifactId>snakeyaml</artifactId>
-      <version>1.18</version>
+      <groupId>com.esotericsoftware</groupId>
+      <artifactId>kryo</artifactId>
+      <version>${kryo.version}</version>
+      <scope>provided</scope>
     </dependency>
 
   </dependencies>
 
   <build>
 
-    <resources>
-      <resource>
-        <directory>src/main/resources</directory>
-        <excludes>
-          <exclude>version/*</exclude>
-        </excludes>
-      </resource>
-    </resources>
-
     <plugins>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-jar-plugin</artifactId>
-        <version>3.0.2</version>
         <configuration>
           <excludes>
             <exclude>UserAgents/*.sh</exclude>
@@ -130,13 +119,14 @@
       <!-- Some of the dependencies (Antlr4, Spring and SnakeYaml) have proven to be problematic -->
       <!-- for downstream users who need different versions of these in the same application.    -->
       <!-- So for only these we include and relocate the used classes into the main jar.         -->
+      <!-- Documentation of the used shading construct: https://yauaa.basjes.nl/NOTES-shading-dependencies.html -->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-shade-plugin</artifactId>
-        <version>3.0.0</version>
 
         <configuration>
           <minimizeJar>true</minimizeJar>
+          <createDependencyReducedPom>true</createDependencyReducedPom>
           <relocations>
             <relocation>
               <pattern>org.springframework</pattern>
@@ -175,6 +165,101 @@
       </plugin>
 
       <plugin>
+        <groupId>com.alexecollins.maven.plugin</groupId>
+        <artifactId>script-maven-plugin</artifactId>
+        <version>1.0.0</version>
+        <executions>
+          <execution>
+            <id>Verify jar contents to ensure the shading of dependencies went right</id>
+            <phase>verify</phase>
+            <goals>
+              <goal>execute</goal>
+            </goals>
+
+            <configuration>
+              <language>beanshell</language>
+              <script>
+                import java.io.*;
+                import java.util.jar.*;
+                import java.util.Arrays;
+                import org.codehaus.plexus.util.*;
+
+                System.out.println("Verifying if the shading went correctly");
+
+                String[] libraryWanted = {
+                  "nl/basjes/parse/useragent/utils/YauaaVersion.class",
+                  "nl/basjes/shaded/org/antlr/v4/runtime/Parser.class",
+                  "nl/basjes/shaded/org/springframework/core/io/support/PathMatchingResourcePatternResolver.class",
+                };
+
+                String[] libraryUnwanted = {
+                  "org/antlr/v4/runtime/Parser.class",
+                  "org/springframework/core/io/support/PathMatchingResourcePatternResolver.class",
+                  "org/slf4j/LoggerFactory.class",
+                };
+
+                JarFile libraryJarFile = new JarFile( new File( "${project.basedir}/target", "yauaa-${project.version}.jar" ) );
+
+                for ( String path : libraryWanted ) {
+                  if ( libraryJarFile.getEntry( path ) == null ) {
+                    throw new IllegalStateException( "Library: wanted path is missing: " + path );
+                  }
+                }
+
+                for ( String path : libraryUnwanted ) {
+                  if ( libraryJarFile.getEntry( path ) != null ) {
+                    throw new IllegalStateException( "Library: unwanted path is present: " + path );
+                  }
+                }
+              </script>
+            </configuration>
+          </execution>
+        </executions>
+        <dependencies>
+          <dependency>
+            <groupId>org.apache-extras.beanshell</groupId>
+            <artifactId>bsh</artifactId>
+            <version>2.0b6</version>
+          </dependency>
+        </dependencies>
+      </plugin>
+
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>exec-maven-plugin</artifactId>
+        <version>1.6.0</version>
+        <executions>
+          <execution>
+            <id>Generate Matchers and Lookups</id>
+            <phase>generate-sources</phase>
+            <goals>
+              <goal>exec</goal>
+            </goals>
+            <configuration>
+              <executable>./regen-all.sh</executable>
+            </configuration>
+          </execution>
+
+          <execution>
+            <id>Inject dependency-reduced-pom.xml to the final jar file</id>
+            <phase>package</phase>
+            <goals>
+              <goal>exec</goal>
+            </goals>
+            <configuration>
+              <executable>./inject-dependency-reduced-pom-into-jar.sh</executable>
+              <arguments>
+                <argument>${project.groupId}</argument>
+                <argument>${project.artifactId}</argument>
+                <argument>${project.version}</argument>
+              </arguments>
+            </configuration>
+          </execution>
+
+        </executions>
+      </plugin>
+
+      <plugin>
         <groupId>org.antlr</groupId>
         <artifactId>antlr4-maven-plugin</artifactId>
         <version>${antlr.version}</version>
@@ -192,6 +277,11 @@
       </plugin>
 
       <plugin>
+        <groupId>com.github.spotbugs</groupId>
+        <artifactId>spotbugs-maven-plugin</artifactId>
+      </plugin>
+
+      <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-checkstyle-plugin</artifactId>
       </plugin>
@@ -200,32 +290,87 @@
         <groupId>org.jacoco</groupId>
         <artifactId>jacoco-maven-plugin</artifactId>
         <configuration>
-            <excludes>
-              <!-- Generated class -->
-              <exclude>nl/basjes/parse/useragent/Version.class</exclude>
-              <!-- Generated by ANTLR4 -->
-              <exclude>nl/basjes/parse/useragent/parser/*.class</exclude>
-              <!-- Developer debugging tools -->
-              <exclude>nl/basjes/parse/useragent/debug/*.class</exclude>
-            </excludes>
+          <excludes>
+            <!-- Generated classes -->
+            <exclude>nl/basjes/parse/useragent/Version.class</exclude>
+            <exclude>nl/basjes/parse/useragent/PackagedRules.class</exclude>
+            <!-- Generated by ANTLR4 -->
+            <exclude>nl/basjes/parse/useragent/parser/*.class</exclude>
+            <!-- Developer debugging tools -->
+            <exclude>nl/basjes/parse/useragent/debug/*.class</exclude>
+            <!-- Fixed classes from Apache HttpComponents -->
+            <exclude>nl/basjes/parse/useragent/utils/publicsuffix/*.class</exclude>
+          </excludes>
         </configuration>
       </plugin>
 
       <plugin>
-        <groupId>com.google.code.maven-replacer-plugin</groupId>
-        <artifactId>maven-replacer-plugin</artifactId>
-        <version>1.4.1</version>
+        <artifactId>maven-antrun-plugin</artifactId>
+        <version>1.8</version>
         <executions>
           <execution>
+            <phase>generate-sources</phase>
+            <configuration>
+              <target>
+                <fileset id="packagedRules" dir="src/main/resources/UserAgents/"/>
+                <pathconvert targetos="unix" pathsep="&#34;,&#13;        &#34;" property="my-file-list" refid="packagedRules">
+                  <map from="${basedir}/src/main/resources/" to=""/>
+                </pathconvert>
+                <!--suppress MavenModelInspection -->
+                <echo file="${basedir}/target/temp-yaml-list.txt">${my-file-list}</echo>
+              </target>
+            </configuration>
+            <goals>
+              <goal>run</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+
+      <plugin>
+        <groupId>com.google.code.maven-replacer-plugin</groupId>
+        <artifactId>replacer</artifactId>
+        <version>1.5.3</version>
+        <executions>
+
+          <execution>
+            <id>Generate Version YAML</id>
             <phase>generate-sources</phase>
             <goals>
               <goal>replace</goal>
             </goals>
+            <configuration>
+              <file>${basedir}/src/main/code-gen/version/Version.yaml.template</file>
+              <outputFile>${basedir}/target/classes/UserAgents/__Version__.yaml</outputFile>
+            </configuration>
           </execution>
+
+          <execution>
+            <id>Generate Version Java</id>
+            <phase>generate-sources</phase>
+            <goals>
+              <goal>replace</goal>
+            </goals>
+            <configuration>
+              <file>${basedir}/src/main/code-gen/version/Version.java.template</file>
+              <outputFile>${basedir}/target/generated-sources/java/nl/basjes/parse/useragent/Version.java</outputFile>
+            </configuration>
+          </execution>
+
+          <execution>
+            <id>Generate Yaml List Java</id>
+            <phase>generate-sources</phase>
+            <goals>
+              <goal>replace</goal>
+            </goals>
+            <configuration>
+              <file>${basedir}/src/main/code-gen/UserAgents/PackagedRules.java.template</file>
+              <outputFile>${basedir}/target/generated-sources/java/nl/basjes/parse/useragent/PackagedRules.java</outputFile>
+            </configuration>
+          </execution>
+
         </executions>
         <configuration>
-          <file>src/main/resources/version/Version.java.template</file>
-          <outputFile>${basedir}/target/generated-sources/java/nl/basjes/parse/useragent/Version.java</outputFile>
           <replacements>
             <replacement>
               <!--suppress MavenModelInspection -->
@@ -241,32 +386,30 @@
               <token>@project.version@</token>
               <value>${project.version}</value>
             </replacement>
+            <replacement>
+              <token>@version.copyright@</token>
+              <value>${version.copyright}</value>
+            </replacement>
+            <replacement>
+              <token>@version.license@</token>
+              <value>${version.license}</value>
+            </replacement>
+            <replacement>
+              <token>@version.url@</token>
+              <value>${version.url}</value>
+            </replacement>
+            <replacement>
+              <token>###file-list###</token>
+              <valueFile>${basedir}/target/temp-yaml-list.txt</valueFile>
+            </replacement>
           </replacements>
         </configuration>
       </plugin>
 
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
-        <artifactId>exec-maven-plugin</artifactId>
-        <version>1.5.0</version>
-        <executions>
-          <execution>
-            <id>Generate Matchers and Lookups</id>
-            <phase>generate-sources</phase>
-            <goals>
-              <goal>exec</goal>
-            </goals>
-            <configuration>
-              <executable>./regen-all.sh</executable>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
-
-      <plugin>
-        <groupId>org.codehaus.mojo</groupId>
         <artifactId>build-helper-maven-plugin</artifactId>
-        <version>1.8</version>
+        <version>3.0.0</version>
         <executions>
           <execution>
             <id>add-source</id>
@@ -288,7 +431,7 @@
       <plugin>
         <groupId>org.pitest</groupId>
         <artifactId>pitest-maven</artifactId>
-        <version>1.2.2</version>
+        <version>1.4.11</version>
         <configuration>
 
           <threads>4</threads>
@@ -306,7 +449,6 @@
 
           <excludedClasses>
             <excludedClass>nl.basjes.parse.useragent.Version</excludedClass>
-            <excludedClass>nl.basjes.parse.useragent.analyze.treewalker.steps.value.StepFixedString.java</excludedClass>
             <excludedGroup>nl.basjes.parse.useragent.parser.*</excludedGroup> <!-- Generated antlr4 code -->
             <excludedGroup>nl.basjes.parse.useragent.debug.*</excludedGroup>
           </excludedClasses>
@@ -326,7 +468,7 @@
   <licenses>
     <license>
       <name>Apache License, Version 2.0</name>
-      <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+      <url>https://www.apache.org/licenses/LICENSE-2.0.txt</url>
       <distribution>repo</distribution>
     </license>
   </licenses>
@@ -344,7 +486,7 @@
   </developers>
 
   <scm>
-    <url>https://github.com/nielsbasjes/yauaa</url>
+    <url>https://yauaa.basjes.nl</url>
     <connection>scm:git:https://github.com/nielsbasjes/yauaa.git</connection>
     <developerConnection>scm:git:.</developerConnection>
   </scm>

@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
   ~ Yet Another UserAgent Analyzer
-  ~ Copyright (C) 2013-2018 Niels Basjes
+  ~ Copyright (C) 2013-2020 Niels Basjes
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
   ~ You may obtain a copy of the License at
   ~
-  ~ http://www.apache.org/licenses/LICENSE-2.0
+  ~ https://www.apache.org/licenses/LICENSE-2.0
   ~
   ~ Unless required by applicable law or agreed to in writing, software
   ~ distributed under the License is distributed on an "AS IS" BASIS,
@@ -35,40 +35,228 @@
     <maven.compiler.source>${java.version}</maven.compiler.source>
     <maven.compiler.target>${java.version}</maven.compiler.target>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <appengine.maven.plugin>1.3.1</appengine.maven.plugin>
-    <spring.version>1.5.6.RELEASE</spring.version>
+    <appengine.maven.plugin>2.2.0</appengine.maven.plugin>
     <main.class>nl.basjes.parse.useragent.servlet.ParseService</main.class>
 
-    <docker.image.prefix>nl.basjes</docker.image.prefix>
+    <!-- By default we disable building the docker image and reenable it if docker is present. -->
+    <docker.skip>true</docker.skip>
   </properties>
+
+  <!-- FIXME: Remove this when springfox 3.0.0 has been released! -->
+  <repositories>
+    <repository>
+      <id>jcenter-snapshots</id>
+      <name>jcenter</name>
+      <url>http://oss.jfrog.org/artifactory/oss-snapshot-local/</url>
+    </repository>
+  </repositories>
+
 
   <dependencies>
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-web</artifactId>
-      <version>${spring.version}</version>
+      <version>${spring-boot.version}</version>
+      <exclusions>
+        <exclusion>
+          <!-- Avoid violation due to version 1.19 still being in Spring -->
+          <groupId>org.yaml</groupId>
+          <artifactId>snakeyaml</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.slf4j</groupId>
+          <artifactId>slf4j-api</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>com.fasterxml</groupId>
+          <artifactId>classmate</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
 
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-legacy</artifactId>
-      <version>1.1.0.RELEASE</version>
+      <version>${spring-boot-legacy.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>io.springfox</groupId>
+      <artifactId>springfox-swagger2</artifactId>
+      <version>${springfox-swagger.version}</version>
+      <exclusions>
+        <exclusion>
+          <groupId>com.fasterxml</groupId>
+          <artifactId>classmate</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.springframework</groupId>
+          <artifactId>spring-context</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.springframework</groupId>
+          <artifactId>spring-beans</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>com.fasterxml.jackson.core</groupId>
+          <artifactId>jackson-annotations</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.springframework</groupId>
+          <artifactId>spring-aop</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.slf4j</groupId>
+          <artifactId>slf4j-api</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+
+    <dependency>
+      <groupId>io.springfox</groupId>
+      <artifactId>springfox-swagger-ui</artifactId>
+      <version>${springfox-swagger.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>io.springfox</groupId>
+      <artifactId>springfox-spring-web</artifactId>
+      <version>${springfox-swagger.version}</version>
+      <exclusions>
+        <exclusion>
+          <groupId>org.slf4j</groupId>
+          <artifactId>slf4j-api</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+
+    <dependency>
+      <groupId>io.springfox</groupId>
+      <artifactId>springfox-spring-webmvc</artifactId>
+      <version>${springfox-swagger.version}</version>
+      <exclusions>
+        <exclusion>
+          <groupId>org.slf4j</groupId>
+          <artifactId>slf4j-api</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
 
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-test</artifactId>
-      <version>${spring.version}</version>
+      <version>${spring-boot.version}</version>
       <scope>test</scope>
+      <exclusions>
+        <exclusion>
+          <groupId>org.slf4j</groupId>
+          <artifactId>slf4j-api</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.hamcrest</groupId>
+          <artifactId>hamcrest</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
 
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-api</artifactId>
+      <version>${slf4j.version}</version>
+    </dependency>
+
+    <!-- ================================================================================================ -->
+    <!-- These 4 dependencies are excluded by all UDFs because of dependency/shading/ relocating problems -->
+    <!-- But they do need them for the compilation and testing ... -->
+    <!-- Documentation of the used shading construct: https://yauaa.basjes.nl/NOTES-shading-dependencies.html -->
     <dependency>
       <groupId>nl.basjes.parse.useragent</groupId>
       <artifactId>yauaa</artifactId>
       <version>${project.version}</version>
+      <exclusions>
+        <exclusion>
+          <groupId>org.slf4j</groupId>
+          <artifactId>slf4j-api</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.antlr</groupId>
+          <artifactId>antlr4-runtime</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.springframework</groupId>
+          <artifactId>spring-core</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.yaml</groupId>
+          <artifactId>snakeyaml</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
 
+    <!-- The webapp needs more classes than have been shaded in. -->
+    <dependency>
+      <groupId>org.antlr</groupId>
+      <artifactId>antlr4-runtime</artifactId>
+      <version>${antlr.version}</version>
+      <!--      <scope>provided</scope>-->
+    </dependency>
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-core</artifactId>
+      <version>${spring.version}</version>
+      <!--      <scope>provided</scope>  -->
+    </dependency>
+    <dependency>
+      <groupId>org.yaml</groupId>
+      <artifactId>snakeyaml</artifactId>
+      <version>${snakeyaml.version}</version>
+      <!--      <scope>provided</scope>-->
+    </dependency>
+    <!-- ================================================================================================ -->
+
   </dependencies>
+
+  <!-- From https://www.dontpanicblog.co.uk/2017/02/28/activate-the-maven-docker-plugin/ -->
+  <profiles>
+    <profile>
+      <id>enableDocker-linux</id>
+      <properties>
+        <docker.skip>false</docker.skip>
+      </properties>
+      <activation>
+        <!-- Activate on Linux systems. Assume presence of docker.pid file indicates Docker is available -->
+        <file>
+          <exists>/var/run/docker.pid</exists>
+        </file>
+      </activation>
+    </profile>
+
+    <profile>
+      <id>enableDocker-win10</id>
+      <properties>
+        <docker.skip>false</docker.skip>
+      </properties>
+      <activation>
+        <!-- Activate on Windows 10 systems with native Docker. Check for docker.exe in default install directory -->
+        <file>
+          <exists>C:\Program Files\Docker\Docker\resources\bin\docker.exe</exists>
+        </file>
+      </activation>
+    </profile>
+
+    <profile>
+      <id>enableDocker-toolbox</id>
+      <properties>
+        <docker.skip>false</docker.skip>
+      </properties>
+      <activation>
+        <!-- Activate on Windows (Docker Toolbox) systems. Assume presence of DOCKER_HOST indicates Docker is available -->
+        <property>
+          <name>env.DOCKER_HOST</name>
+        </property>
+      </activation>
+    </profile>
+  </profiles>
 
   <build>
     <outputDirectory>target/${project.artifactId}/WEB-INF/classes</outputDirectory>
@@ -76,14 +264,27 @@
     <plugins>
 
       <plugin>
+        <groupId>com.github.spotbugs</groupId>
+        <artifactId>spotbugs-maven-plugin</artifactId>
+      </plugin>
+
+      <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-checkstyle-plugin</artifactId>
       </plugin>
 
       <plugin>
+        <groupId>org.jacoco</groupId>
+        <artifactId>jacoco-maven-plugin</artifactId>
+        <configuration>
+          <skip>true</skip>
+        </configuration>
+      </plugin>
+
+      <plugin>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-maven-plugin</artifactId>
-        <version>${spring.version}</version>
+        <version>${spring-boot.version}</version>
         <configuration>
           <mainClass>${main.class}</mainClass>
         </configuration>
@@ -98,7 +299,6 @@
 
       <plugin>
         <artifactId>maven-war-plugin</artifactId>
-        <version>3.1.0</version>
         <configuration>
           <failOnMissingWebXml>false</failOnMissingWebXml>
           <archiveClasses>true</archiveClasses>
@@ -118,31 +318,75 @@
         <artifactId>appengine-maven-plugin</artifactId>
         <version>${appengine.maven.plugin}</version>
         <configuration>
-          <!--<project>analyze-useragent</project>-->
-          <!--<version>${git.commit.id.describe-long}</version>-->
           <promote>false</promote>
         </configuration>
       </plugin>
 
       <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-deploy-plugin</artifactId>
-        <version>2.8.2</version>
-        <configuration>
-          <skip>true</skip>
-        </configuration>
-      </plugin>
+        <groupId>io.fabric8</groupId>
+        <artifactId>docker-maven-plugin</artifactId>
+        <version>0.32.0</version>
 
-      <plugin>
-        <groupId>com.spotify</groupId>
-        <artifactId>dockerfile-maven-plugin</artifactId>
-        <version>1.3.6</version>
         <configuration>
-          <repository>${docker.image.prefix}/${project.artifactId}</repository>
-          <buildArgs>
-            <JAR_FILE>target/${project.build.finalName}.war</JAR_FILE>
-          </buildArgs>
+<!--          <verbose>true</verbose>-->
+          <images>
+            <image>
+             <name>nielsbasjes/yauaa:${project.version}</name>
+             <build>
+               <maintainer>Niels Basjes</maintainer>
+               <from>openjdk:8-jdk-alpine</from>
+               <tags>
+                 <tag>latest</tag>
+                 <tag>${project.version}</tag>
+               </tags>
+               <assembly>
+                 <name>${project.build.finalName}.war</name>
+                 <targetDir>/</targetDir>
+                 <mode>dir</mode>
+                 <descriptorRef>artifact</descriptorRef>
+               </assembly>
+               <ports>
+                 <port>8080</port>
+               </ports>
+               <entryPoint>
+                 <exec>
+                   <arg>java</arg>
+                   <arg>-Djava.security.egd=file:/dev/./urandom</arg>
+                   <arg>-jar</arg>
+                   <arg>/${project.build.finalName}.war</arg>
+                 </exec>
+               </entryPoint>
+             </build>
+
+             <run>
+               <autoRemove>true</autoRemove>
+               <ports>
+                 <port>yauaa.port:8080</port>
+               </ports>
+               <wait>
+                 <http>
+                   <url>http://localhost:${yauaa.port}/running</url>
+                 </http>
+                 <time>10000</time>
+               </wait>
+               <log>
+                 <prefix>[ LOCAL TEST OF YAUAA ]::</prefix>
+                 <color>red</color>
+               </log>
+             </run>
+            </image>
+
+          </images>
         </configuration>
+        <executions>
+          <execution>
+            <id>build-docker</id>
+            <phase>package</phase>
+            <goals>
+              <goal>build</goal>
+            </goals>
+          </execution>
+        </executions>
       </plugin>
 
     </plugins>

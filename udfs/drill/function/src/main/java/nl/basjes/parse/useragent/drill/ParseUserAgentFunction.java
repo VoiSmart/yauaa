@@ -1,12 +1,12 @@
 /*
  * Yet Another UserAgent Analyzer
- * Copyright (C) 2013-2018 Niels Basjes
+ * Copyright (C) 2013-2020 Niels Basjes
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -28,10 +28,12 @@ import org.apache.drill.exec.vector.complex.writer.BaseWriter;
 
 import javax.inject.Inject;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
+
 @FunctionTemplate(
     name    = "parse_user_agent",
     scope   = FunctionTemplate.FunctionScope.SIMPLE,
-    nulls   = FunctionTemplate.NullHandling.NULL_IF_NULL
+    nulls   = FunctionTemplate.NullHandling.INTERNAL
 )
 public class ParseUserAgentFunction implements DrillSimpleFunc {
 
@@ -79,7 +81,7 @@ public class ParseUserAgentFunction implements DrillSimpleFunc {
                 field = "Unknown";
             }
 
-            byte[] rowStringBytes = field.getBytes();
+            byte[] rowStringBytes = field.getBytes(UTF_8);
             outBuffer.reallocIfNeeded(rowStringBytes.length);
             outBuffer.setBytes(0, rowStringBytes);
 

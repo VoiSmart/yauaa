@@ -1,12 +1,12 @@
 /*
  * Yet Another UserAgent Analyzer
- * Copyright (C) 2013-2018 Niels Basjes
+ * Copyright (C) 2013-2020 Niels Basjes
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -19,10 +19,10 @@ package nl.basjes.parse.useragent.flink;
 
 import nl.basjes.parse.useragent.analyze.InvalidParserConfigurationException;
 import nl.basjes.parse.useragent.annotate.YauaaField;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class TestUserAgentAnalysisMapperRaw {
     public static class TestMapper extends UserAgentAnalysisMapper<TestRecord> {
@@ -31,11 +31,13 @@ public class TestUserAgentAnalysisMapperRaw {
             return record.useragent;
         }
 
+        @SuppressWarnings("unused")
         @YauaaField("DeviceClass")
         public void setDeviceClass(TestRecord record, String value) {
             record.deviceClass = value;
         }
 
+        @SuppressWarnings("unused")
         @YauaaField("AgentNameVersion")
         public void setAgentNameVersion(TestRecord record, String value) {
             record.agentNameVersion = value;
@@ -53,9 +55,15 @@ public class TestUserAgentAnalysisMapperRaw {
 
         record = mapper.map(record);
 
-        assertEquals("Desktop", record.deviceClass);
-        assertEquals("Chrome 48.0.2564.82", record.agentNameVersion);
-        assertNull(record.shouldRemainNull);
+        assertEquals(
+            new TestRecord(
+                "Mozilla/5.0 (X11; Linux x86_64) " +
+                    "AppleWebKit/537.36 (KHTML, like Gecko) " +
+                    "Chrome/48.0.2564.82 Safari/537.36",
+                "Desktop",
+                "Chrome 48.0.2564.82",
+                null),
+            record);
     }
 
     public static class TestImpossibleFieldMapper extends UserAgentAnalysisMapper<TestRecord> {
@@ -64,15 +72,17 @@ public class TestUserAgentAnalysisMapperRaw {
             return record.useragent;
         }
 
+        @SuppressWarnings("unused")
         @YauaaField("NielsBasjes")
         public void setImpossibleField(TestRecord record, String value) {
             record.agentNameVersion = value;
         }
     }
 
-    @Test(expected = InvalidParserConfigurationException.class)
+    @Test
     public void testImpossibleField() {
         TestImpossibleFieldMapper mapper = new TestImpossibleFieldMapper();
-        mapper.open(null);
+        assertThrows(InvalidParserConfigurationException.class, () ->
+            mapper.open(null));
     }
 }

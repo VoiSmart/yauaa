@@ -1,12 +1,12 @@
 /*
  * Yet Another UserAgent Analyzer
- * Copyright (C) 2013-2018 Niels Basjes
+ * Copyright (C) 2013-2020 Niels Basjes
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -24,9 +24,14 @@ import org.antlr.v4.runtime.tree.ParseTree;
 public class StepPrevN extends Step {
 
     private static final int SIZE = 20;
-    final ParseTree[] children = new ParseTree[SIZE];
+    private transient ParseTree[] children = null;
 
     private final int steps;
+
+    @SuppressWarnings("unused") // Private constructor for serialization systems ONLY (like Kryo)
+    private StepPrevN() {
+        steps = -1;
+    }
 
     public StepPrevN(int steps) {
         this.steps = steps;
@@ -34,6 +39,14 @@ public class StepPrevN extends Step {
 
     private ParseTree prev(ParseTree tree) {
         ParseTree parent = up(tree);
+
+        if (parent == null) {
+            return null;
+        }
+
+        if (children== null) {
+            children = new ParseTree[SIZE];
+        }
 
         int lastChildIndex = -1;
         ParseTree child = null;
@@ -56,12 +69,12 @@ public class StepPrevN extends Step {
 
     @Override
     public WalkResult walk(ParseTree tree, String value) {
-        ParseTree nextTree = prev(tree);
-        if (nextTree == null) {
+        ParseTree prevTree = prev(tree);
+        if (prevTree == null) {
             return null;
         }
 
-        return walkNextStep(nextTree, null);
+        return walkNextStep(prevTree, null);
     }
 
     @Override

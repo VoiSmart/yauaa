@@ -1,12 +1,12 @@
 /*
  * Yet Another UserAgent Analyzer
- * Copyright (C) 2013-2018 Niels Basjes
+ * Copyright (C) 2013-2020 Niels Basjes
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -19,11 +19,12 @@ package nl.basjes.parse.useragent;
 
 import nl.basjes.parse.useragent.analyze.MatchesList.Match;
 import nl.basjes.parse.useragent.debug.UserAgentAnalyzerTester;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class TestDeveloperTools {
 
@@ -32,6 +33,7 @@ public class TestDeveloperTools {
         UserAgentAnalyzerTester uaa = UserAgentAnalyzerTester
             .newBuilder()
             .hideMatcherLoadStats()
+            .delayInitialization()
             .dropTests()
             .build();
         uaa.setShowMatcherStats(true);
@@ -44,6 +46,7 @@ public class TestDeveloperTools {
     public void validateNewTestcaseSituationOutput() {
         UserAgentAnalyzerTester uaa = UserAgentAnalyzerTester
             .newBuilder()
+            .delayInitialization()
             .hideMatcherLoadStats()
             .dropTests()
             .build();
@@ -60,7 +63,19 @@ public class TestDeveloperTools {
         UserAgent useragent = uaa.parse("Mozilla/5.0 (Linux; Android 7.0; Nexus 6 Build/NBD90Z) " +
             "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/53.0.2785.124 Mobile Safari/537.36");
         assertTrue(useragent.toString().contains("'Google Nexus 6'"));
+
         assertTrue(useragent.toJson().contains("\"DeviceName\":\"Google Nexus 6\""));
+        assertTrue(useragent.toJson("DeviceName").contains("\"DeviceName\":\"Google Nexus 6\""));
+        assertFalse(useragent.toJson("DeviceClass").contains("\"DeviceName\":\"Google Nexus 6\""));
+
+        assertTrue(useragent.toXML().contains("<DeviceName>Google Nexus 6</DeviceName>"));
+        assertTrue(useragent.toXML("DeviceName").contains("<DeviceName>Google Nexus 6</DeviceName>"));
+        assertFalse(useragent.toXML("DeviceClass").contains("<DeviceName>Google Nexus 6</DeviceName>"));
+
+        assertEquals("Google Nexus 6", useragent.toMap().get("DeviceName"));
+        assertEquals("Google Nexus 6", useragent.toMap("DeviceName").get("DeviceName"));
+        assertNull(useragent.toMap("DeviceClass").get("DeviceName"));
+
         assertTrue(useragent.toYamlTestCase(true).contains("'Google Nexus 6'"));
 
         boolean ok = false;
@@ -71,7 +86,7 @@ public class TestDeveloperTools {
                 break;
             }
         }
-        assertTrue("Did not see the expected match.", ok);
+        assertTrue(ok, "Did not see the expected match.");
 
         ok = false;
         for (Match match : uaa.getUsedMatches(useragent)) {
@@ -81,7 +96,7 @@ public class TestDeveloperTools {
                 break;
             }
         }
-        assertTrue("Did not see the expected match.", ok);
+        assertTrue(ok, "Did not see the expected match.");
     }
 
 

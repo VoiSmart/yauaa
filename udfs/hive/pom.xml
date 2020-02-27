@@ -1,13 +1,13 @@
 <?xml version="1.0"?>
 <!--
   ~ Yet Another UserAgent Analyzer
-  ~ Copyright (C) 2013-2018 Niels Basjes
+  ~ Copyright (C) 2013-2020 Niels Basjes
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
   ~ You may obtain a copy of the License at
   ~
-  ~ http://www.apache.org/licenses/LICENSE-2.0
+  ~ https://www.apache.org/licenses/LICENSE-2.0
   ~
   ~ Unless required by applicable law or agreed to in writing, software
   ~ distributed under the License is distributed on an "AS IS" BASIS,
@@ -31,7 +31,7 @@
   <name>Yauaa : UDF : Apache Hive</name>
   <description>A parsing and analyzing library to get information from a useragent string.</description>
 
-  <url>http://github.com/nielsbasjes/yauaa</url>
+  <url>https://yauaa.basjes.nl</url>
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -40,7 +40,7 @@
   <repositories>
     <repository>
       <id>conjars.org</id>
-      <url>http://conjars.org/repo</url>
+      <url>https://conjars.org/repo</url>
     </repository>
   </repositories>
 
@@ -49,7 +49,6 @@
     <dependency>
       <groupId>nl.basjes.parse.useragent</groupId>
       <artifactId>yauaa</artifactId>
-      <version>${project.version}</version>
     </dependency>
 
     <dependency>
@@ -118,12 +117,6 @@
 
     <dependency>
       <groupId>org.slf4j</groupId>
-      <artifactId>slf4j-api</artifactId>
-      <version>${slf4j.version}</version>
-    </dependency>
-
-    <dependency>
-      <groupId>org.slf4j</groupId>
       <artifactId>slf4j-log4j12</artifactId>
       <version>${slf4j.version}</version>
       <scope>test</scope>
@@ -158,13 +151,79 @@
       </plugin>
 
       <plugin>
-        <groupId>org.jacoco</groupId>
-        <artifactId>jacoco-maven-plugin</artifactId>
+        <groupId>com.github.spotbugs</groupId>
+        <artifactId>spotbugs-maven-plugin</artifactId>
       </plugin>
 
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-checkstyle-plugin</artifactId>
+      </plugin>
+
+      <plugin>
+        <groupId>org.jacoco</groupId>
+        <artifactId>jacoco-maven-plugin</artifactId>
+      </plugin>
+
+      <plugin>
+        <groupId>com.alexecollins.maven.plugin</groupId>
+        <artifactId>script-maven-plugin</artifactId>
+        <version>1.0.0</version>
+        <executions>
+          <execution>
+            <id>Verify jar contents to ensure the shading of dependencies went right</id>
+            <phase>verify</phase>
+            <goals>
+              <goal>execute</goal>
+            </goals>
+
+            <configuration>
+              <language>beanshell</language>
+              <script>
+                import java.io.*;
+                import java.util.jar.*;
+                import java.util.Arrays;
+                import org.codehaus.plexus.util.*;
+
+                System.out.println("Verifying if the shading went correctly");
+
+                String[] libraryWanted = {
+                  "nl/basjes/parse/useragent/utils/YauaaVersion.class",
+                  "org/slf4j/LoggerFactory.class",
+                  "nl/basjes/shaded/org/antlr/v4/runtime/Parser.class",
+                  "nl/basjes/shaded/org/springframework/core/io/support/PathMatchingResourcePatternResolver.class",
+                  "nl/basjes/parse/useragent/hive/ParseUserAgent.class",
+                };
+
+                String[] libraryUnwanted = {
+                  "org/antlr/v4/runtime/Parser.class",
+                  "org/springframework/core/io/support/PathMatchingResourcePatternResolver.class",
+                };
+
+                JarFile libraryJarFile = new JarFile( new File( "${project.basedir}/target", "yauaa-hive-${project.version}-udf.jar" ) );
+
+                for ( String path : libraryWanted ) {
+                  if ( libraryJarFile.getEntry( path ) == null ) {
+                    throw new IllegalStateException( "Library: wanted path is missing: " + path );
+                  }
+                }
+
+                for ( String path : libraryUnwanted ) {
+                  if ( libraryJarFile.getEntry( path ) != null ) {
+                    throw new IllegalStateException( "Library: unwanted path is present: " + path );
+                  }
+                }
+              </script>
+            </configuration>
+          </execution>
+        </executions>
+        <dependencies>
+          <dependency>
+            <groupId>org.apache-extras.beanshell</groupId>
+            <artifactId>bsh</artifactId>
+            <version>2.0b6</version>
+          </dependency>
+        </dependencies>
       </plugin>
 
     </plugins>
@@ -174,7 +233,7 @@
   <licenses>
     <license>
       <name>Apache License, Version 2.0</name>
-      <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+      <url>https://www.apache.org/licenses/LICENSE-2.0.txt</url>
       <distribution>repo</distribution>
     </license>
   </licenses>
@@ -192,7 +251,7 @@
   </developers>
 
   <scm>
-    <url>https://github.com/nielsbasjes/yauaa</url>
+    <url>https://yauaa.basjes.nl</url>
     <connection>scm:git:https://github.com/nielsbasjes/yauaa.git</connection>
     <developerConnection>scm:git:.</developerConnection>
   </scm>

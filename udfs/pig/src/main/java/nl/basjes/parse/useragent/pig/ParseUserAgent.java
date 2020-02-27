@@ -1,12 +1,12 @@
 /*
  * Yet Another UserAgent Analyzer
- * Copyright (C) 2013-2018 Niels Basjes
+ * Copyright (C) 2013-2020 Niels Basjes
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -24,6 +24,7 @@ import org.apache.pig.FuncSpec;
 import org.apache.pig.data.DataType;
 import org.apache.pig.data.Tuple;
 import org.apache.pig.data.TupleFactory;
+import org.apache.pig.impl.logicalLayer.FrontendException;
 import org.apache.pig.impl.logicalLayer.schema.Schema;
 
 import java.io.IOException;
@@ -104,8 +105,8 @@ public class ParseUserAgent extends org.apache.pig.EvalFunc<Tuple>  {
                 tupleSchema.add(new Schema.FieldSchema(fieldName, DataType.CHARARRAY));
             }
             return new Schema(new Schema.FieldSchema("UserAgent", tupleSchema, DataType.TUPLE));
-        } catch (Exception e) {
-            return null;
+        } catch (FrontendException e) {
+            return null; // This will never occur because the input type is always TUPLE.
         }
     }
 

@@ -1,16 +1,16 @@
 /*
  * Yet Another UserAgent Analyzer
- * Copyright (C) 2013-2018 Niels Basjes
+ * Copyright (C) 2013-2020 Niels Basjes
  *
- * Licensed under the Apache License,Version 2.0 (the "License");
+ * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing,software
+ * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,either express or implied.
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
@@ -19,14 +19,14 @@ package nl.basjes.parse.useragent.parse;
 
 import nl.basjes.parse.useragent.UserAgent;
 import nl.basjes.parse.useragent.UserAgentAnalyzer;
-import nl.basjes.parse.useragent.UserAgentAnalyzerDirect.GetAllPathsAnalyzer;
-import org.junit.Test;
+import nl.basjes.parse.useragent.AbstractUserAgentAnalyzerDirect.GetAllPathsAnalyzer;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.fail;
 
 // CHECKSTYLE.OFF: LineLength
 // CHECKSTYLE.OFF: MethodLength
@@ -49,9 +49,9 @@ public class TestUserAgentFlattening {
         // Special case with multiple spaces between words
         validateUserAgent(
             "one two  three   four/1"
-            ,"agent=\"one two  three   four/1\""
-            ,"agent.(1)product=\"one two  three   four/1\""
-            ,"agent.(1)product.(1)name=\"one two  three   four\""
+            ,"agent=\"one two three four/1\""
+            ,"agent.(1)product=\"one two three four/1\""
+            ,"agent.(1)product.(1)name=\"one two three four\""
             ,"agent.(1)product.(1)version=\"1\""
         );
 

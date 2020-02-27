@@ -1,0 +1,44 @@
+#
+# Yet Another UserAgent Analyzer
+# Copyright (C) 2013-2020 Niels Basjes
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# https://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an AS IS BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+
+# Some brands make a total mess out of the tags they use for the various device types.
+
+#Tag            | Name            | Brand  | Class
+Lenovo A7600-H  | Lenovo A7600-H  | Lenovo | Tablet
+Lenovo A3500-H  | Lenovo A3500-H  | Lenovo | Tablet
+Lenovo A3500-FL | Lenovo A3500-FL | Lenovo | Tablet
+Lenovo A3500-H  | Lenovo A3500-H  | Lenovo | Tablet
+Lenovo A3500-FL | Lenovo A3500-FL | Lenovo | Tablet
+Lenovo A5500-F  | Lenovo A5500-F  | Lenovo | Tablet
+Lenovo A7600-F  | Lenovo A7600-F  | Lenovo | Tablet
+Lenovo A7600-H  | Lenovo A7600-H  | Lenovo | Tablet
+Lenovo B6000-F  | Lenovo B6000-F  | Lenovo | Tablet
+Lenovo B8000-F  | Lenovo B8000-F  | Lenovo | Tablet
+Lenovo B8000-H  | Lenovo B8000-H  | Lenovo | Tablet
+Lenovo B8080-F  | Lenovo B8080-F  | Lenovo | Tablet
+Lenovo S6000L-F | Lenovo S6000L-F | Lenovo | Tablet
+Lenovo-A850     | Lenovo-A850     | Lenovo | Phone
+
+PlayBook        | BlackBerry PlayBook | BlackBerry  | Tablet
+Xoom            | Motorola Xoom       | Motorola    | Tablet
+
+Nexus 5         | Google Nexus 5      | Google | Phone
+Nexus 6         | Google Nexus 6      | Google | Phone
+Nexus 7         | Google Nexus 7      | Google | Tablet
+Nexus 10        | Google Nexus 10     | Google | Tablet
+
+MID713          | Manta MID713        | Manta  | Tablet

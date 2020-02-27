@@ -1,12 +1,12 @@
 /*
  * Yet Another UserAgent Analyzer
- * Copyright (C) 2013-2018 Niels Basjes
+ * Copyright (C) 2013-2020 Niels Basjes
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -48,6 +48,7 @@ import nl.basjes.parse.useragent.parser.UserAgentParser.UserAgentContext;
 import nl.basjes.parse.useragent.parser.UserAgentParser.UuIdContext;
 import nl.basjes.parse.useragent.parser.UserAgentParser.VersionWordsContext;
 import org.antlr.v4.runtime.ParserRuleContext;
+import org.antlr.v4.runtime.tree.ParseTree;
 
 import java.util.Collections;
 import java.util.Iterator;
@@ -57,7 +58,7 @@ import java.util.List;
 /**
  * This visitor will return the list of requested child nodes
  */
-public class UserAgentGetChildrenVisitor extends UserAgentBaseVisitor<Iterator<? extends ParserRuleContext>> {
+public class UserAgentGetChildrenVisitor extends UserAgentBaseVisitor<Iterator<? extends ParseTree>> {
 
     private final String name;
     private final ChildIterable childIterable;
@@ -155,20 +156,20 @@ public class UserAgentGetChildrenVisitor extends UserAgentBaseVisitor<Iterator<?
     }
 
 
-    private static final Iterator<ParserRuleContext> EMPTY = Collections.emptyListIterator();
+    private static final Iterator<ParseTree> EMPTY = Collections.emptyListIterator();
 
     @Override
-    protected Iterator<? extends ParserRuleContext> defaultResult() {
+    protected Iterator<? extends ParseTree> defaultResult() {
         return EMPTY;
     }
 
-    Iterator<? extends ParserRuleContext> getChildrenByName(ParserRuleContext ctx) {
+    Iterator<? extends ParseTree> getChildrenByName(ParserRuleContext ctx) {
         return childIterable.iterator(ctx);
     }
 
     @Override
-    public Iterator<? extends ParserRuleContext> visitUserAgent(UserAgentContext ctx) {
-        Iterator<? extends ParserRuleContext>  children = getChildrenByName(ctx);
+    public Iterator<? extends ParseTree> visitUserAgent(UserAgentContext ctx) {
+        Iterator<? extends ParseTree>  children = getChildrenByName(ctx);
         if (children.hasNext()) {
             return children;
         }
@@ -176,32 +177,32 @@ public class UserAgentGetChildrenVisitor extends UserAgentBaseVisitor<Iterator<?
     }
 
     @Override
-    public Iterator<? extends ParserRuleContext> visitRootElements(RootElementsContext ctx) {
+    public Iterator<? extends ParseTree> visitRootElements(RootElementsContext ctx) {
         return getChildrenByName(ctx);
     }
 
     @Override
-    public Iterator<? extends ParserRuleContext> visitProduct(ProductContext ctx) {
+    public Iterator<? extends ParseTree> visitProduct(ProductContext ctx) {
         return getChildrenByName(ctx);
     }
 
     @Override
-    public Iterator<? extends ParserRuleContext> visitProductNameNoVersion(ProductNameNoVersionContext ctx) {
+    public Iterator<? extends ParseTree> visitProductNameNoVersion(ProductNameNoVersionContext ctx) {
         return getChildrenByName(ctx);
     }
 
     @Override
-    public Iterator<? extends ParserRuleContext> visitCommentProduct(CommentProductContext ctx) {
+    public Iterator<? extends ParseTree> visitCommentProduct(CommentProductContext ctx) {
         return getChildrenByName(ctx);
     }
 
     @Override
-    public Iterator<? extends ParserRuleContext> visitProductName(ProductNameContext ctx) {
+    public Iterator<? extends ParseTree> visitProductName(ProductNameContext ctx) {
         return getChildrenByName(ctx);
     }
 
     @Override
-    public Iterator<? extends ParserRuleContext> visitProductNameKeyValue(ProductNameKeyValueContext ctx) {
+    public Iterator<? extends ParseTree> visitProductNameKeyValue(ProductNameKeyValueContext ctx) {
         switch (name) {
             case "key":
                 return Collections.singletonList((ParserRuleContext) ctx.key).iterator();
@@ -234,32 +235,32 @@ public class UserAgentGetChildrenVisitor extends UserAgentBaseVisitor<Iterator<?
     }
 
     @Override
-    public Iterator<? extends ParserRuleContext> visitProductVersion(ProductVersionContext ctx) {
+    public Iterator<? extends ParseTree> visitProductVersion(ProductVersionContext ctx) {
         return getChildrenByName(ctx);
     }
 
     @Override
-    public Iterator<? extends ParserRuleContext> visitProductVersionWithCommas(ProductVersionWithCommasContext ctx) {
+    public Iterator<? extends ParseTree> visitProductVersionWithCommas(ProductVersionWithCommasContext ctx) {
         return getChildrenByName(ctx);
     }
 
     @Override
-    public Iterator<? extends ParserRuleContext> visitKeyValue(KeyValueContext ctx) {
+    public Iterator<? extends ParseTree> visitKeyValue(KeyValueContext ctx) {
         return getChildrenByName(ctx);
     }
 
     @Override
-    public Iterator<? extends ParserRuleContext> visitKeyWithoutValue(KeyWithoutValueContext ctx) {
+    public Iterator<? extends ParseTree> visitKeyWithoutValue(KeyWithoutValueContext ctx) {
         return getChildrenByName(ctx);
     }
 
     @Override
-    public Iterator<? extends ParserRuleContext> visitCommentBlock(CommentBlockContext ctx) {
+    public Iterator<? extends ParseTree> visitCommentBlock(CommentBlockContext ctx) {
         return getChildrenByName(ctx);
     }
 
     @Override
-    public Iterator<? extends ParserRuleContext> visitCommentEntry(CommentEntryContext ctx) {
+    public Iterator<? extends ParseTree> visitCommentEntry(CommentEntryContext ctx) {
         return getChildrenByName(ctx);
     }
 }

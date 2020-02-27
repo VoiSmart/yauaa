@@ -1,12 +1,12 @@
 /*
  * Yet Another UserAgent Analyzer
- * Copyright (C) 2013-2018 Niels Basjes
+ * Copyright (C) 2013-2020 Niels Basjes
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -25,15 +25,20 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class DebugUserAgent extends UserAgent {
+public class DebugUserAgent extends UserAgent { // NOSONAR: No need to override equals and hashcode
 
     private static final Logger LOG = LoggerFactory.getLogger(DebugUserAgent.class);
 
-    final List<Pair<UserAgent, Matcher>> appliedMatcherResults = new ArrayList<>(32);
+    private final transient List<Pair<UserAgent, Matcher>> appliedMatcherResults = new ArrayList<>(32);
+
+    DebugUserAgent(Collection<String> wantedFieldNames) {
+        super(wantedFieldNames);
+    }
 
     @Override
     public void set(UserAgent newValuesUserAgent, Matcher appliedMatcher) {
@@ -47,17 +52,23 @@ public class DebugUserAgent extends UserAgent {
         super.reset();
     }
 
-    public int getNumberOfAppliedMatches() {
+    int getNumberOfAppliedMatches() {
         return appliedMatcherResults.size();
     }
 
-    public String toMatchTrace(List<String> highlightNames) {
+    String toMatchTrace(List<String> highlightNames) {
         StringBuilder sb = new StringBuilder(4096);
         sb.append('\n');
         sb.append("+=========================================+\n");
         sb.append("| Matcher results that have been combined |\n");
         sb.append("+=========================================+\n");
         sb.append('\n');
+
+        appliedMatcherResults.sort((o1, o2) -> {
+            Matcher m1 = o1.getValue();
+            Matcher m2 = o2.getValue();
+            return m1.getMatcherSourceLocation().compareTo(m2.getMatcherSourceLocation());
+        });
 
         for (Pair<UserAgent, Matcher> pair: appliedMatcherResults){
             sb.append('\n');
@@ -72,13 +83,21 @@ public class DebugUserAgent extends UserAgent {
             sb.append("+----------------\n");
             for (String fieldName : result.getAvailableFieldNamesSorted()) {
                 AgentField field = result.get(fieldName);
-                if (field.getConfidence() >= 0) {
-                    String marker = "";
-                    if (highlightNames.contains(fieldName)) {
-                        marker = " <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<";
+
+                if (field == null) {
+                    LOG.error("Should not happen: No such field: {}", fieldName);
+                } else {
+                    if (field.getConfidence() >= 0) {
+                        String marker = "";
+                        if (highlightNames.contains(fieldName)) {
+                            marker = " <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<";
+                        }
+                        sb.append("| ").append(fieldName).append('(').append(field.getConfidence());
+                        if (field.isDefaultValue()) {
+                            sb.append(" => isDefaultValue");
+                        }
+                        sb.append(") = ").append(field.getValue()).append(marker).append('\n');
                     }
-                    sb.append("| ").append(fieldName).append('(').append(field.getConfidence()).append(") = ")
-                        .append(field.getValue()).append(marker).append('\n');
                 }
             }
             sb.append("+================\n");
@@ -86,7 +105,7 @@ public class DebugUserAgent extends UserAgent {
         return sb.toString();
     }
 
-    public boolean analyzeMatchersResult() {
+    boolean analyzeMatchersResult() {
         boolean passed = true;
         for (String fieldName : getAvailableFieldNamesSorted()) {
             Map<Long, String> receivedValues = new HashMap<>(32);

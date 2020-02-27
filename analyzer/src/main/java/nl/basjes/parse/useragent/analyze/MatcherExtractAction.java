@@ -1,12 +1,12 @@
 /*
  * Yet Another UserAgent Analyzer
- * Copyright (C) 2013-2018 Niels Basjes
+ * Copyright (C) 2013-2020 Niels Basjes
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -34,6 +34,13 @@ public class MatcherExtractAction extends MatcherAction {
     private final String expression;
     private UserAgent.AgentField resultAgentField;
 
+    @SuppressWarnings("unused") // Private constructor for serialization systems ONLY (like Kryo)
+    private MatcherExtractAction() {
+        attribute = null;
+        confidence = -1;
+        expression = null;
+    }
+
     public MatcherExtractAction(String attribute, long confidence, String config, Matcher matcher) {
         this.attribute = attribute;
         this.confidence = confidence;
@@ -46,7 +53,7 @@ public class MatcherExtractAction extends MatcherAction {
     }
 
     protected ParserRuleContext parseWalkerExpression(UserAgentTreeWalkerParser parser) {
-        return parser.matcher();
+        return parser.matcherExtract();
     }
 
     public boolean isFixedValue() {
@@ -79,10 +86,6 @@ public class MatcherExtractAction extends MatcherAction {
             if (verbose) {
                 LOG.info("KEPT  : EXTRACT ({}): {}", attribute, key);
             }
-        } else {
-            if (verbose) {
-                LOG.info("IGNORE: EXTRACT ({}): {}", attribute, key);
-            }
         }
     }
 
@@ -108,6 +111,7 @@ public class MatcherExtractAction extends MatcherAction {
         return false;
     }
 
+    @Override
     public void reset() {
         super.reset();
         this.foundValue = null;
@@ -116,9 +120,9 @@ public class MatcherExtractAction extends MatcherAction {
     @Override
     public String toString() {
         if (isFixedValue()) {
-            return "FIXED  : (" + attribute + ", " + confidence + ") =   \"" + fixedValue + "\"";
+            return "Extract FIXED.("+matcher.getMatcherSourceLocation()+"): (" + attribute + ", " + confidence + ") =   \"" + fixedValue + "\"";
         } else {
-            return "DYNAMIC: (" + attribute + ", " + confidence + "):    " + expression;
+            return "Extract DYNAMIC.("+matcher.getMatcherSourceLocation()+"): (" + attribute + ", " + confidence + "):    " + expression;
         }
     }
 }

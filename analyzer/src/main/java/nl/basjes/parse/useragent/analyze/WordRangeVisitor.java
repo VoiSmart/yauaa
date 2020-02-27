@@ -1,12 +1,12 @@
 /*
  * Yet Another UserAgent Analyzer
- * Copyright (C) 2013-2018 Niels Basjes
+ * Copyright (C) 2013-2020 Niels Basjes
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,8 +18,11 @@
 package nl.basjes.parse.useragent.analyze;
 
 import nl.basjes.parse.useragent.parser.UserAgentTreeWalkerBaseVisitor;
-import nl.basjes.parse.useragent.parser.UserAgentTreeWalkerParser;
 import nl.basjes.parse.useragent.parser.UserAgentTreeWalkerParser.WordRangeContext;
+import nl.basjes.parse.useragent.parser.UserAgentTreeWalkerParser.WordRangeFirstWordsContext;
+import nl.basjes.parse.useragent.parser.UserAgentTreeWalkerParser.WordRangeLastWordsContext;
+import nl.basjes.parse.useragent.parser.UserAgentTreeWalkerParser.WordRangeSingleWordContext;
+import nl.basjes.parse.useragent.parser.UserAgentTreeWalkerParser.WordRangeStartToEndContext;
 
 import java.io.Serializable;
 import java.util.Objects;
@@ -27,6 +30,12 @@ import java.util.Objects;
 public final class WordRangeVisitor extends UserAgentTreeWalkerBaseVisitor<WordRangeVisitor.Range> {
 
     public static class Range implements Serializable {
+
+        @SuppressWarnings("unused") // Private constructor for serialization systems ONLY (like Kryo)
+        private Range() {
+            first = -1;
+            last = -1;
+        }
 
         public Range(int first, int last) {
             this.first = first;
@@ -60,7 +69,7 @@ public final class WordRangeVisitor extends UserAgentTreeWalkerBaseVisitor<WordR
 
         @Override
         public boolean equals(Object o) {
-            if (!Range.class.isInstance(o)) {
+            if ((!(o instanceof Range))) {
                 return false;
             }
             Range range = (Range) o;
@@ -76,6 +85,7 @@ public final class WordRangeVisitor extends UserAgentTreeWalkerBaseVisitor<WordR
 
     private static final WordRangeVisitor WORD_RANGE_VISITOR = new WordRangeVisitor();
 
+    @SuppressWarnings("unused") // Private constructor for serialization systems ONLY (like Kryo)
     private WordRangeVisitor() {
     }
 
@@ -84,28 +94,28 @@ public final class WordRangeVisitor extends UserAgentTreeWalkerBaseVisitor<WordR
     }
 
     @Override
-    public Range visitWordRangeStartToEnd(UserAgentTreeWalkerParser.WordRangeStartToEndContext ctx) {
+    public Range visitWordRangeStartToEnd(WordRangeStartToEndContext ctx) {
         return new Range(
             Integer.parseInt(ctx.firstWord.getText()),
             Integer.parseInt(ctx.lastWord.getText()));
     }
 
     @Override
-    public Range visitWordRangeFirstWords(UserAgentTreeWalkerParser.WordRangeFirstWordsContext ctx) {
+    public Range visitWordRangeFirstWords(WordRangeFirstWordsContext ctx) {
         return new Range(
             1,
             Integer.parseInt(ctx.lastWord.getText()));
     }
 
     @Override
-    public Range visitWordRangeLastWords(UserAgentTreeWalkerParser.WordRangeLastWordsContext ctx) {
+    public Range visitWordRangeLastWords(WordRangeLastWordsContext ctx) {
         return new Range(
             Integer.parseInt(ctx.firstWord.getText()),
             -1);
     }
 
     @Override
-    public Range visitWordRangeSingleWord(UserAgentTreeWalkerParser.WordRangeSingleWordContext ctx) {
+    public Range visitWordRangeSingleWord(WordRangeSingleWordContext ctx) {
         int wordNumber = Integer.parseInt(ctx.singleWord.getText());
         return new Range(
             wordNumber,

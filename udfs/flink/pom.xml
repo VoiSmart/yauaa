@@ -1,13 +1,13 @@
 <?xml version="1.0"?>
 <!--
   ~ Yet Another UserAgent Analyzer
-  ~ Copyright (C) 2013-2018 Niels Basjes
+  ~ Copyright (C) 2013-2020 Niels Basjes
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
   ~ You may obtain a copy of the License at
   ~
-  ~ http://www.apache.org/licenses/LICENSE-2.0
+  ~ https://www.apache.org/licenses/LICENSE-2.0
   ~
   ~ Unless required by applicable law or agreed to in writing, software
   ~ distributed under the License is distributed on an "AS IS" BASIS,
@@ -31,18 +31,13 @@
   <name>Yauaa : UDF : Apache Flink</name>
   <description>A parsing and analyzing library to get information from a useragent string.</description>
 
-  <url>http://github.com/nielsbasjes/yauaa</url>
-
-  <properties>
-    <flink.version>1.3.1</flink.version>
-  </properties>
+  <url>https://yauaa.basjes.nl</url>
 
   <dependencies>
 
     <dependency>
       <groupId>nl.basjes.parse.useragent</groupId>
       <artifactId>yauaa</artifactId>
-      <version>${project.version}</version>
     </dependency>
 
     <dependency>
@@ -62,6 +57,13 @@
     <dependency>
       <groupId>org.apache.flink</groupId>
       <artifactId>flink-java</artifactId>
+      <version>${flink.version}</version>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.flink</groupId>
+      <artifactId>flink-streaming-java_2.11</artifactId>
       <version>${flink.version}</version>
       <scope>test</scope>
     </dependency>
@@ -91,7 +93,7 @@
   <licenses>
     <license>
       <name>Apache License, Version 2.0</name>
-      <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+      <url>https://www.apache.org/licenses/LICENSE-2.0.txt</url>
       <distribution>repo</distribution>
     </license>
   </licenses>
@@ -109,7 +111,7 @@
   </developers>
 
   <scm>
-    <url>https://github.com/nielsbasjes/yauaa</url>
+    <url>https://yauaa.basjes.nl</url>
     <connection>scm:git:https://github.com/nielsbasjes/yauaa.git</connection>
     <developerConnection>scm:git:.</developerConnection>
   </scm>

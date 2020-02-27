@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
   ~ Yet Another UserAgent Analyzer
-  ~ Copyright (C) 2013-2018 Niels Basjes
+  ~ Copyright (C) 2013-2020 Niels Basjes
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
   ~ You may obtain a copy of the License at
   ~
-  ~ http://www.apache.org/licenses/LICENSE-2.0
+  ~ https://www.apache.org/licenses/LICENSE-2.0
   ~
   ~ Unless required by applicable law or agreed to in writing, software
   ~ distributed under the License is distributed on an "AS IS" BASIS,
@@ -31,11 +31,7 @@
 
   <description>A parsing and analyzing library to get information from a useragent string.</description>
 
-  <url>http://github.com/nielsbasjes/yauaa</url>
-
-  <properties>
-    <nifi.version>1.6.0</nifi.version>
-  </properties>
+  <url>https://github.com/nielsbasjes/yauaa</url>
 
   <modules>
     <module>nifi-processors</module>
@@ -46,31 +42,31 @@
     <dependency>
       <groupId>org.apache.nifi</groupId>
       <artifactId>nifi-api</artifactId>
-      <version>1.6.0</version>
+      <version>${nifi.version}</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>org.apache.nifi</groupId>
       <artifactId>nifi-framework-api</artifactId>
-      <version>1.6.0</version>
+      <version>${nifi.version}</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>org.apache.nifi</groupId>
       <artifactId>nifi-runtime</artifactId>
-      <version>1.6.0</version>
+      <version>${nifi.version}</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>org.apache.nifi</groupId>
       <artifactId>nifi-nar-utils</artifactId>
-      <version>1.6.0</version>
+      <version>${nifi.version}</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>org.apache.nifi</groupId>
       <artifactId>nifi-properties</artifactId>
-      <version>1.6.0</version>
+      <version>${nifi.version}</version>
       <scope>provided</scope>
     </dependency>
   </dependencies>
@@ -78,7 +74,7 @@
   <licenses>
     <license>
       <name>Apache License, Version 2.0</name>
-      <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+      <url>https://www.apache.org/licenses/LICENSE-2.0.txt</url>
       <distribution>repo</distribution>
     </license>
   </licenses>

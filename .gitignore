@@ -8,7 +8,6 @@ dependency-reduced-pom.xml
 hs_err_pid*.log
 tmp
 debug-output
-output
 
 # Package Files #
 *.jar
@@ -39,6 +38,7 @@ yy
 z
 zz
 result-*.yaml
+__*
 
 # Patches related
 *.patch
@@ -50,15 +50,22 @@ result-*.yaml
 pig_[1-9][0-9]*.log
 
 # Generated benchmark results
-benchmarks/*.txt
+benchmarks/results/*.txt
 benchmarks/*.csv
-
+benchmarks/*.dat
 
 # Local test files and scripts
 testfiles
-/*.sh
-_*
 *.tar.gz
 
 # LibreOffice lock file
 .~lock.*
+
+# Accidentally generated documentation site
+_book
+node_modules
+docs/gitbook/gitbook-plugin-livereload/
+
+# Special stuff
+public_suffix_list.dat
+analyzer/pitest/

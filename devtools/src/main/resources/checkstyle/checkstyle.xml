@@ -1,13 +1,13 @@
 <?xml version="1.0"?>
 <!--
   ~ Yet Another UserAgent Analyzer
-  ~ Copyright (C) 2013-2018 Niels Basjes
+  ~ Copyright (C) 2013-2020 Niels Basjes
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
   ~ You may obtain a copy of the License at
   ~
-  ~ http://www.apache.org/licenses/LICENSE-2.0
+  ~ https://www.apache.org/licenses/LICENSE-2.0
   ~
   ~ Unless required by applicable law or agreed to in writing, software
   ~ distributed under the License is distributed on an "AS IS" BASIS,
@@ -39,16 +39,24 @@
   <!-- See http://checkstyle.sf.net/config_misc.html#Translation -->
   <module name="Translation" />
 
-  <module name="FileLength" />
   <module name="FileTabCharacter" />
 
-  <module name="TreeWalker">
+  <module name="FileLength">
+    <property name="fileExtensions" value="!yaml"/>
+  </module>
 
-    <module name="SuppressionCommentFilter">
-      <property name="offCommentFormat" value="CHECKSTYLE.OFF\: ([\w\|]+)"/>
-      <property name="onCommentFormat" value="CHECKSTYLE.ON\: ([\w\|]+)"/>
-      <property name="checkFormat" value="$1"/>
-    </module>
+  <module name="LineLength">
+    <property name="max" value="150" />
+    <property name="fileExtensions" value="!yaml"/>
+  </module>
+
+  <module name="SuppressWithPlainTextCommentFilter">
+    <property name="offCommentFormat" value="CHECKSTYLE\.OFF\: ([\w\|]+)"/>
+    <property name="onCommentFormat" value="CHECKSTYLE\.ON\: ([\w\|]+)"/>
+    <property name="checkFormat" value="$1"/>
+  </module>
+
+  <module name="TreeWalker">
 
     <!-- Checks for Javadoc comments. -->
     <!-- See http://checkstyle.sf.net/config_javadoc.html -->
@@ -105,9 +113,6 @@
 
     <!-- Checks for Size Violations. -->
     <!-- See http://checkstyle.sf.net/config_sizes.html -->
-    <module name="LineLength">
-      <property name="max" value="150" />
-    </module>
     <module name="MethodLength">
       <property name="max" value="500" />
       <property name="countEmpty" value="false" />

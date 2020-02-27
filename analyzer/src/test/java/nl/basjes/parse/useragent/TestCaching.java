@@ -1,12 +1,12 @@
 /*
  * Yet Another UserAgent Analyzer
- * Copyright (C) 2013-2018 Niels Basjes
+ * Copyright (C) 2013-2020 Niels Basjes
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -19,9 +19,10 @@ package nl.basjes.parse.useragent;
 
 import org.apache.commons.collections4.map.LRUMap;
 import org.apache.commons.lang3.reflect.FieldUtils;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 public class TestCaching {
 
@@ -99,14 +100,14 @@ public class TestCaching {
 
         agent = uaa.parse(uuid);
         assertEquals(uuid, agent.get(fieldName).getValue());
-        assertEquals(null, getCache(uaa));
+        assertNull(getCache(uaa));
     }
 
     private LRUMap<?, ?> getCache(UserAgentAnalyzer uaa) throws IllegalAccessException {
         LRUMap<?, ?> actualCache = null;
         Object rawParseCache = FieldUtils.readField(uaa, "parseCache", true);
         if (rawParseCache instanceof LRUMap<?, ?>) {
-            actualCache = (LRUMap) rawParseCache;
+            actualCache = (LRUMap<?, ?>) rawParseCache;
         }
         return actualCache;
     }

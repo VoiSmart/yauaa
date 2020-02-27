@@ -1,12 +1,12 @@
 /*
  * Yet Another UserAgent Analyzer
- * Copyright (C) 2013-2018 Niels Basjes
+ * Copyright (C) 2013-2020 Niels Basjes
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -20,172 +20,200 @@ package nl.basjes.parse.useragent;
 import nl.basjes.parse.useragent.analyze.InvalidParserConfigurationException;
 import nl.basjes.parse.useragent.debug.UserAgentAnalyzerTester;
 import nl.basjes.parse.useragent.parse.EvilManualUseragentStringHacks;
-import org.hamcrest.core.StringContains;
-import org.hamcrest.core.StringStartsWith;
-import org.junit.Assert;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.hamcrest.Matcher;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
+import static org.hamcrest.core.StringContains.containsString;
+import static org.hamcrest.core.StringStartsWith.startsWith;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class TestErrorHandling {
-    @Rule
-    public final ExpectedException expectedEx = ExpectedException.none();
+
+    private void runTest(String resourceString, Matcher<String> expectedMessage) {
+        InvalidParserConfigurationException exception =
+            assertThrows(InvalidParserConfigurationException.class, () -> {
+                UserAgentAnalyzerTester uaa = UserAgentAnalyzerTester
+                    .newBuilder()
+                    .dropDefaultResources()
+                    .keepTests()
+                    .addResources(resourceString)
+                    .build();
+                assertTrue(uaa.runTests(false, false));
+            });
+
+        assertTrue(expectedMessage.matches(exception.getMessage()));
+    }
 
     @Test
     public void checkNoFile() {
-        expectedEx.expect(InvalidParserConfigurationException.class);
-        expectedEx.expectMessage("Unable to find ANY config files");
-
-        UserAgentAnalyzerTester uaa = new UserAgentAnalyzerTester("classpath*:BadDefinitions/ThisOneDoesNotExist---Really.yaml");
-        Assert.assertTrue(uaa.runTests(false, false));
+        runTest(
+            "classpath*:BadDefinitions/ThisOneDoesNotExist---Really.yaml",
+            containsString("No matchers were loaded at all."));
     }
 
     @Test
     public void checkEmptyFile() {
-        expectedEx.expect(InvalidParserConfigurationException.class);
-        expectedEx.expectMessage("The file EmptyFile.yaml is empty");
-
-        UserAgentAnalyzerTester uaa = new UserAgentAnalyzerTester("classpath*:BadDefinitions/EmptyFile.yaml");
-        Assert.assertTrue(uaa.runTests(false, false));
+        runTest(
+            "classpath*:BadDefinitions/EmptyFile.yaml",
+            containsString("No matchers were loaded at all."));
     }
 
     @Test
     public void checkBadStructure() {
-        expectedEx.expect(InvalidParserConfigurationException.class);
-        expectedEx.expectMessage("The top level entry MUST be 'config'.");
-
-        UserAgentAnalyzerTester uaa = new UserAgentAnalyzerTester("classpath*:BadDefinitions/BadStructure.yaml");
-        Assert.assertTrue(uaa.runTests(false, false));
+        runTest(
+            "classpath*:BadDefinitions/BadStructure.yaml",
+            containsString("The top level entry MUST be 'config'."));
     }
 
     @Test
     public void checkFileIsNotAMap() {
-        expectedEx.expect(InvalidParserConfigurationException.class);
-        expectedEx.expectMessage("Yaml config problem.(FileIsNotAMap.yaml:20): The value should be a sequence but it is a mapping");
-
-        UserAgentAnalyzerTester uaa = new UserAgentAnalyzerTester("classpath*:BadDefinitions/FileIsNotAMap.yaml");
-        Assert.assertTrue(uaa.runTests(false, false));
+        runTest(
+            "classpath*:BadDefinitions/FileIsNotAMap.yaml",
+            containsString("Yaml config problem.(FileIsNotAMap.yaml:20): The value should be a sequence but it is a mapping"));
     }
 
     @Test
     public void checkLookupSetMissing() {
-        expectedEx.expect(InvalidParserConfigurationException.class);
-        expectedEx.expectMessage(new StringContains("Missing lookupSet"));
-
-        UserAgentAnalyzerTester uaa = new UserAgentAnalyzerTester("classpath*:BadDefinitions/LookupSetMissing.yaml");
-        Assert.assertTrue(uaa.runTests(false, false));
+        runTest(
+            "classpath*:BadDefinitions/LookupSetMissing.yaml",
+            containsString("Missing lookupSet"));
     }
 
     @Test
     public void checkBadEntry() {
-        expectedEx.expect(InvalidParserConfigurationException.class);
-        expectedEx.expectMessage(new StringContains("Found unexpected config entry:"));
-
-        UserAgentAnalyzerTester uaa = new UserAgentAnalyzerTester("classpath*:BadDefinitions/BadEntry.yaml");
-        Assert.assertTrue(uaa.runTests(false, false));
+        runTest(
+            "classpath*:BadDefinitions/BadEntry.yaml",
+            containsString("Found unexpected config entry:"));
     }
 
     @Test
     public void checkLookupMissing() {
-        expectedEx.expect(InvalidParserConfigurationException.class);
-        expectedEx.expectMessage(new StringContains("Missing lookup"));
+        runTest(
+            "classpath*:BadDefinitions/LookupMissing.yaml",
+            containsString("Missing lookup"));
+    }
 
-        UserAgentAnalyzerTester uaa = new UserAgentAnalyzerTester("classpath*:BadDefinitions/LookupMissing.yaml");
-        Assert.assertTrue(uaa.runTests(false, false));
+    @Test
+    public void checkLookupPrefixMissing() {
+        runTest(
+            "classpath*:BadDefinitions/LookupPrefixMissing.yaml",
+            containsString("Missing lookup"));
+    }
+
+    @Test
+    public void checkIsInLookupPrefixMissing() {
+        runTest(
+            "classpath*:BadDefinitions/IsInLookupPrefixMissing.yaml",
+            containsString("Missing lookup"));
+    }
+
+    @Test
+    public void checkLookupDuplicateKey() {
+        runTest(
+            "classpath*:BadDefinitions/LookupDuplicateKey.yaml",
+            containsString("appears multiple times"));
     }
 
     @Test
     public void checkFixedStringLookupMissing() {
-        expectedEx.expect(InvalidParserConfigurationException.class);
-        expectedEx.expectMessage(new StringContains("Missing lookup"));
-
-        UserAgentAnalyzerTester uaa = new UserAgentAnalyzerTester("classpath*:BadDefinitions/FixedStringLookupMissing.yaml");
-        Assert.assertTrue(uaa.runTests(false, false));
+        runTest(
+            "classpath*:BadDefinitions/FixedStringLookupMissing.yaml",
+            containsString("Missing lookup"));
     }
 
     @Test
     public void checkFixedStringLookupMissingvalue() {
-        expectedEx.expect(InvalidParserConfigurationException.class);
-        expectedEx.expectMessage(new StringContains("Fixed value"));
-
-        UserAgentAnalyzerTester uaa = new UserAgentAnalyzerTester("classpath*:BadDefinitions/FixedStringLookupMissingValue.yaml");
-        Assert.assertTrue(uaa.runTests(false, false));
+        runTest(
+            "classpath*:BadDefinitions/FixedStringLookupMissingValue.yaml",
+            containsString("Fixed value"));
     }
 
 
     @Test
     public void checkNoExtract() {
-        expectedEx.expect(InvalidParserConfigurationException.class);
-        expectedEx.expectMessage("Matcher does not extract anything");
-
-        UserAgentAnalyzerTester uaa = new UserAgentAnalyzerTester("classpath*:BadDefinitions/NoExtract.yaml");
-        Assert.assertTrue(uaa.runTests(false, false));
+        runTest(
+            "classpath*:BadDefinitions/NoExtract.yaml",
+            containsString("Matcher does not extract anything"));
     }
 
     @Test
     public void checkInvalidExtract() {
-        expectedEx.expect(InvalidParserConfigurationException.class);
-        expectedEx.expectMessage("Invalid extract config line: agent.text=\"foo\"");
-
-        UserAgentAnalyzerTester uaa = new UserAgentAnalyzerTester("classpath*:BadDefinitions/InvalidExtract.yaml");
-        Assert.assertTrue(uaa.runTests(false, false));
+        runTest(
+            "classpath*:BadDefinitions/InvalidExtract.yaml",
+            containsString("Invalid extract config line: agent.text=\"foo\""));
     }
 
     @Test
     public void checkNoTestInput() {
-        expectedEx.expect(InvalidParserConfigurationException.class);
-        expectedEx.expectMessage("Test is missing input");
-
-        UserAgentAnalyzerTester uaa = new UserAgentAnalyzerTester("classpath*:BadDefinitions/NoTestInput.yaml");
-        Assert.assertTrue(uaa.runTests(false, false));
+        runTest(
+            "classpath*:BadDefinitions/NoTestInput.yaml",
+            containsString("Test is missing input"));
     }
 
     @Test
     public void checkSyntaxErrorRequire() {
-        expectedEx.expect(InvalidParserConfigurationException.class);
-        expectedEx.expectMessage(new StringStartsWith("Syntax error"));
-
-        UserAgentAnalyzerTester uaa = new UserAgentAnalyzerTester("classpath*:BadDefinitions/SyntaxErrorRequire.yaml");
-        Assert.assertTrue(uaa.runTests(false, false));
+        runTest(
+            "classpath*:BadDefinitions/SyntaxErrorRequire.yaml",
+            startsWith("Syntax error"));
     }
 
     @Test
-    public void checkSyntaxErrorExpect() {
-        expectedEx.expect(InvalidParserConfigurationException.class);
-        expectedEx.expectMessage(new StringStartsWith("Syntax error"));
+    public void checkSyntaxErrorExtract1() {
+        runTest(
+            "classpath*:BadDefinitions/SyntaxErrorExtract1.yaml",
+            startsWith("Syntax error"));
+    }
 
-        UserAgentAnalyzerTester uaa = new UserAgentAnalyzerTester("classpath*:BadDefinitions/SyntaxErrorExtract.yaml");
-        Assert.assertTrue(uaa.runTests(false, false));
+    @Test
+    public void checkSyntaxErrorExtract2() {
+        runTest(
+            "classpath*:BadDefinitions/SyntaxErrorExtract2.yaml",
+            startsWith("Invalid extract config line"));
+    }
+
+    @Test
+    public void checkSyntaxErrorVariable1() {
+        runTest(
+            "classpath*:BadDefinitions/SyntaxErrorVariable1.yaml",
+            startsWith("Syntax error"));
+    }
+
+    @Test
+    public void checkSyntaxErrorVariable2() {
+        runTest(
+            "classpath*:BadDefinitions/SyntaxErrorVariable2.yaml",
+            startsWith("Invalid variable config line:"));
     }
 
     @Test
     public void checkSyntaxErrorVariableBackReference() {
-        expectedEx.expect(InvalidParserConfigurationException.class);
-        expectedEx.expectMessage(new StringStartsWith("Syntax error"));
-
-        UserAgentAnalyzerTester uaa = new UserAgentAnalyzerTester("classpath*:BadDefinitions/Variable-BackReference.yaml");
-        Assert.assertTrue(uaa.runTests(false, false));
+        runTest(
+            "classpath*:BadDefinitions/Variable-BackReference.yaml",
+            startsWith("Syntax error"));
     }
 
     @Test
     public void checkSyntaxErrorVariableBadDefinition() {
-        expectedEx.expect(InvalidParserConfigurationException.class);
-        expectedEx.expectMessage(new StringStartsWith("Invalid variable config line:"));
-
-        UserAgentAnalyzerTester uaa = new UserAgentAnalyzerTester("classpath*:BadDefinitions/Variable-BadDefinition.yaml");
-        Assert.assertTrue(uaa.runTests(false, false));
+        runTest(
+            "classpath*:BadDefinitions/Variable-BadDefinition.yaml",
+            startsWith("Invalid variable config line:"));
     }
 
     @Test
     public void checkSyntaxErrorVariableFixedString() {
-        expectedEx.expect(InvalidParserConfigurationException.class);
-        expectedEx.expectMessage(new StringStartsWith("Syntax error"));
+        runTest(
+            "classpath*:BadDefinitions/Variable-FixedString.yaml",
+            startsWith("Syntax error"));
+    }
 
-        UserAgentAnalyzerTester uaa = new UserAgentAnalyzerTester("classpath*:BadDefinitions/Variable-FixedString.yaml");
-        Assert.assertTrue(uaa.runTests(false, false));
+    @Test
+    public void checkForVariableExistance() {
+        runTest(
+            "classpath*:BadDefinitions/Variable-NoSuchVariable.yaml",
+            startsWith("Syntax error"));
     }
 
 

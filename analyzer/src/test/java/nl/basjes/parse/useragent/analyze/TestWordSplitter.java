@@ -1,12 +1,12 @@
 /*
  * Yet Another UserAgent Analyzer
- * Copyright (C) 2013-2018 Niels Basjes
+ * Copyright (C) 2013-2020 Niels Basjes
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -21,12 +21,12 @@ import nl.basjes.parse.useragent.utils.Splitter;
 import nl.basjes.parse.useragent.utils.VersionSplitter;
 import nl.basjes.parse.useragent.utils.WordSplitter;
 import org.apache.commons.lang3.tuple.Pair;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 public class TestWordSplitter {
 
@@ -34,12 +34,33 @@ public class TestWordSplitter {
     public void versionSplitterEmpty() {
         String value = "";
         Splitter splitter = VersionSplitter.getInstance();
+        assertEquals(null,       splitter.getSingleSplit(value, -5));
+        assertEquals(null,       splitter.getSingleSplit(value, -1));
         assertEquals(null,       splitter.getSingleSplit(value, 0));
         assertEquals(null,       splitter.getSingleSplit(value, 1));
         assertEquals(null,       splitter.getSingleSplit(value, 2));
 
+        assertEquals(null,       splitter.getFirstSplits(value, -5));
+        assertEquals(null,       splitter.getFirstSplits(value, -1));
         assertEquals(null,       splitter.getFirstSplits(value, 0));
         assertEquals(null,       splitter.getFirstSplits(value, 1));
+        assertEquals(null,       splitter.getFirstSplits(value, 2));
+    }
+
+    @Test
+    public void versionSplitterOne() {
+        String value = "123";
+        Splitter splitter = VersionSplitter.getInstance();
+        assertEquals(null,       splitter.getSingleSplit(value, -5));
+        assertEquals(null,       splitter.getSingleSplit(value, -1));
+        assertEquals(null,       splitter.getSingleSplit(value, 0));
+        assertEquals("123",       splitter.getSingleSplit(value, 1));
+        assertEquals(null,       splitter.getSingleSplit(value, 2));
+
+        assertEquals(null,       splitter.getFirstSplits(value, -5));
+        assertEquals(null,       splitter.getFirstSplits(value, -1));
+        assertEquals(null,       splitter.getFirstSplits(value, 0));
+        assertEquals("123",       splitter.getFirstSplits(value, 1));
         assertEquals(null,       splitter.getFirstSplits(value, 2));
     }
 
@@ -48,12 +69,14 @@ public class TestWordSplitter {
         String value = "1.2.3";
         Splitter splitter = VersionSplitter.getInstance();
 
+        assertEquals(null,       splitter.getSingleSplit(value, -1));
         assertEquals(null,       splitter.getSingleSplit(value, 0));
         assertEquals("1",        splitter.getSingleSplit(value, 1));
         assertEquals("2",        splitter.getSingleSplit(value, 2));
         assertEquals("3",        splitter.getSingleSplit(value, 3));
         assertEquals(null,       splitter.getSingleSplit(value, 4));
 
+        assertEquals(null,       splitter.getFirstSplits(value, -1));
         assertEquals(null,       splitter.getFirstSplits(value, 0));
         assertEquals("1",        splitter.getFirstSplits(value, 1));
         assertEquals("1.2",      splitter.getFirstSplits(value, 2));
@@ -66,12 +89,14 @@ public class TestWordSplitter {
         String value = "1_2_3";
         Splitter splitter = VersionSplitter.getInstance();
 
+        assertEquals(null,       splitter.getSingleSplit(value, -1));
         assertEquals(null,       splitter.getSingleSplit(value, 0));
         assertEquals("1",        splitter.getSingleSplit(value, 1));
         assertEquals("2",        splitter.getSingleSplit(value, 2));
         assertEquals("3",        splitter.getSingleSplit(value, 3));
         assertEquals(null,       splitter.getSingleSplit(value, 4));
 
+        assertEquals(null,       splitter.getFirstSplits(value, -1));
         assertEquals(null,       splitter.getFirstSplits(value, 0));
         assertEquals("1",        splitter.getFirstSplits(value, 1));
         assertEquals("1_2",      splitter.getFirstSplits(value, 2));
@@ -84,12 +109,14 @@ public class TestWordSplitter {
         String value = "1_2.3";
         Splitter splitter = VersionSplitter.getInstance();
 
+        assertEquals(null,       splitter.getSingleSplit(value, -1));
         assertEquals(null,       splitter.getSingleSplit(value, 0));
         assertEquals("1",        splitter.getSingleSplit(value, 1));
         assertEquals("2",        splitter.getSingleSplit(value, 2));
         assertEquals("3",        splitter.getSingleSplit(value, 3));
         assertEquals(null,       splitter.getSingleSplit(value, 4));
 
+        assertEquals(null,       splitter.getFirstSplits(value, -1));
         assertEquals(null,       splitter.getFirstSplits(value, 0));
         assertEquals("1",        splitter.getFirstSplits(value, 1));
         assertEquals("1_2",      splitter.getFirstSplits(value, 2));
@@ -102,12 +129,14 @@ public class TestWordSplitter {
         String value = "1.2_3";
         Splitter splitter = VersionSplitter.getInstance();
 
+        assertEquals(null,       splitter.getSingleSplit(value, -1));
         assertEquals(null,       splitter.getSingleSplit(value, 0));
         assertEquals("1",        splitter.getSingleSplit(value, 1));
         assertEquals("2",        splitter.getSingleSplit(value, 2));
         assertEquals("3",        splitter.getSingleSplit(value, 3));
         assertEquals(null,       splitter.getSingleSplit(value, 4));
 
+        assertEquals(null,       splitter.getFirstSplits(value, -1));
         assertEquals(null,       splitter.getFirstSplits(value, 0));
         assertEquals("1",        splitter.getFirstSplits(value, 1));
         assertEquals("1.2",      splitter.getFirstSplits(value, 2));
@@ -156,6 +185,10 @@ public class TestWordSplitter {
         String value = "1.2.3.4.5";
         Splitter splitter = VersionSplitter.getInstance();
 
+        // Bad values
+        assertEquals(null,            splitter.getSplitRange(value, 4, 2));
+        assertEquals(null,            splitter.getSplitRange(null, 2, 3));
+
         // Single version
         assertEquals(null,            splitter.getSplitRange(value, 0, 0));
         assertEquals("1",             splitter.getSplitRange(value, 1, 1));
@@ -196,12 +229,33 @@ public class TestWordSplitter {
     public void wordSplitterEmpty() {
         String value = "";
         Splitter splitter = WordSplitter.getInstance();
+        assertEquals(null,       splitter.getSingleSplit(value, -5));
+        assertEquals(null,       splitter.getSingleSplit(value, -1));
         assertEquals(null,       splitter.getSingleSplit(value, 0));
         assertEquals(null,       splitter.getSingleSplit(value, 1));
         assertEquals(null,       splitter.getSingleSplit(value, 2));
 
+        assertEquals(null,       splitter.getFirstSplits(value, -5));
+        assertEquals(null,       splitter.getFirstSplits(value, -1));
         assertEquals(null,       splitter.getFirstSplits(value, 0));
         assertEquals(null,       splitter.getFirstSplits(value, 1));
+        assertEquals(null,       splitter.getFirstSplits(value, 2));
+    }
+
+    @Test
+    public void wordSplitterOne() {
+        String value = "word";
+        Splitter splitter = WordSplitter.getInstance();
+        assertEquals(null,       splitter.getSingleSplit(value, -5));
+        assertEquals(null,       splitter.getSingleSplit(value, -1));
+        assertEquals(null,       splitter.getSingleSplit(value, 0));
+        assertEquals("word",       splitter.getSingleSplit(value, 1));
+        assertEquals(null,       splitter.getSingleSplit(value, 2));
+
+        assertEquals(null,       splitter.getFirstSplits(value, -5));
+        assertEquals(null,       splitter.getFirstSplits(value, -1));
+        assertEquals(null,       splitter.getFirstSplits(value, 0));
+        assertEquals("word",       splitter.getFirstSplits(value, 1));
         assertEquals(null,       splitter.getFirstSplits(value, 2));
     }
 
@@ -294,6 +348,11 @@ public class TestWordSplitter {
         Splitter splitter = WordSplitter.getInstance();
 
         List<Pair<Integer, Integer>> splitList = splitter.createSplitList(value);
+
+        // Illegal values
+        assertEquals(null,                     splitter.getSplitRange(value, splitList, -5,  0));
+        assertEquals(null,                     splitter.getSplitRange(value, splitList,  0, -5));
+        assertEquals(null,                     splitter.getSplitRange(value, splitList, -5, -5));
 
         // Single word
         assertEquals(null,                     splitter.getSplitRange(value, splitList, 0, 0));

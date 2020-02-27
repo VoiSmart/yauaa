@@ -1,12 +1,12 @@
 /*
  * Yet Another UserAgent Analyzer
- * Copyright (C) 2013-2018 Niels Basjes
+ * Copyright (C) 2013-2020 Niels Basjes
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -19,13 +19,13 @@ package nl.basjes.parse.useragent;
 
 import nl.basjes.parse.useragent.analyze.Matcher;
 import nl.basjes.parse.useragent.parser.UserAgentBaseListener;
-import org.antlr.v4.runtime.ANTLRErrorListener;
+import nl.basjes.parse.useragent.utils.DefaultANTLRErrorListener;
 import org.antlr.v4.runtime.Parser;
 import org.antlr.v4.runtime.RecognitionException;
 import org.antlr.v4.runtime.Recognizer;
 import org.antlr.v4.runtime.atn.ATNConfigSet;
 import org.antlr.v4.runtime.dfa.DFA;
-import org.apache.commons.lang3.StringEscapeUtils;
+import org.apache.commons.text.StringEscapeUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,59 +33,156 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.BitSet;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
+import java.util.TreeMap;
 
-public class UserAgent extends UserAgentBaseListener implements Serializable, ANTLRErrorListener {
+public class UserAgent extends UserAgentBaseListener implements Serializable, DefaultANTLRErrorListener {
 
     private static final Logger LOG = LoggerFactory.getLogger(UserAgent.class);
-    public static final String DEVICE_CLASS = "DeviceClass";
-    public static final String DEVICE_BRAND = "DeviceBrand";
-    public static final String DEVICE_NAME = "DeviceName";
-    public static final String DEVICE_VERSION = "DeviceVersion";
-    public static final String OPERATING_SYSTEM_CLASS = "OperatingSystemClass";
-    public static final String OPERATING_SYSTEM_NAME = "OperatingSystemName";
-    public static final String OPERATING_SYSTEM_VERSION = "OperatingSystemVersion";
-    public static final String LAYOUT_ENGINE_CLASS = "LayoutEngineClass";
-    public static final String LAYOUT_ENGINE_NAME = "LayoutEngineName";
-    public static final String LAYOUT_ENGINE_VERSION = "LayoutEngineVersion";
-    public static final String LAYOUT_ENGINE_VERSION_MAJOR = "LayoutEngineVersionMajor";
-    public static final String AGENT_CLASS = "AgentClass";
-    public static final String AGENT_NAME = "AgentName";
-    public static final String AGENT_VERSION = "AgentVersion";
-    public static final String AGENT_VERSION_MAJOR = "AgentVersionMajor";
+    public static final String DEVICE_CLASS                            = "DeviceClass";
+    public static final String DEVICE_NAME                             = "DeviceName";
+    public static final String DEVICE_BRAND                            = "DeviceBrand";
+    public static final String DEVICE_CPU                              = "DeviceCpu";
+    public static final String DEVICE_CPU_BITS                         = "DeviceCpuBits";
+    public static final String DEVICE_FIRMWARE_VERSION                 = "DeviceFirmwareVersion";
+    public static final String DEVICE_VERSION                          = "DeviceVersion";
 
-    public static final String SYNTAX_ERROR = "__SyntaxError__";
-    public static final String USERAGENT = "Useragent";
+    public static final String OPERATING_SYSTEM_CLASS                  = "OperatingSystemClass";
+    public static final String OPERATING_SYSTEM_NAME                   = "OperatingSystemName";
+    public static final String OPERATING_SYSTEM_VERSION                = "OperatingSystemVersion";
+    public static final String OPERATING_SYSTEM_VERSION_MAJOR          = "OperatingSystemVersionMajor";
+    public static final String OPERATING_SYSTEM_NAME_VERSION           = "OperatingSystemNameVersion";
+    public static final String OPERATING_SYSTEM_NAME_VERSION_MAJOR     = "OperatingSystemNameVersionMajor";
+    public static final String OPERATING_SYSTEM_VERSION_BUILD          = "OperatingSystemVersionBuild";
 
-    public static final String SET_ALL_FIELDS = "__Set_ALL_Fields__";
-    public static final String NULL_VALUE = "<<<null>>>";
-    public static final String UNKNOWN_VALUE = "Unknown";
-    public static final String UNKNOWN_VERSION = "??";
+    public static final String LAYOUT_ENGINE_CLASS                     = "LayoutEngineClass";
+    public static final String LAYOUT_ENGINE_NAME                      = "LayoutEngineName";
+    public static final String LAYOUT_ENGINE_VERSION                   = "LayoutEngineVersion";
+    public static final String LAYOUT_ENGINE_VERSION_MAJOR             = "LayoutEngineVersionMajor";
+    public static final String LAYOUT_ENGINE_NAME_VERSION              = "LayoutEngineNameVersion";
+    public static final String LAYOUT_ENGINE_NAME_VERSION_MAJOR        = "LayoutEngineNameVersionMajor";
+    public static final String LAYOUT_ENGINE_BUILD                     = "LayoutEngineBuild";
 
-    public static final String[] STANDARD_FIELDS = {
+    public static final String AGENT_CLASS                             = "AgentClass";
+    public static final String AGENT_NAME                              = "AgentName";
+    public static final String AGENT_VERSION                           = "AgentVersion";
+    public static final String AGENT_VERSION_MAJOR                     = "AgentVersionMajor";
+    public static final String AGENT_NAME_VERSION                      = "AgentNameVersion";
+    public static final String AGENT_NAME_VERSION_MAJOR                = "AgentNameVersionMajor";
+    public static final String AGENT_BUILD                             = "AgentBuild";
+    public static final String AGENT_LANGUAGE                          = "AgentLanguage";
+    public static final String AGENT_LANGUAGE_CODE                     = "AgentLanguageCode";
+    public static final String AGENT_INFORMATION_EMAIL                 = "AgentInformationEmail";
+    public static final String AGENT_INFORMATION_URL                   = "AgentInformationUrl";
+    public static final String AGENT_SECURITY                          = "AgentSecurity";
+    public static final String AGENT_UUID                              = "AgentUuid";
+
+    public static final String WEBVIEW_APP_NAME                        = "WebviewAppName";
+    public static final String WEBVIEW_APP_VERSION                     = "WebviewAppVersion";
+    public static final String WEBVIEW_APP_VERSION_MAJOR               = "WebviewAppVersionMajor";
+    public static final String WEBVIEW_APP_NAME_VERSION_MAJOR          = "WebviewAppNameVersionMajor";
+
+    public static final String FACEBOOK_CARRIER                        = "FacebookCarrier";
+    public static final String FACEBOOK_DEVICE_CLASS                   = "FacebookDeviceClass";
+    public static final String FACEBOOK_DEVICE_NAME                    = "FacebookDeviceName";
+    public static final String FACEBOOK_DEVICE_VERSION                 = "FacebookDeviceVersion";
+    public static final String FACEBOOK_F_B_O_P                        = "FacebookFBOP";
+    public static final String FACEBOOK_F_B_S_S                        = "FacebookFBSS";
+    public static final String FACEBOOK_OPERATING_SYSTEM_NAME          = "FacebookOperatingSystemName";
+    public static final String FACEBOOK_OPERATING_SYSTEM_VERSION       = "FacebookOperatingSystemVersion";
+
+    public static final String ANONYMIZED                              = "Anonymized";
+
+    public static final String HACKER_ATTACK_VECTOR                    = "HackerAttackVector";
+    public static final String HACKER_TOOLKIT                          = "HackerToolkit";
+
+    public static final String KOBO_AFFILIATE                          = "KoboAffiliate";
+    public static final String KOBO_PLATFORM_ID                        = "KoboPlatformId";
+
+    public static final String IE_COMPATIBILITY_VERSION                = "IECompatibilityVersion";
+    public static final String IE_COMPATIBILITY_VERSION_MAJOR          = "IECompatibilityVersionMajor";
+    public static final String IE_COMPATIBILITY_NAME_VERSION           = "IECompatibilityNameVersion";
+    public static final String IE_COMPATIBILITY_NAME_VERSION_MAJOR     = "IECompatibilityNameVersionMajor";
+
+    public static final String SYNTAX_ERROR                            = "__SyntaxError__";
+    public static final String USERAGENT_FIELDNAME                     = "Useragent";
+
+    public static final String NETWORK_TYPE                            = "NetworkType";
+
+    public static final String SET_ALL_FIELDS                          = "__Set_ALL_Fields__";
+    public static final String NULL_VALUE                              = "<<<null>>>";
+    public static final String UNKNOWN_VALUE                           = "Unknown";
+    public static final String UNKNOWN_VERSION                         = "??";
+    public static final String UNKNOWN_NAME_VERSION                    = "Unknown ??";
+
+    public static final List<String> STANDARD_FIELDS = Collections.unmodifiableList(Arrays.asList(
         DEVICE_CLASS,
         DEVICE_BRAND,
         DEVICE_NAME,
         OPERATING_SYSTEM_CLASS,
         OPERATING_SYSTEM_NAME,
         OPERATING_SYSTEM_VERSION,
+        OPERATING_SYSTEM_VERSION_MAJOR,
+        OPERATING_SYSTEM_NAME_VERSION,
+        OPERATING_SYSTEM_NAME_VERSION_MAJOR,
         LAYOUT_ENGINE_CLASS,
         LAYOUT_ENGINE_NAME,
         LAYOUT_ENGINE_VERSION,
         LAYOUT_ENGINE_VERSION_MAJOR,
+        LAYOUT_ENGINE_NAME_VERSION,
+        LAYOUT_ENGINE_NAME_VERSION_MAJOR,
         AGENT_CLASS,
         AGENT_NAME,
         AGENT_VERSION,
-        AGENT_VERSION_MAJOR
-    };
+        AGENT_VERSION_MAJOR,
+        AGENT_NAME_VERSION,
+        AGENT_NAME_VERSION_MAJOR
+    ));
 
-    private boolean hasSyntaxError;
-    private boolean hasAmbiguity;
-    private int     ambiguityCount;
+    private static final Map<String, AgentField> DEFAULTS_FOR_KNOWN_FIELDS = new TreeMap<>();
+
+    static {
+        // Device : Family - Brand - Model
+        DEFAULTS_FOR_KNOWN_FIELDS.put(DEVICE_CLASS,                         new AgentField(UNKNOWN_VALUE));
+        DEFAULTS_FOR_KNOWN_FIELDS.put(DEVICE_BRAND,                         new AgentField(UNKNOWN_VALUE));
+        DEFAULTS_FOR_KNOWN_FIELDS.put(DEVICE_NAME,                          new AgentField(UNKNOWN_VALUE));
+
+        // Operating system
+        DEFAULTS_FOR_KNOWN_FIELDS.put(OPERATING_SYSTEM_CLASS,               new AgentField(UNKNOWN_VALUE));
+        DEFAULTS_FOR_KNOWN_FIELDS.put(OPERATING_SYSTEM_NAME,                new AgentField(UNKNOWN_VALUE));
+        DEFAULTS_FOR_KNOWN_FIELDS.put(OPERATING_SYSTEM_VERSION,             new AgentField(UNKNOWN_VERSION));
+        DEFAULTS_FOR_KNOWN_FIELDS.put(OPERATING_SYSTEM_VERSION_MAJOR,       new AgentField(UNKNOWN_VERSION));
+        DEFAULTS_FOR_KNOWN_FIELDS.put(OPERATING_SYSTEM_NAME_VERSION,        new AgentField(UNKNOWN_NAME_VERSION));
+        DEFAULTS_FOR_KNOWN_FIELDS.put(OPERATING_SYSTEM_NAME_VERSION_MAJOR,  new AgentField(UNKNOWN_NAME_VERSION));
+
+        // Engine : Class (=None/Hacker/Robot/Browser) - Name - Version
+        DEFAULTS_FOR_KNOWN_FIELDS.put(LAYOUT_ENGINE_CLASS,                  new AgentField(UNKNOWN_VALUE));
+        DEFAULTS_FOR_KNOWN_FIELDS.put(LAYOUT_ENGINE_NAME,                   new AgentField(UNKNOWN_VALUE));
+        DEFAULTS_FOR_KNOWN_FIELDS.put(LAYOUT_ENGINE_VERSION,                new AgentField(UNKNOWN_VERSION));
+        DEFAULTS_FOR_KNOWN_FIELDS.put(LAYOUT_ENGINE_VERSION_MAJOR,          new AgentField(UNKNOWN_VERSION));
+        DEFAULTS_FOR_KNOWN_FIELDS.put(LAYOUT_ENGINE_NAME_VERSION,           new AgentField(UNKNOWN_NAME_VERSION));
+        DEFAULTS_FOR_KNOWN_FIELDS.put(LAYOUT_ENGINE_NAME_VERSION_MAJOR,     new AgentField(UNKNOWN_NAME_VERSION));
+
+        // Agent: Class (=Hacker/Robot/Browser) - Name - Version
+        DEFAULTS_FOR_KNOWN_FIELDS.put(AGENT_CLASS,                          new AgentField(UNKNOWN_VALUE));
+        DEFAULTS_FOR_KNOWN_FIELDS.put(AGENT_NAME,                           new AgentField(UNKNOWN_VALUE));
+        DEFAULTS_FOR_KNOWN_FIELDS.put(AGENT_VERSION,                        new AgentField(UNKNOWN_VERSION));
+        DEFAULTS_FOR_KNOWN_FIELDS.put(AGENT_VERSION_MAJOR,                  new AgentField(UNKNOWN_VERSION));
+        DEFAULTS_FOR_KNOWN_FIELDS.put(AGENT_NAME_VERSION,                   new AgentField(UNKNOWN_NAME_VERSION));
+        DEFAULTS_FOR_KNOWN_FIELDS.put(AGENT_NAME_VERSION_MAJOR,             new AgentField(UNKNOWN_NAME_VERSION));
+    }
+
+    private Set<String> wantedFieldNames = null;
+    private boolean     hasSyntaxError;
+    private boolean     hasAmbiguity;
+    private int         ambiguityCount;
 
     public boolean hasSyntaxError() {
         return hasSyntaxError;
@@ -129,28 +226,6 @@ public class UserAgent extends UserAgentBaseListener implements Serializable, AN
             ATNConfigSet configs) {
         hasAmbiguity = true;
         ambiguityCount++;
-//        allFields.put("__Ambiguity__",new AgentField("true"));
-    }
-
-    @Override
-    public void reportAttemptingFullContext(
-            Parser recognizer,
-            DFA dfa,
-            int startIndex,
-            int stopIndex,
-            BitSet conflictingAlts,
-            ATNConfigSet configs) {
-    }
-
-    @Override
-    public void reportContextSensitivity(
-            Parser recognizer,
-            DFA dfa,
-            int startIndex,
-            int stopIndex,
-            int prediction,
-            ATNConfigSet configs) {
-
     }
 
     // The original input value
@@ -181,15 +256,19 @@ public class UserAgent extends UserAgentBaseListener implements Serializable, AN
 
     @Override
     public int hashCode() {
-
         return Objects.hash(userAgentString, allFields);
     }
 
-    public class AgentField implements Serializable {
+    public static class AgentField implements Serializable {
         private final String defaultValue;
         private String value;
 
         private long confidence;
+
+        @SuppressWarnings("unused") // Private constructor for serialization systems ONLY (like Kryo)
+        private AgentField() {
+            defaultValue = null;
+        }
 
         AgentField(String defaultValue) {
             this.defaultValue = defaultValue;
@@ -197,7 +276,7 @@ public class UserAgent extends UserAgentBaseListener implements Serializable, AN
         }
 
         public void reset() {
-            value = defaultValue;
+            value = null;
             confidence = -1;
         }
 
@@ -208,13 +287,16 @@ public class UserAgent extends UserAgentBaseListener implements Serializable, AN
             return value;
         }
 
+        public boolean isDefaultValue() {
+            return confidence < 0 || value == null;
+        }
+
         public long getConfidence() {
             if (value == null) {
                 return -1; // Lie in case the value was wiped.
             }
             return confidence;
         }
-
 
         public boolean setValue(AgentField field) {
             return setValue(field.value, field.confidence);
@@ -225,7 +307,7 @@ public class UserAgent extends UserAgentBaseListener implements Serializable, AN
                 this.confidence = newConfidence;
 
                 if (NULL_VALUE.equals(newValue)) {
-                    this.value = defaultValue;
+                    this.value = null;
                 } else {
                     this.value = newValue;
                 }
@@ -238,7 +320,7 @@ public class UserAgent extends UserAgentBaseListener implements Serializable, AN
             this.confidence = newConfidence;
 
             if (NULL_VALUE.equals(newValue)) {
-                this.value = defaultValue;
+                this.value = null;
             } else {
                 this.value = newValue;
             }
@@ -265,18 +347,40 @@ public class UserAgent extends UserAgentBaseListener implements Serializable, AN
 
         @Override
         public String toString() {
-            return ">" + this.value + "#" + this.confidence + "<";
+            if (defaultValue == null) {
+                return "{ value:'" + value + "', confidence:'" + confidence + "', default:null }";
+            }
+            return "{ value:'" + value + "', confidence:'" + confidence + "', default:'" + defaultValue + "' }";
         }
     }
 
-    private final Map<String, AgentField> allFields = new HashMap<>(32);
+    private final Map<String, AgentField> allFields = new HashMap<>();
 
+    private void setWantedFieldNames(Collection<String> newWantedFieldNames) {
+        if (newWantedFieldNames != null) {
+            if (!newWantedFieldNames.isEmpty()) {
+                wantedFieldNames = new LinkedHashSet<>(newWantedFieldNames);
+            }
+        }
+    }
 
     public UserAgent() {
         init();
     }
 
+    public UserAgent(Collection<String> wantedFieldNames) {
+        setWantedFieldNames(wantedFieldNames);
+        init();
+    }
+
     public UserAgent(String userAgentString) {
+        // wantedFieldNames == null; --> Assume we want all fields.
+        init();
+        setUserAgentString(userAgentString);
+    }
+
+    public UserAgent(String userAgentString, Collection<String> wantedFieldNames) {
+        setWantedFieldNames(wantedFieldNames);
         init();
         setUserAgentString(userAgentString);
     }
@@ -286,35 +390,31 @@ public class UserAgent extends UserAgentBaseListener implements Serializable, AN
     }
 
     public void clone(UserAgent userAgent) {
-        init();
-        setUserAgentString(userAgent.userAgentString);
+        userAgentString  = userAgent.userAgentString;
+        wantedFieldNames = userAgent.wantedFieldNames;
+        debug            = userAgent.debug;
+        hasSyntaxError   = userAgent.hasSyntaxError;
+        hasAmbiguity     = userAgent.hasAmbiguity;
+        ambiguityCount   = userAgent.ambiguityCount;
+
+        init(); // Making sure the default values are copied correctly.
+
         for (Map.Entry<String, AgentField> entry : userAgent.allFields.entrySet()) {
             set(entry.getKey(), entry.getValue().getValue(), entry.getValue().confidence);
         }
     }
 
     private void init() {
-        // Device : Family - Brand - Model
-        allFields.put(DEVICE_CLASS,                  new AgentField(UNKNOWN_VALUE)); // Hacker / Cloud / Server / Desktop / Tablet / Phone / Watch
-        allFields.put(DEVICE_BRAND,                  new AgentField(UNKNOWN_VALUE)); // (Google/AWS/Azure) / ????
-        allFields.put(DEVICE_NAME,                   new AgentField(UNKNOWN_VALUE)); // (Google/AWS/Azure) / ????
-
-        // Operating system
-        allFields.put(OPERATING_SYSTEM_CLASS,        new AgentField(UNKNOWN_VALUE)); // Cloud, Desktop, Mobile, Embedded
-        allFields.put(OPERATING_SYSTEM_NAME,         new AgentField(UNKNOWN_VALUE)); // ( Linux / Android / Windows ...)
-        allFields.put(OPERATING_SYSTEM_VERSION,      new AgentField(UNKNOWN_VERSION)); // 1.2 / 43 / ...
-
-        // Engine : Class (=None/Hacker/Robot/Browser) - Name - Version
-        allFields.put(LAYOUT_ENGINE_CLASS,           new AgentField(UNKNOWN_VALUE)); // None / Hacker / Robot / Browser /
-        allFields.put(LAYOUT_ENGINE_NAME,            new AgentField(UNKNOWN_VALUE)); // ( GoogleBot / Bing / ...) / (Trident / Gecko / ...)
-        allFields.put(LAYOUT_ENGINE_VERSION,         new AgentField(UNKNOWN_VERSION)); // 1.2 / 43 / ...
-        allFields.put(LAYOUT_ENGINE_VERSION_MAJOR,   new AgentField(UNKNOWN_VERSION)); // 1 / 43 / ...
-
-        // Agent: Class (=Hacker/Robot/Browser) - Name - Version
-        allFields.put(AGENT_CLASS,                   new AgentField(UNKNOWN_VALUE)); // Hacker / Robot / Browser /
-        allFields.put(AGENT_NAME,                    new AgentField(UNKNOWN_VALUE)); // ( GoogleBot / Bing / ...) / ( Firefox / Chrome / ... )
-        allFields.put(AGENT_VERSION,                 new AgentField(UNKNOWN_VERSION)); // 1.2 / 43 / ...
-        allFields.put(AGENT_VERSION_MAJOR,           new AgentField(UNKNOWN_VERSION)); // 1 / 43 / ...
+        if (wantedFieldNames == null) {
+            DEFAULTS_FOR_KNOWN_FIELDS.forEach((k, v) -> allFields.put(k, new UserAgent.AgentField(v.defaultValue)));
+        } else {
+            for (String wantedFieldName: wantedFieldNames) {
+                final AgentField agentField = DEFAULTS_FOR_KNOWN_FIELDS.get(wantedFieldName);
+                if (agentField != null) {
+                    allFields.put(wantedFieldName, new UserAgent.AgentField(agentField.defaultValue));
+                }
+            }
+        }
     }
 
     public void setUserAgentString(String newUserAgentString) {
@@ -336,10 +436,10 @@ public class UserAgent extends UserAgentBaseListener implements Serializable, AN
         }
     }
 
-    static boolean isSystemField(String fieldname) {
+    public static boolean isSystemField(String fieldname) {
         return  SET_ALL_FIELDS.equals(fieldname) ||
                 SYNTAX_ERROR.equals(fieldname) ||
-                USERAGENT.equals(fieldname);
+                USERAGENT_FIELDNAME.equals(fieldname);
     }
 
     public void processSetAll() {
@@ -348,7 +448,7 @@ public class UserAgent extends UserAgentBaseListener implements Serializable, AN
             return;
         }
         String value = setAllField.getValue();
-        Long confidence = setAllField.confidence;
+        long confidence = setAllField.confidence;
         for (Map.Entry<String, AgentField> fieldEntry : allFields.entrySet()) {
             if (!isSystemField(fieldEntry.getKey())) {
                 fieldEntry.getValue().setValue(value, confidence);
@@ -389,18 +489,19 @@ public class UserAgent extends UserAgentBaseListener implements Serializable, AN
     }
 
     // The appliedMatcher parameter is needed for development and debugging.
-    public void set(UserAgent newValuesUserAgent, Matcher appliedMatcher) {
+    public void set(UserAgent newValuesUserAgent, Matcher appliedMatcher) { // NOSONAR: Unused parameter
         for (String fieldName : newValuesUserAgent.allFields.keySet()) {
-            set(fieldName, newValuesUserAgent.allFields.get(fieldName));
+            AgentField field = newValuesUserAgent.allFields.get(fieldName);
+            set(fieldName, field.value, field.confidence);
         }
     }
 
-    private void set(String fieldName, AgentField agentField) {
-        set(fieldName, agentField.value, agentField.confidence);
+    void setImmediateForTesting(String fieldName, AgentField agentField) {
+        allFields.put(fieldName, agentField);
     }
 
     public AgentField get(String fieldName) {
-        if (USERAGENT.equals(fieldName)) {
+        if (USERAGENT_FIELDNAME.equals(fieldName)) {
             AgentField agentField = new AgentField(userAgentString);
             agentField.setValue(userAgentString, 0L);
             return agentField;
@@ -410,7 +511,7 @@ public class UserAgent extends UserAgentBaseListener implements Serializable, AN
     }
 
     public String getValue(String fieldName) {
-        if (USERAGENT.equals(fieldName)) {
+        if (USERAGENT_FIELDNAME.equals(fieldName)) {
             return userAgentString;
         }
         AgentField field = allFields.get(fieldName);
@@ -421,7 +522,7 @@ public class UserAgent extends UserAgentBaseListener implements Serializable, AN
     }
 
     public Long getConfidence(String fieldName) {
-        if (USERAGENT.equals(fieldName)) {
+        if (USERAGENT_FIELDNAME.equals(fieldName)) {
             return 0L;
         }
         AgentField field = allFields.get(fieldName);
@@ -429,6 +530,10 @@ public class UserAgent extends UserAgentBaseListener implements Serializable, AN
             return -1L;
         }
         return field.getConfidence();
+    }
+
+    public String escapeYaml(String input) {
+        return input.replace("'", "''");
     }
 
     public String toYamlTestCase() {
@@ -446,8 +551,7 @@ public class UserAgent extends UserAgentBaseListener implements Serializable, AN
 //        sb.append("#    - 'init'\n");
 //        sb.append("#    - 'only'\n");
         sb.append("    input:\n");
-//        sb.append("#      name: 'You can give the test case a name'\n");
-        sb.append("      user_agent_string: '").append(userAgentString).append("'\n");
+        sb.append("      user_agent_string: '").append(escapeYaml(userAgentString)).append("'\n");
         sb.append("    expected:\n");
 
         List<String> fieldNames = getAvailableFieldNamesSorted();
@@ -458,7 +562,10 @@ public class UserAgent extends UserAgentBaseListener implements Serializable, AN
             maxNameLength = Math.max(maxNameLength, fieldName.length());
         }
         for (String fieldName : fieldNames) {
-            maxValueLength = Math.max(maxValueLength, get(fieldName).getValue().length());
+            String value = getValue(fieldName);
+            if (value != null) {
+                maxValueLength = Math.max(maxValueLength, value.length());
+            }
         }
 
         for (String fieldName : fieldNames) {
@@ -466,13 +573,14 @@ public class UserAgent extends UserAgentBaseListener implements Serializable, AN
             for (int l = fieldName.length(); l < maxNameLength + 7; l++) {
                 sb.append(' ');
             }
-            String value = get(fieldName).getValue();
+            String value = getValue(fieldName);
             sb.append(": '").append(value).append('\'');
             if (showConfidence) {
-                for (int l = value.length(); l < maxValueLength + 5; l++) {
+                int l = value == null ? 0 : value.length();
+                for (; l < maxValueLength + 5; l++) {
                     sb.append(' ');
                 }
-                sb.append("# ").append(String.format("%5d", get(fieldName).confidence));
+                sb.append("# ").append(String.format("%8d", getConfidence(fieldName)));
             }
             if (comments != null) {
                 String comment = comments.get(fieldName);
@@ -487,31 +595,39 @@ public class UserAgent extends UserAgentBaseListener implements Serializable, AN
         return sb.toString();
     }
 
+    public Map<String, String> toMap() {
+        List<String> fields = new ArrayList<>();
+        fields.add(USERAGENT_FIELDNAME);
+        fields.addAll(getAvailableFieldNamesSorted());
+        return toMap(fields);
+    }
 
-//    {
-//        "agent": {
-//            "user_agent_string": "Mozilla/5.0 (iPhone; CPU iPhone OS 9_2_1 like Mac OS X) AppleWebKit/601.1.46
-//                                  (KHTML, like Gecko) Version/9.0 Mobile/13D15 Safari/601.1"
-//            "AgentClass": "Browser",
-//            "AgentName": "Safari",
-//            "AgentVersion": "9.0",
-//            "DeviceBrand": "Apple",
-//            "DeviceClass": "Phone",
-//            "DeviceFirmwareVersion": "13D15",
-//            "DeviceName": "iPhone",
-//            "LayoutEngineClass": "Browser",
-//            "LayoutEngineName": "AppleWebKit",
-//            "LayoutEngineVersion": "601.1.46",
-//            "OperatingSystemClass": "Mobile",
-//            "OperatingSystemName": "iOS",
-//            "OperatingSystemVersion": "9_2_1",
-//        }
-//    }
+    public Map<String, String> toMap(String... fieldNames) {
+        return toMap(Arrays.asList(fieldNames));
+    }
+
+    public Map<String, String> toMap(List<String> fieldNames) {
+        Map<String, String> result = new TreeMap<>();
+
+        for (String fieldName : fieldNames) {
+            if (USERAGENT_FIELDNAME.equals(fieldName)) {
+                result.put(USERAGENT_FIELDNAME, getUserAgentString());
+            } else {
+                result.put(fieldName, getValue(fieldName));
+            }
+        }
+        return result;
+    }
 
     public String toJson() {
-        List<String> fields = getAvailableFieldNames();
-        fields.add("Useragent");
+        List<String> fields = new ArrayList<>();
+        fields.add(USERAGENT_FIELDNAME);
+        fields.addAll(getAvailableFieldNamesSorted());
         return toJson(fields);
+    }
+
+    public String toJson(String... fieldNames) {
+        return toJson(Arrays.asList(fieldNames));
     }
 
     public String toJson(List<String> fieldNames) {
@@ -525,7 +641,7 @@ public class UserAgent extends UserAgentBaseListener implements Serializable, AN
             } else {
                 addSeparator = true;
             }
-            if ("Useragent".equals(fieldName)) {
+            if (USERAGENT_FIELDNAME.equals(fieldName)) {
                 sb
                     .append("\"Useragent\"")
                     .append(':')
@@ -542,21 +658,62 @@ public class UserAgent extends UserAgentBaseListener implements Serializable, AN
         return sb.toString();
     }
 
+    public String toXML() {
+        List<String> fields = new ArrayList<>();
+        fields.add(USERAGENT_FIELDNAME);
+        fields.addAll(getAvailableFieldNamesSorted());
+        return toXML(fields);
+    }
+
+    public String toXML(String... fieldNames) {
+        return toXML(Arrays.asList(fieldNames));
+    }
+
+    public String toXML(List<String> fieldNames) {
+        StringBuilder sb =
+            new StringBuilder(10240)
+            .append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>")
+            .append("<Yauaa>");
+
+        for (String fieldName : fieldNames) {
+            if (USERAGENT_FIELDNAME.equals(fieldName)) {
+                sb
+                    .append("<Useragent>")
+                    .append(StringEscapeUtils.escapeXml10(getUserAgentString()))
+                    .append("</Useragent>");
+            } else {
+                sb
+                    .append('<').append(StringEscapeUtils.escapeXml10(fieldName)).append('>')
+                    .append(StringEscapeUtils.escapeXml10(getValue(fieldName)))
+                    .append("</").append(StringEscapeUtils.escapeXml10(fieldName)).append('>');
+            }
+        }
+
+        sb.append("</Yauaa>");
+
+        return sb.toString();
+    }
+
 
     @Override
     public String toString() {
         return toString(getAvailableFieldNamesSorted());
     }
+
+    public String toString(String... fieldNames) {
+        return toString(Arrays.asList(fieldNames));
+    }
+
     public String toString(List<String> fieldNames) {
-        StringBuilder sb = new StringBuilder("  - user_agent_string: '\"" + userAgentString + "\"'\n");
+        StringBuilder sb = new StringBuilder("  - user_agent_string: '" + escapeYaml(userAgentString) + "'\n");
         int maxLength = 0;
         for (String fieldName : fieldNames) {
             maxLength = Math.max(maxLength, fieldName.length());
         }
         for (String fieldName : fieldNames) {
-            if (!"Useragent".equals(fieldName)) {
+            if (!USERAGENT_FIELDNAME.equals(fieldName)) {
                 AgentField field = allFields.get(fieldName);
-                if (field.getValue() != null) {
+                if (field != null && field.getValue() != null) {
                     sb.append("    ").append(fieldName);
                     for (int l = fieldName.length(); l < maxLength + 2; l++) {
                         sb.append(' ');
@@ -571,15 +728,20 @@ public class UserAgent extends UserAgentBaseListener implements Serializable, AN
 
     public List<String> getAvailableFieldNames() {
         List<String> resultSet = new ArrayList<>(allFields.size()+10);
-        resultSet.addAll(Arrays.asList(STANDARD_FIELDS));
-        for (String fieldName : allFields.keySet()) {
-            if (!resultSet.contains(fieldName)){
+        allFields.forEach((fieldName, value) -> {
+            if (!resultSet.contains(fieldName)) {
                 AgentField field = allFields.get(fieldName);
-                if (field != null && field.confidence >= 0 && field.getValue() != null) {
-                    resultSet.add(fieldName);
+                if (field != null && field.getValue() != null) {
+                    if (wantedFieldNames == null || wantedFieldNames.contains(fieldName)) {
+                        resultSet.add(fieldName);
+                    } else {
+                        if (field.confidence >= 0) {
+                            resultSet.add(fieldName);
+                        }
+                    }
                 }
             }
-        }
+        });
 
         // This is not a field; this is a special operator.
         resultSet.remove(SET_ALL_FIELDS);
@@ -588,73 +750,79 @@ public class UserAgent extends UserAgentBaseListener implements Serializable, AN
 
     // We manually sort the list of fields to ensure the output is consistent.
     // Any unspecified fieldnames will be appended to the end.
-    public static final List<String> PRE_SORTED_FIELDS_LIST = new ArrayList<>(32);
+    protected static final List<String> PRE_SORTED_FIELDS_LIST;
 
     static {
-        PRE_SORTED_FIELDS_LIST.add("DeviceClass");
-        PRE_SORTED_FIELDS_LIST.add("DeviceName");
-        PRE_SORTED_FIELDS_LIST.add("DeviceBrand");
-        PRE_SORTED_FIELDS_LIST.add("DeviceCpu");
-        PRE_SORTED_FIELDS_LIST.add("DeviceCpuBits");
-        PRE_SORTED_FIELDS_LIST.add("DeviceFirmwareVersion");
-        PRE_SORTED_FIELDS_LIST.add("DeviceVersion");
+        List<String> mutablePreSortedFields = new ArrayList<>(32);
 
-        PRE_SORTED_FIELDS_LIST.add("OperatingSystemClass");
-        PRE_SORTED_FIELDS_LIST.add("OperatingSystemName");
-        PRE_SORTED_FIELDS_LIST.add("OperatingSystemVersion");
-        PRE_SORTED_FIELDS_LIST.add("OperatingSystemNameVersion");
-        PRE_SORTED_FIELDS_LIST.add("OperatingSystemVersionBuild");
+        mutablePreSortedFields.add(DEVICE_CLASS);
+        mutablePreSortedFields.add(DEVICE_NAME);
+        mutablePreSortedFields.add(DEVICE_BRAND);
+        mutablePreSortedFields.add(DEVICE_CPU);
+        mutablePreSortedFields.add(DEVICE_CPU_BITS);
+        mutablePreSortedFields.add(DEVICE_FIRMWARE_VERSION);
+        mutablePreSortedFields.add(DEVICE_VERSION);
 
-        PRE_SORTED_FIELDS_LIST.add("LayoutEngineClass");
-        PRE_SORTED_FIELDS_LIST.add("LayoutEngineName");
-        PRE_SORTED_FIELDS_LIST.add("LayoutEngineVersion");
-        PRE_SORTED_FIELDS_LIST.add("LayoutEngineVersionMajor");
-        PRE_SORTED_FIELDS_LIST.add("LayoutEngineNameVersion");
-        PRE_SORTED_FIELDS_LIST.add("LayoutEngineNameVersionMajor");
-        PRE_SORTED_FIELDS_LIST.add("LayoutEngineBuild");
+        mutablePreSortedFields.add(OPERATING_SYSTEM_CLASS);
+        mutablePreSortedFields.add(OPERATING_SYSTEM_NAME);
+        mutablePreSortedFields.add(OPERATING_SYSTEM_VERSION);
+        mutablePreSortedFields.add(OPERATING_SYSTEM_VERSION_MAJOR);
+        mutablePreSortedFields.add(OPERATING_SYSTEM_NAME_VERSION);
+        mutablePreSortedFields.add(OPERATING_SYSTEM_NAME_VERSION_MAJOR);
+        mutablePreSortedFields.add(OPERATING_SYSTEM_VERSION_BUILD);
 
-        PRE_SORTED_FIELDS_LIST.add("AgentClass");
-        PRE_SORTED_FIELDS_LIST.add("AgentName");
-        PRE_SORTED_FIELDS_LIST.add("AgentVersion");
-        PRE_SORTED_FIELDS_LIST.add("AgentVersionMajor");
-        PRE_SORTED_FIELDS_LIST.add("AgentNameVersion");
-        PRE_SORTED_FIELDS_LIST.add("AgentNameVersionMajor");
-        PRE_SORTED_FIELDS_LIST.add("AgentBuild");
-        PRE_SORTED_FIELDS_LIST.add("AgentLanguage");
-        PRE_SORTED_FIELDS_LIST.add("AgentLanguageCode");
-        PRE_SORTED_FIELDS_LIST.add("AgentInformationEmail");
-        PRE_SORTED_FIELDS_LIST.add("AgentInformationUrl");
-        PRE_SORTED_FIELDS_LIST.add("AgentSecurity");
-        PRE_SORTED_FIELDS_LIST.add("AgentUuid");
+        mutablePreSortedFields.add(LAYOUT_ENGINE_CLASS);
+        mutablePreSortedFields.add(LAYOUT_ENGINE_NAME);
+        mutablePreSortedFields.add(LAYOUT_ENGINE_VERSION);
+        mutablePreSortedFields.add(LAYOUT_ENGINE_VERSION_MAJOR);
+        mutablePreSortedFields.add(LAYOUT_ENGINE_NAME_VERSION);
+        mutablePreSortedFields.add(LAYOUT_ENGINE_NAME_VERSION_MAJOR);
+        mutablePreSortedFields.add(LAYOUT_ENGINE_BUILD);
 
-        PRE_SORTED_FIELDS_LIST.add("WebviewAppName");
-        PRE_SORTED_FIELDS_LIST.add("WebviewAppVersion");
-        PRE_SORTED_FIELDS_LIST.add("WebviewAppVersionMajor");
-        PRE_SORTED_FIELDS_LIST.add("WebviewAppNameVersionMajor");
+        mutablePreSortedFields.add(AGENT_CLASS);
+        mutablePreSortedFields.add(AGENT_NAME);
+        mutablePreSortedFields.add(AGENT_VERSION);
+        mutablePreSortedFields.add(AGENT_VERSION_MAJOR);
+        mutablePreSortedFields.add(AGENT_NAME_VERSION);
+        mutablePreSortedFields.add(AGENT_NAME_VERSION_MAJOR);
+        mutablePreSortedFields.add(AGENT_BUILD);
+        mutablePreSortedFields.add(AGENT_LANGUAGE);
+        mutablePreSortedFields.add(AGENT_LANGUAGE_CODE);
+        mutablePreSortedFields.add(AGENT_INFORMATION_EMAIL);
+        mutablePreSortedFields.add(AGENT_INFORMATION_URL);
+        mutablePreSortedFields.add(AGENT_SECURITY);
+        mutablePreSortedFields.add(AGENT_UUID);
 
-        PRE_SORTED_FIELDS_LIST.add("FacebookCarrier");
-        PRE_SORTED_FIELDS_LIST.add("FacebookDeviceClass");
-        PRE_SORTED_FIELDS_LIST.add("FacebookDeviceName");
-        PRE_SORTED_FIELDS_LIST.add("FacebookDeviceVersion");
-        PRE_SORTED_FIELDS_LIST.add("FacebookFBOP");
-        PRE_SORTED_FIELDS_LIST.add("FacebookFBSS");
-        PRE_SORTED_FIELDS_LIST.add("FacebookOperatingSystemName");
-        PRE_SORTED_FIELDS_LIST.add("FacebookOperatingSystemVersion");
+        mutablePreSortedFields.add(WEBVIEW_APP_NAME);
+        mutablePreSortedFields.add(WEBVIEW_APP_VERSION);
+        mutablePreSortedFields.add(WEBVIEW_APP_VERSION_MAJOR);
+        mutablePreSortedFields.add(WEBVIEW_APP_NAME_VERSION_MAJOR);
 
-        PRE_SORTED_FIELDS_LIST.add("Anonymized");
+        mutablePreSortedFields.add(FACEBOOK_CARRIER);
+        mutablePreSortedFields.add(FACEBOOK_DEVICE_CLASS);
+        mutablePreSortedFields.add(FACEBOOK_DEVICE_NAME);
+        mutablePreSortedFields.add(FACEBOOK_DEVICE_VERSION);
+        mutablePreSortedFields.add(FACEBOOK_F_B_O_P);
+        mutablePreSortedFields.add(FACEBOOK_F_B_S_S);
+        mutablePreSortedFields.add(FACEBOOK_OPERATING_SYSTEM_NAME);
+        mutablePreSortedFields.add(FACEBOOK_OPERATING_SYSTEM_VERSION);
 
-        PRE_SORTED_FIELDS_LIST.add("HackerAttackVector");
-        PRE_SORTED_FIELDS_LIST.add("HackerToolkit");
+        mutablePreSortedFields.add(ANONYMIZED);
 
-        PRE_SORTED_FIELDS_LIST.add("KoboAffiliate");
-        PRE_SORTED_FIELDS_LIST.add("KoboPlatformId");
+        mutablePreSortedFields.add(HACKER_ATTACK_VECTOR);
+        mutablePreSortedFields.add(HACKER_TOOLKIT);
 
-        PRE_SORTED_FIELDS_LIST.add("IECompatibilityVersion");
-        PRE_SORTED_FIELDS_LIST.add("IECompatibilityVersionMajor");
-        PRE_SORTED_FIELDS_LIST.add("IECompatibilityNameVersion");
-        PRE_SORTED_FIELDS_LIST.add("IECompatibilityNameVersionMajor");
+        mutablePreSortedFields.add(KOBO_AFFILIATE);
+        mutablePreSortedFields.add(KOBO_PLATFORM_ID);
 
-        PRE_SORTED_FIELDS_LIST.add(SYNTAX_ERROR);
+        mutablePreSortedFields.add(IE_COMPATIBILITY_VERSION);
+        mutablePreSortedFields.add(IE_COMPATIBILITY_VERSION_MAJOR);
+        mutablePreSortedFields.add(IE_COMPATIBILITY_NAME_VERSION);
+        mutablePreSortedFields.add(IE_COMPATIBILITY_NAME_VERSION_MAJOR);
+
+        mutablePreSortedFields.add(SYNTAX_ERROR);
+
+        PRE_SORTED_FIELDS_LIST = Collections.unmodifiableList(mutablePreSortedFields);
     }
 
     public List<String> getAvailableFieldNamesSorted() {
@@ -672,6 +840,5 @@ public class UserAgent extends UserAgentBaseListener implements Serializable, AN
         return result;
 
     }
-
 
 }

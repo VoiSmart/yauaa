@@ -1,12 +1,12 @@
 /*
  * Yet Another UserAgent Analyzer
- * Copyright (C) 2013-2018 Niels Basjes
+ * Copyright (C) 2013-2020 Niels Basjes
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -26,12 +26,23 @@ import org.slf4j.LoggerFactory;
 public class MatcherRequireAction extends MatcherAction {
     private static final Logger LOG = LoggerFactory.getLogger(MatcherRequireAction.class);
 
+    @SuppressWarnings("unused") // Private constructor for serialization systems ONLY (like Kryo)
+    private MatcherRequireAction() {
+    }
+
     public MatcherRequireAction(String config, Matcher matcher) {
         init(config, matcher);
     }
 
     protected ParserRuleContext parseWalkerExpression(UserAgentTreeWalkerParser parser) {
         return parser.matcherRequire();
+    }
+
+    @Override
+    public long initialize() {
+        long newEntries = super.initialize();
+        newEntries -= evaluator.pruneTrailingStepsThatCannotFail();
+        return newEntries;
     }
 
     protected void setFixedValue(String fixedValue) {
@@ -55,8 +66,9 @@ public class MatcherRequireAction extends MatcherAction {
     public boolean obtainResult() {
         if (isValidIsNull()) {
             foundRequiredValue = true;
+        } else {
+            processInformedMatches();
         }
-        processInformedMatches();
         return foundRequiredValue;
     }
 
@@ -68,9 +80,8 @@ public class MatcherRequireAction extends MatcherAction {
 
     @Override
     public String toString() {
-        return "Require: " + getMatchExpression();
+        return "Require.("+matcher.getMatcherSourceLocation()+"): " + getMatchExpression();
     }
-
 }
 
 

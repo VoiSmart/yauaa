@@ -1,13 +1,13 @@
 #!/usr/bin/env bash
 #
 # Yet Another UserAgent Analyzer
-# Copyright (C) 2013-2018 Niels Basjes
+# Copyright (C) 2013-2020 Niels Basjes
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
 #
-# http://www.apache.org/licenses/LICENSE-2.0
+# https://www.apache.org/licenses/LICENSE-2.0
 #
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an AS IS BASIS,
@@ -19,18 +19,18 @@
 (
 echo -n "Name"
 
-find . -type f -name "version*.txt" -print0 | xargs -n1 -0 echo | \
+ls results/version*.txt | sort --version-sort | \
     sed 's@^.*version-\(.*\).txt$@\1@g' | sort -V | \
-    while read version
+    while read -r version
 do
     echo -n ";v${version}"
 done
 echo ""
 
-for BenchMarkName in $(ls version*.txt | head -1 | xargs grep '^AnalyzerBenchmarks.' | cut -d' ' -f1);
+for BenchMarkName in $(ls results/version*.txt | sort --version-sort | head -1 | xargs grep '^AnalyzerBenchmarks.' | cut -d' ' -f1);
 do
     echo -n "${BenchMarkName}"
-    grep "^${BenchMarkName} " version*txt | \
+    grep "^${BenchMarkName} " results/version*txt | \
     sed 's/  */ /g' |\
     sed 's@^.*version-\(.*\).txt:@\1 @g' |\
     sort -V | \
